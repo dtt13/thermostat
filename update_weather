@@ -1,0 +1,9 @@
+#curl -o radar.gif http://radar.weather.gov/ridge/lite/N0R/CLE_loop.gif 
+#curl -o topo.jpg http://radar.weather.gov/ridge/Overlays/Topo/Short/CLE_Topo_Short.jpg
+curl -o county.gif http://radar.weather.gov/ridge/Overlays/County/Short/CLE_County_Short.gif
+curl -o ncr.gif http://radar.weather.gov/ridge/RadarImg/NCR/CLE_NCR_0.gif
+curl -o warn.gif http://radar.weather.gov/ridge/Warnings/Short/CLE_Short_Warnings_0.gif
+#curl -o cities.gif http://radar.weather.gov/ridge/Overlays/Cities/Short/CLE_City_Short.gif
+python construct_bmp.py
+python send_bmp.py
+
