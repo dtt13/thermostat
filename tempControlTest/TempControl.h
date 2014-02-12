@@ -5,13 +5,13 @@
 #include <TimerOne.h>
 
 // Heating and cooling functions
-#define HEAT(x) digitalWrite(HEAT_PIN, x)
-#define COOL(x) {digitalWrite(COOL_PIN, x); FAN(ON);}
-#define FAN(x) digitalWrite(FAN_PIN, x || fanOverride)
+#define HEAT(x)         digitalWrite(HEAT_PIN, x)
+#define COOL(x)         {digitalWrite(COOL_PIN, x); FAN(ON);}
+#define FAN(x)          digitalWrite(FAN_PIN, x || fanOverride)
 #define ON LOW
 #define OFF HIGH
-#define IS_ON(x) (digitalReadAlt(x) == ON)
-#define ON_TIME_DELAY 60000 // wait 1 minute before turning system back on
+#define IS_ON(x)        (digitalReadAlt(x) == ON)
+#define ON_TIME_DELAY   60000 // wait 1 minute before turning system back on
 
 // This reads the value from a digital port set to write without clearing the port. The "protected" version commented below does not work.
 //#define digitalReadAlt(pin) ((*portOutputRegister(digitalPinToPort(pin)) & digitalPinToBitMask(pin)) ? HIGH : LOW)
@@ -21,8 +21,8 @@
 #define OFFSET(x) output_temp(temp_output(temp_ref_ui) + x)
 
 // Quick temperature conversions
-#define C2F(x)  (((9 * x) / 5) + (32 * TEMP_MULTIPLE)) 
-#define F2C(x) ((((x - (32 * TEMP_MULTIPLE)) * 5) / 9))
+#define C2F(x)      (((9 * x) / 5) + (32 * TEMP_MULTIPLE)) 
+#define F2C(x)      ((((x - (32 * TEMP_MULTIPLE)) * 5) / 9))
 
 // Pin definitions
 #define TEMP_PIN 	A4
