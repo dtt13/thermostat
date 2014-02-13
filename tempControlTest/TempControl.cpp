@@ -5,15 +5,15 @@
 // Sets a target temperature and mode
 TemperatureControl::TemperatureControl(int t, uint8_t m) {
   targetTemp = t;
-  currentTemp = READTEMP;
+  roomTemp = READTEMP;
   mode = m;
   lastTurnTime = 0;
   fanOverride = OFF;
 }
 
 // Returns the current temperature of the room
-int TemperatureControl::getCurrentTemp() {
-  return currentTemp;
+int TemperatureControl::getRoomTemp() {
+  return roomTemp;
 }
 
 // Returns the target temperature
@@ -29,6 +29,14 @@ uint8_t TemperatureControl::getMode() {
 // Sets the target temperature
 void TemperatureControl::setTargetTemp(int temp) {
   targetTemp = temp;
+}
+
+void TemperatureControl::incrementTargetTemp() {
+  targetTemp++;
+}
+
+void TemperatureControl::decrementTargetTemp() {
+  targetTemp--;
 }
 
 // Switches the system between heating and cooling

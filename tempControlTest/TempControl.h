@@ -37,14 +37,16 @@ enum temperature_units {FAHRENHEIT, CELCIUS};
 class TemperatureControl {
   public:
     TemperatureControl(int targetTemp, uint8_t mode);
-    int getCurrentTemp();
+    int getRoomTemp();
     int getTargetTemp();
     uint8_t getMode();
     void setTargetTemp(int targetTemp);
+    void incrementTargetTemp();
+    void decrementTargetTemp();
     void switchMode();
 
   private:
-    int targetTemp, currentTemp;
+    int roomTemp, currentTemp;
     uint8_t mode, fanOverride;
     uint32_t lastTurnTime;
     void turn(uint8_t on_or_off);

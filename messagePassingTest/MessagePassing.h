@@ -4,6 +4,7 @@
 #define MESSAGE_PASSING_H_
 
 #include <Bridge.h>
+#include <string.h>
 
 #define SET_TARGET_TEMP        'S'
 #define GET_TARGET_TEMP        'G'
