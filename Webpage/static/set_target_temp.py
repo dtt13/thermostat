@@ -2,4 +2,5 @@ import sys
 sys.path.append('/mnt/sda1/arduino')
 
 import message_passing
-print message_passing.setTargetTemp()
+
+message_passing.setTargetTemp(90)
