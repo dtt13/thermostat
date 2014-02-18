@@ -14,6 +14,7 @@ void processCommands() {
     switch(ret[0]) {
       case SET_TARGET_TEMP:
         Serial.println("set target temperature");
+        Serial1.println("S");
         break;
       case GET_TARGET_TEMP:
         Serial.println("get target temperature");
@@ -21,12 +22,15 @@ void processCommands() {
         break;
       case GET_ROOM_TEMP:
         Serial.println("get room temperature");
+        Serial1.println("R79");
         break;
       case INCREMENT_TARGET_TEMP:
         Serial.println("increment target temperature");
+        Serial1.println("I");
         break;
       case DECREMENT_TARGET_TEMP:
         Serial.println("decrement target temperature");
+        Serial1.println("D");
         break;
       default:
         Serial.println("Error: message command not recognized");
