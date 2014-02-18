@@ -1,4 +1,4 @@
-$def with (form, out1)
+$def with (form, out1, outA)
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -50,7 +50,7 @@ $def with (form, out1)
           <br />
           <h2>Target Temperature:</h2>
           <ul class="main-list">
-            <p>Placeholder: no input.</p>
+            <p>$outA</p>
 			<form method="POST">$:form.render()</form>
           </ul>
         </div>

@@ -23,12 +23,14 @@ class Index(object):
 
 class Settings(object):
 	def GET(self):
-		proc = Popen('python ./static/testing.py', shell=True, stdout=PIPE)
+		proc = Popen('python ./static/pull_temp.py', shell=True, stdout=PIPE)
 		#proc.wait()
 		(out1, out2) = proc.communicate()
+		proc2 = Popen('python ./static/pull_target_temp.py', shell=True, stdout=PIPE)
+		(outA, outB) = proc2.communicate()
 		# do $:f.render() in the template
 		f = cur_temp_form()
-		return render.settings(f, out1)
+		return render.settings(f, out1, outA)
 		
 
 if __name__ == "__main__":
