@@ -1,6 +1,6 @@
 
 
-import io, struct
+import io, struct, select
 import serial
 
 """ This library is used to send simple messages to and
@@ -16,7 +16,7 @@ __SERIAL1 = '/dev/ttyATH0'
 # Timeout and maximum number of trials
 __BAUD = 9600 # will increase this in the future
 __TIMEOUT = 1 # seconds
-__MAX_TRIALS = 1
+__MAX_TRIALS = 3
 
 # Message commands constants
 __SET_TARGET_TEMP = 'S'
@@ -36,7 +36,8 @@ def getTargetTemp():
 
 # Gets the temperature of the room
 def getRoomTemp():
-	__sendCommand(__GET_ROOM_TEMP, '', True)
+	result = __sendCommand(__GET_ROOM_TEMP, '', True)
+	return result
 
 # Increase the target temperature by one degree
 def incrementTargetTemp():
@@ -59,21 +60,28 @@ def __sendCommand(command, message, expectedResponse):
 	success = False
 	# TODO add timeout with select here!!!
 	# TODO add in handshake so no duplicate packets?
+	# serialCom = io.open(__SERIAL1, 'rwb')
 	while (not success) and (trial < __MAX_TRIALS):
 		ser_out = io.open(__SERIAL1, 'wb')
 		ser_out.write(struct.pack('s', packet))
 		ser_out.close()
 		ser_in = io.open(__SERIAL1, 'rb')
-		response = ser_in.readline()
-		ser_in.close()
-		success = (len(response) > 0) and (response[0] == command)
+		# time.sleep(5)
+		# print trial
+		# serialCom.write(struct.pack('s', packet))
+		rlist, wlist, xlist = select.select([ser_in], [], [], __TIMEOUT)
+		for reader in rlist:
+			response = ser_in.readline()
+			# print response
+			success = (len(response) > 0) and (response[0] == command)
 		trial += 1
+		ser_in.close()
 
-	if expectedResponse:
-		if success:
-			return response
-		else:
-			return 'error'
+	if success:
+		if expectedResponse:
+			return response[1:]
+	else:
+		return 'error'
 
 # Sends a command to the microcontroller with the message
 # DOES NOT WORK WITH SERIAL LIB FOR STRANGE UNKNOWN REASON!
