@@ -27,25 +27,23 @@ __DECREMENT_TARGET_TEMP = 'D'
 
 # Sets the target temperature
 def setTargetTemp(newTargetTemp):
-	__sendCommand(__SET_TARGET_TEMP, newTargetTemp, False)
+	return __sendCommand(__SET_TARGET_TEMP, newTargetTemp, False)
 
 # Gets the target temperature
 def getTargetTemp():
-	result = __sendCommand(__GET_TARGET_TEMP, '', True)
-	return result
+	return __sendCommand(__GET_TARGET_TEMP, '', True)
 
 # Gets the temperature of the room
 def getRoomTemp():
-	result = __sendCommand(__GET_ROOM_TEMP, '', True)
-	return result
+	return __sendCommand(__GET_ROOM_TEMP, '', True)
 
 # Increase the target temperature by one degree
-def incrementTargetTemp():
-	__sendCommand(__INCREMENT_TARGET_TEMP, '', False)
+# def incrementTargetTemp():
+	# __sendCommand(__INCREMENT_TARGET_TEMP, '', False)
 
 # Decrease the target temperature by one degree
-def decrementTargetTemp():
-	__sendCommand(__DECREMENT_TARGET_TEMP, '', False)
+# def decrementTargetTemp():
+# 	__sendCommand(__DECREMENT_TARGET_TEMP, '', False)
 
 # Sends a command to the microcontroller with the message
 # expectedResponse should be True if expecting a response
@@ -53,22 +51,15 @@ def decrementTargetTemp():
 def __sendCommand(command, message, expectedResponse):
 	# return __sendCommandSerial(command, message, expectedResponse)
 	packet = '%s%s\n' % (command, message)
-	# ser_in = io.open(__SERIAL1, 'rb')
-	# ser_out = io.open(__SERIAL1, 'wb')
 	# transmit data and wait for response
 	trial = 0
 	success = False
-	# TODO add timeout with select here!!!
 	# TODO add in handshake so no duplicate packets?
-	# serialCom = io.open(__SERIAL1, 'rwb')
 	while (not success) and (trial < __MAX_TRIALS):
 		ser_out = io.open(__SERIAL1, 'wb')
 		ser_out.write(struct.pack('s', packet))
 		ser_out.close()
 		ser_in = io.open(__SERIAL1, 'rb')
-		# time.sleep(5)
-		# print trial
-		# serialCom.write(struct.pack('s', packet))
 		rlist, wlist, xlist = select.select([ser_in], [], [], __TIMEOUT)
 		for reader in rlist:
 			response = ser_in.readline()
@@ -79,7 +70,7 @@ def __sendCommand(command, message, expectedResponse):
 
 	if success:
 		if expectedResponse:
-			return response[1:]
+			return response[1:len(response)-1]
 	else:
 		return 'error'
 
