@@ -1,7 +1,6 @@
 #include "TempControl.h" 
-//TemperatureControl tc = TemperatureControl();
 
-TemperatureControl tc = TemperatureControl(63, HEATING);
+TempControl tc = TempControl.getInstance();
 
 void setup() {
   Serial.begin(9600);

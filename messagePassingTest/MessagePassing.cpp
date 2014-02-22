@@ -3,39 +3,101 @@
 #include "MessagePassing.h"
 
 // Interprets commands from Linino for controlling the thermostat and touchscreen
-void processCommands() {
+void processCommands(TempControl *tc) {
   char ret[8];
 //  Serial.println("processing...");
 //  Serial.println(Serial1.available());
-  int targetTemp = 80;
-  int roomTemp = 65;
   while(Serial1.available() > 0) {
     memset(ret, 0x00, sizeof(ret));
     Serial1.readBytesUntil('\n', ret, 8);
     switch(ret[0]) {
-      case SET_TARGET_TEMP:
-        Serial.println("set target temperature");
-        Serial1.println(String(SET_TARGET_TEMP));
+      case GET_ROOM_TEMP:
+        Serial.println("get room temperature");
+        Serial1.println(String(GET_ROOM_TEMP) + String(tc->getRoomTemp()));
         break;
       case GET_TARGET_TEMP:
         Serial.println("get target temperature");
-        Serial1.println(String(GET_TARGET_TEMP) + String(targetTemp));
+        Serial1.println(String(GET_TARGET_TEMP) + String(tc->getTargetTemp()));
         break;
-      case GET_ROOM_TEMP:
-        Serial.println("get room temperature");
-        Serial1.println(String(GET_ROOM_TEMP) + String(roomTemp));
+      case GET_MODE:
+        Serial.println("get mode");
+        Serial1.println(String(GET_MODE) + modeToString(tc));
+        break;
+      case GET_UNIT:
+        Serial.println("get unit");
+        Serial1.println(String(GET_UNIT) + unitToString(tc));
+        break;
+      case IS_ON:
+        Serial.println("is on?");
+        Serial1.println(String(IS_ON) + isOnToString(tc));
+        break;
+      case SET_TARGET_TEMP:
+        Serial.println("set target temperature");
+        tc->setTargetTemp(interpretNumber(ret, sizeof(ret)));
+        Serial1.println(String(SET_TARGET_TEMP));
         break;
       case INCREMENT_TARGET_TEMP:
         Serial.println("increment target temperature");
+        tc->incrementTargetTemp();
         Serial1.println(String(INCREMENT_TARGET_TEMP));
         break;
       case DECREMENT_TARGET_TEMP:
         Serial.println("decrement target temperature");
+        tc->decrementTargetTemp();
         Serial1.println(String(DECREMENT_TARGET_TEMP));
+        break;
+      case SWITCH_MODE:
+        Serial.println("switch mode");
+        tc->switchMode();
+        Serial1.println(String(SWITCH_MODE));
+        break;
+      case SWITCH_UNIT:
+        Serial.println("switch unit");
+        tc->switchUnit();
+        Serial1.println(String(SWITCH_UNIT));
         break;
       default:
         Serial.println("Error: message command not recognized");
-        Serial.println(ret);
+        // Serial.println(ret);
     }
   }
+}
+
+String modeToString(TempControl *tc) {
+  switch(tc->getMode()) {
+    case HEATING:
+      return "heating";
+    case CELCIUS:
+      return "cooling";
+  }
+  return "";
+}
+
+String unitToString(TempControl *tc) {
+  switch(tc->getUnit()) {
+    case FAHRENHEIT:
+      return "f";
+    case CELCIUS:
+      return "c";
+  }
+  return "";
+}
+
+String isOnToString(TempControl *tc) {
+  if(tc->isOn()) {
+    return "true";
+  } else {
+    return "false";
+  }
+}
+
+int interpretNumber(char *number, int length) {
+  int output = 0;
+  int i;
+  for(i = 1; i < length && isdigit(number[i]); i++) {
+    output *= 10;
+    output += number[i] - '0';
+  }
+  Serial.println(output);
+  return output;
 }
