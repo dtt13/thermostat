@@ -17,13 +17,13 @@
 #define DECREMENT_TARGET_TEMP  	'D'
 #define SWITCH_MODE				'M'
 #define SWITCH_UNIT				'U'
-
-//TempControl tc = TempControl::getInstance();
+#define STREAM_IMAGE            'P'
 
 void processCommands(TempControl *tc);
 String modeToString(TempControl *tc);
 String unitToString(TempControl *tc);
 String isOnToString(TempControl *tc);
-int interpretNumber(char number[], int length);
+int interpretNumber(char *number, int len);
+uint16_t unpackNumber(char *bytes, int start, int len);
 
 #endif // MESSAGE_PASSING_H_

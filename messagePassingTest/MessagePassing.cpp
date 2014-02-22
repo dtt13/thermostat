@@ -9,7 +9,8 @@ void processCommands(TempControl *tc) {
 //  Serial.println(Serial1.available());
   while(Serial1.available() > 0) {
     memset(ret, 0x00, sizeof(ret));
-    Serial1.readBytesUntil('\n', ret, 8);
+    int numBytes = Serial1.readBytesUntil('\n', ret, 8);
+    Serial.println("number of bytes read: " + String(numBytes));
     switch(ret[0]) {
       case GET_ROOM_TEMP:
         Serial.println("get room temperature");
@@ -56,6 +57,12 @@ void processCommands(TempControl *tc) {
         tc->switchUnit();
         Serial1.println(String(SWITCH_UNIT));
         break;
+      case STREAM_IMAGE:
+        Serial.println("stream image");
+        Serial.println(ret);
+        Serial.println(String(unpackNumber(ret, 1, 2)) + ", " + String(unpackNumber(ret, 3, 2)));
+        Serial1.println(String(STREAM_IMAGE));
+        break;
       default:
         Serial.println("Error: message command not recognized");
         // Serial.println(ret);
@@ -91,13 +98,23 @@ String isOnToString(TempControl *tc) {
   }
 }
 
-int interpretNumber(char *number, int length) {
+int interpretNumber(char *number, int len) {
   int output = 0;
   int i;
-  for(i = 1; i < length && isdigit(number[i]); i++) {
+  for(i = 1; i < len && isdigit(number[i]); i++) {
     output *= 10;
     output += number[i] - '0';
   }
-  Serial.println(output);
+  return output;
+}
+
+uint16_t unpackNumber(char *bytes, int start, int len) {
+  uint16_t output = 0;
+  int i;
+  for(i = start; i < start + len; i++) {
+    output = output << 8;
+    output = output | (0x00FF & bytes[i]);
+    Serial.println(String(output));
+  }
   return output;
 }

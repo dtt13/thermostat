@@ -1,6 +1,7 @@
 
 
 import io, struct, select
+# from PIL import Image
 import serial
 
 """ This library is used to send simple messages to and
@@ -29,6 +30,7 @@ __INCREMENT_TARGET_TEMP = 'I'
 __DECREMENT_TARGET_TEMP = 'D'
 __SWITCH_MODE			= 'M'
 __SWITCH_UNIT			= 'U'
+__STREAM_IMAGE			= 'P'
 
 # Gets the temperature of the room
 def getRoomTemp():
@@ -87,6 +89,15 @@ def switchMode():
 # Switches the temperature units
 def switchUnit():
 	return __sendCommand(__SWITCH_UNIT, '', False)
+
+# Sends an image touchscreen at the specified location
+def streamImage(file, xpos, ypos):
+	# image = Image.open(file)
+	#send an image command
+	#TODO send size of the image and location
+	message = struct.pack('HH', xpos, ypos)
+	__sendCommand(__STREAM_IMAGE, message, False)
+
 
 # Sends a command to the microcontroller with the message
 # expectedResponse should be True if expecting a response
