@@ -1,3 +1,3 @@
 from message_passing import *
 
-streamImage('filename.bmp', 26, 400)
+streamImage('example_1.bmp', 32, 32)

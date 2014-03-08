@@ -1,8 +1,7 @@
 
 
 import io, struct, select
-# from PIL import Image
-import serial
+from PIL import Image
 
 """ This library is used to send simple messages to and
 	from the microcontroller. Features include:
@@ -32,9 +31,14 @@ __SWITCH_MODE			= 'M'
 __SWITCH_UNIT			= 'U'
 __STREAM_IMAGE			= 'P'
 
+# Image streaming sub-commands
+__STREAM_INIT			= 'i'
+__STREAM_SEND			= 's'
+__STREAM_FIN			= 'f'
+
 # Gets the temperature of the room
 def getRoomTemp():
-	result = __sendCommand(__GET_ROOM_TEMP, '', True)
+	result = __sendCommandWithRetry(__GET_ROOM_TEMP, '', True)
 	if(result.isdigit()):
 		return int(result)
 	else:
@@ -42,7 +46,7 @@ def getRoomTemp():
 
 # Gets the target temperature
 def getTargetTemp():
-	result = __sendCommand(__GET_TARGET_TEMP, '', True)
+	result = __sendCommandWithRetry(__GET_TARGET_TEMP, '', True)
 	if(result.isdigit()):
 		return int(result)
 	else:
@@ -50,7 +54,7 @@ def getTargetTemp():
 
 # Gets the current mode of operation (heating or cooling)
 def getMode():
-	result = __sendCommand(__GET_MODE, '', True)
+	result = __sendCommandWithRetry(__GET_MODE, '', True)
 	if(result == 'heating' or result == 'cooling'):
 		return result
 	else:
@@ -58,7 +62,7 @@ def getMode():
 
 # Gets the temperature units (f or c)
 def getUnit():
-	result = __sendCommand(__GET_UNIT, '', True)
+	result = __sendCommandWithRetry(__GET_UNIT, '', True)
 	if(result == 'f' or result == 'c'):
 		return result
 	else:
@@ -66,44 +70,61 @@ def getUnit():
 
 # Return True if the system is on, False otherwise
 def isOn():
-	result = __sendCommand(__IS_ON, '', True)
+	result = __sendCommandWithRetry(__IS_ON, '', True)
 	return (result == 'true')
 
 # Sets the target temperature
 def setTargetTemp(newTargetTemp):
 	tempString = '%d' % newTargetTemp
-	return __sendCommand(__SET_TARGET_TEMP, tempString, False)
+	return __sendCommandWithRetry(__SET_TARGET_TEMP, tempString, False)
 
 # Increase the target temperature by one degree
 def incrementTargetTemp():
-	return __sendCommand(__INCREMENT_TARGET_TEMP, '', False)
+	return __sendCommandWithRetry(__INCREMENT_TARGET_TEMP, '', False)
 
 # Decrease the target temperature by one degree
 def decrementTargetTemp():
-	return __sendCommand(__DECREMENT_TARGET_TEMP, '', False)
+	return __sendCommandWithRetry(__DECREMENT_TARGET_TEMP, '', False)
 
 # Switches the system between heating and cooling
 def switchMode():
-	return __sendCommand(__SWITCH_MODE, '', False)
+	return __sendCommandWithRetry(__SWITCH_MODE, '', False)
 
 # Switches the temperature units
 def switchUnit():
-	return __sendCommand(__SWITCH_UNIT, '', False)
+	return __sendCommandWithRetry(__SWITCH_UNIT, '', False)
 
 # Sends an image touchscreen at the specified location
 def streamImage(file, xpos, ypos):
-	# image = Image.open(file)
-	#send an image command
-	#TODO send size of the image and location
-	message = struct.pack('HH', xpos, ypos)
-	__sendCommand(__STREAM_IMAGE, message, False)
-
+	image = Image.open(file)
+	width, height = image.size
+	# prep image for sending
+	r, g, b = image.convert('RGB').split()
+	R = list(r.getdata())
+	G = list(g.getdata())
+	B = list(b.getdata())
+	imagePixels = R
+	for i in range(len(R)):
+		imagePixels[i] = ((R[i] & 0xF8) << 8) | ((G[i] & 0xFC) << 3) | (B[i] >> 3)
+	# send an image command
+	message = struct.pack('cHHHH', __STREAM_INIT, xpos, ypos, width, height)
+	response = __sendCommandWithRetry(__STREAM_IMAGE, message, True)
+	print response
+	if response == 'error' or len(response) != 4:
+		return 'error'
+	else:
+		firstPixel, bufferSize = struct.unpack('HH', response)
+		firstPixel *= 8
+	# send image file
+	if __stream(imagePixels, firstPixel, bufferSize) == 'error':
+		return 'error'
+	# send termination command
+	__sendCommandWithoutRetry(__STREAM_IMAGE, __STREAM_FIN)
 
 # Sends a command to the microcontroller with the message
 # expectedResponse should be True if expecting a response
 # from the microcontroller, False otherwise
-def __sendCommand(command, message, expectedResponse):
-	# return __sendCommandSerial(command, message, expectedResponse)
+def __sendCommandWithRetry(command, message, expectedResponse):
 	packet = '%s%s\n' % (command, message)
 	# transmit data and wait for response
 	trial = 0
@@ -111,7 +132,6 @@ def __sendCommand(command, message, expectedResponse):
 	# TODO add in handshake so no duplicate packets?
 	while (not success) and (trial < __MAX_TRIALS):
 		ser_out = io.open(__SERIAL1, 'wb')
-		# ser_out.write(struct.pack('%ds' % len(packet), packet))
 		ser_out.write(packet)
 		ser_out.close()
 		ser_in = io.open(__SERIAL1, 'rb')
@@ -130,27 +150,68 @@ def __sendCommand(command, message, expectedResponse):
 		return 'error'
 
 # Sends a command to the microcontroller with the message
-# DOES NOT WORK WITH SERIAL LIB FOR STRANGE UNKNOWN REASON!
-def __sendCommandSerial(command, message, expectedResponse):
+# Does not wait for any response before terminating only sends the
+# packet once
+def __sendCommandWithoutRetry(command, message):
 	packet = '%s%s\n' % (command, message)
-	ser = serial.Serial(__SERIAL1, __BAUD, timeout=__TIMEOUT)
-	# transmit data and wait for response
-	trial = 0
-	success = False
-	while (not success) and (trial < __MAX_TRIALS):
-		ser.write(packet)
-		print 'trail: %d' % trial
-		response = ser.readline()
-		print response
-		success = (len(response) > 0) and (response[0] == command)
-		trial += 1
+	ser_out = io.open(__SERIAL1, 'wb')
+	ser_out.write(packet)
+	ser_out.close()
 
-	ser.close()
-	
-	if success:
-		if expectedResponse:
-			return response[1:]
-	else:
+# Sends an image to the microcontroller using an ACK-based protocol
+# May error out if the microcontroller does not respond
+def __stream(data, firstPixel, bufferSize):
+	headerSize = 6 # bytes
+	pixelsPerTx = int((bufferSize - headerSize) / (2 * 8)) * 8 # get a multiple of 8 pixels
+	pixelExpected = firstPixel # pixels
+	totalPixels = len(data) # pixels
+	trial = 0
+	while (pixelExpected < totalPixels) and (trial < __MAX_TRIALS):
+		success = False
+		pixelsToTx = min(int((totalPixels - pixelExpected) / 8) * 8, pixelsPerTx)
+		# write to fill up the buffer or end of file
+		ser_out = io.open(__SERIAL1, 'wb')
+		ser_out.write(struct.pack('ccHH', __STREAM_IMAGE, __STREAM_SEND, pixelExpected / 8, pixelsToTx / 8))
+		for i in range(pixelExpected, pixelsToTx + pixelExpected):
+			print hex(data[i])
+			ser_out.write(struct.pack('H', data[i])) #TODO pad the end with zeros if needed
+		ser_out.close()
+		# read back response
+		ser_in = io.open(__SERIAL1, 'rb')
+		rlist, wlist, xlist = select.select([ser_in], [], [], __TIMEOUT)
+		for reader in rlist:
+			response = reader.readline().rstrip('\r\n')
+			if (len(response) == 3) and (response[0] == __STREAM_IMAGE):
+				pixelExpected, = struct.unpack('H', response[1:3])
+				pixelExpected *= 8
+				success = True
+		if success:
+			trial = 0
+		else:
+			trial += 1
+		ser_in.close()
+	if(trial == __MAX_TRIALS):
 		return 'error'
 
+
+def testStream():
+	data = [1,2,3,4,5,6,7,8]
+	# send an image command
+	print 'sending init...'
+	message = struct.pack('cHHHH', __STREAM_INIT, 32, 32, 4, 2)
+	response = __sendCommandWithRetry(__STREAM_IMAGE, message, True)
+	print len(response)
+	if response == 'error' or len(response) != 4:
+		return 'error'
+	else:
+		firstPixel, bufferSize = struct.unpack('HH', response)
+		print firstPixel, bufferSize
+		firstPixel *= 8
+	# send image file
+	print 'sending image...'
+	if __stream(data, firstPixel, bufferSize) == 'error':
+		return 'error'
+	# send termination command
+	print 'sending temination...'
+	__sendCommandWithoutRetry(__STREAM_IMAGE, __STREAM_FIN)
 

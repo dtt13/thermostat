@@ -3,7 +3,6 @@
 #include "TempControl.h"
 
 TempControl *tc = new TempControl();
-
 void setup() {
   // put your setup code here, to run once:
    Serial.begin(9600);
