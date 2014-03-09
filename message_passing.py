@@ -113,7 +113,7 @@ def streamImage(file, xpos, ypos):
 	if response == 'error' or len(response) != 4:
 		return 'error'
 	else:
-		firstPixel, bufferSize = struct.unpack('HH', response)
+		bufferSize, firstPixel = struct.unpack('HH', response)
 		firstPixel *= 8
 	# send image file
 	if __stream(imagePixels, firstPixel, bufferSize) == 'error':
@@ -167,6 +167,8 @@ def __stream(data, firstPixel, bufferSize):
 	totalPixels = len(data) # pixels
 	trial = 0
 	while (pixelExpected < totalPixels) and (trial < __MAX_TRIALS):
+		print 'sending pixel %d' % pixelExpected
+
 		success = False
 		pixelsToTx = min(int((totalPixels - pixelExpected) / 8) * 8, pixelsPerTx)
 		# write to fill up the buffer or end of file
@@ -204,7 +206,7 @@ def testStream():
 	if response == 'error' or len(response) != 4:
 		return 'error'
 	else:
-		firstPixel, bufferSize = struct.unpack('HH', response)
+		bufferSize, firstPixel = struct.unpack('HH', response)
 		print firstPixel, bufferSize
 		firstPixel *= 8
 	# send image file

@@ -59,12 +59,7 @@ void processCommands(TempControl *tc) {
         break;
       case STREAM_IMAGE:
         Serial.println("stream image");
-//        Serial.println(ret);
-//        Serial.println("position:");
-//        Serial.println(String(unpackNumber(ret, 1, 2)) + ", " + String(unpackNumber(ret, 3, 2)));
-//        Serial.println("size:");
-//        Serial.println(String(unpackNumber(ret, 5, 2)) + ", " + String(unpackNumber(ret, 7, 2)));
-//        Serial1.println(String(STREAM_IMAGE));
+        imageInitResponse();
         receiveImage(unpackNumber(ret, 1, 2), unpackNumber(ret, 3, 2),
                       unpackNumber(ret, 5, 2), unpackNumber(ret, 7, 2));
         break;
@@ -75,6 +70,7 @@ void processCommands(TempControl *tc) {
   }
 }
 
+// Returns a String representation of the thermostat's mode 
 String modeToString(TempControl *tc) {
   switch(tc->getMode()) {
     case HEATING:
@@ -85,6 +81,7 @@ String modeToString(TempControl *tc) {
   return "";
 }
 
+// Returns a String representation of the current units of the thermostat
 String unitToString(TempControl *tc) {
   switch(tc->getUnit()) {
     case FAHRENHEIT:
@@ -95,6 +92,7 @@ String unitToString(TempControl *tc) {
   return "";
 }
 
+// Returns a String representation of the whether the thermostat is on or off
 String isOnToString(TempControl *tc) {
   if(tc->isOn()) {
     return "true";
@@ -103,7 +101,7 @@ String isOnToString(TempControl *tc) {
   }
 }
 
-int interpretNumber(char *number, int len) {
+int interpretNumber(char *number, int len) { //TODO to be removed and changed to binary
   int output = 0;
   int i;
   for(i = 1; i < len && isdigit(number[i]); i++) {
@@ -113,7 +111,7 @@ int interpretNumber(char *number, int len) {
   return output;
 }
 
-//
+// Grabs the number representation of the a sequence of bytes
 uint16_t unpackNumber(char *bytes, int start, int len) {
   uint16_t output = 0;
   int i;
@@ -124,54 +122,45 @@ uint16_t unpackNumber(char *bytes, int start, int len) {
   return output;
 }
 
-void writeResponse(char *response, int len) {
-  int i;
-  for(i = 0; i < len; i++) {
-    Serial1.print(response[i]);
-  }
-  Serial1.println();
-}
-
 // Processes the image and forwards the data to the screen
 void receiveImage(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height) {
   // allocate the buffer and start receiving data
   char image[IMAGE_BUFFER_SIZE];
-  char responseInit[5] = {STREAM_IMAGE, (IMAGE_BUFFER_SIZE & 0xFF00) >> 8, (IMAGE_BUFFER_SIZE & 0x00FF), 0, 0};
-  char responseSend[3] = {STREAM_IMAGE, 0, 0};
   uint8_t failCount = 0;
   bool success = false;
   uint16_t pixelCount = 0;  // grouped in 8s
   while((failCount < MAX_FAIL_COUNT) && !success) {
-//    response[1] = ((0xFF00 & rowsRead) >> 8);
-//    response[2] = (0x00FF & rowsRead);
-//    Serial1.println(response); // print the binary
+    // read next packet
     Serial.println("in the loop");
     memset(image, 0x00, sizeof(image));
     uint16_t bytesRead = Serial1.readBytes(image, sizeof(image));
     int i;
     Serial.println("read bytes: " + String(bytesRead));
-    for(i = 0; i < bytesRead; i++) {
-      Serial.print((0x00FF & image[i]), HEX);
+    for(i = 0; i < bytesRead; i++) { //TODO remove this loop, only prints packet contents
+      if(image[i] == 0) {
+        Serial.print("00");
+      } else {
+        Serial.print((0x00FF & image[i]), HEX);
+      }
     }
     Serial.println();
+    // interpret packet
     if(image[0] == STREAM_IMAGE) {
       switch(image[1]) {
         case STREAM_INIT:
           Serial.println("init");
-          writeResponse(responseInit, sizeof(responseInit));
+          imageInitResponse();
           failCount = 0;
           break;
         case STREAM_SEND:
           Serial.println("send");
-          pixelCount += writeToScreen(image, bytesRead);
-          responseSend[1] = (0xFF00 & pixelCount) >> 8;
-          responseSend[2] = (0x00FF & pixelCount);
-          writeResponse(responseSend, sizeof(responseSend));
+          pixelCount += imageSendResponse(image, bytesRead, pixelCount);
           failCount = 0;
           break;
         case STREAM_FIN:
           Serial.println("finished");
           success = true;
+          break;
         default:
           failCount++;
       }
@@ -181,12 +170,50 @@ void receiveImage(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height)
   }
 }
 
-uint16_t writeToScreen(char *image, uint16_t bytesRead) {
+// Sends an init response to begin image streaming
+void imageInitResponse() {
+  char responseInit[5] = {STREAM_IMAGE, (IMAGE_BUFFER_SIZE & 0xFF00) >> 8, (IMAGE_BUFFER_SIZE & 0x00FF), 0, 0};
+  writeResponse(responseInit, sizeof(responseInit));
+}
+
+// Sends a send response for image streaming
+uint16_t imageSendResponse(char *image, int len, uint16_t pixelCount) {
+  char responseSend[3] = {STREAM_IMAGE, 0, 0};
+  uint16_t pixelsRead = 0; // grouped in 8s
+  int byteCount = 0;
+  bool finished = false;
+  while(!finished && (byteCount < len) && (image[byteCount] == STREAM_IMAGE) && (image[byteCount + 1] == STREAM_SEND)) {
+    int pixelsTemp = imageToScreen(image + byteCount, len - byteCount, pixelCount + pixelsRead);
+    if(pixelsTemp != 0) {
+      pixelsRead += pixelsTemp;
+      byteCount += pixelsTemp * 16 + 6;
+    } else {
+      finished = true;
+    }
+  }
+  responseSend[1] = (0xFF00 & (pixelCount + pixelsRead) >> 8;
+  responseSend[2] = (0x00FF & (pixelCount + pixelsRead));
+  writeResponse(responseSend, sizeof(responseSend));
+  return pixelsRead;
+}
+
+// Sends a response to the Linino on Serial1
+void writeResponse(char *response, int len) {
+  int i;
+  for(i = 0; i < len; i++) {
+    Serial1.print(response[i]);
+  }
+  Serial1.println();
+}
+
+// Processes a single packet and sends pixel data to the screen
+// Returns the number of pixels actually written
+uint16_t imageToScreen(char *image, int len, uint16_t pixelCount) {
   uint16_t firstPixel = unpackNumber(image, 2, 2);
   uint16_t pixelsInPack = unpackNumber(image, 4, 2);
-  Serial.println(String(pixelsInPack) + ", " + String(bytesRead));
-  Serial.println(String(pixelsInPack * 16 + 6));
-  if(pixelsInPack * 16 + 6 != bytesRead) {
+//  Serial.println(String(pixelsInPack) + ", " + String(bytesRead));
+//  Serial.println(String(pixelsInPack * 16 + 6));
+  if((pixelsInPack * 16 + 6 > len) || (firstPixel != pixelCount)) { // TODO grab the end of the packet if necessary
     return 0;
   } else {
     return pixelsInPack;

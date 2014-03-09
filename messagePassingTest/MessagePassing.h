@@ -34,10 +34,12 @@ void processCommands(TempControl *tc);
 String modeToString(TempControl *tc);
 String unitToString(TempControl *tc);
 String isOnToString(TempControl *tc);
-int interpretNumber(char *number, int len);
+int interpretNumber(char *number, int len); // TODO to be removed
 uint16_t unpackNumber(char *bytes, int start, int len);
-void writeResponse(char *response, int len);
 void receiveImage(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height);
-uint16_t writeToScreen(char *image, uint16_t bytesRead);
+void imageInitResponse();
+void imageSendResponse(char *image, int len, uint16_t pixelCount);
+void writeResponse(char *response, int len);
+uint16_t imageToScreen(char *image, int len, uint16_t pixelCount);
 
 #endif // MESSAGE_PASSING_H_
