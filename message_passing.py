@@ -197,25 +197,48 @@ def __stream(data, firstPixel, bufferSize):
 	if(trial == __MAX_TRIALS):
 		return 'error'
 
-
-def testStream():
-	data = [1,2,3,4,5,6,7,8]
+# Sends an image to the microcontroller with little to no checking
+def __stream2(data, bufferSize):
+	pixelsPerTx = int((bufferSize - 2) / 2)	
+	nextPixel = 0
+	while(nextPixel < len(data)):
+		ser_out = io.open(__SERIAL1, 'wb')
+		ser_out.write(struct.pack('cc', __STREAM_IMAGE, __STREAM_SEND))
+		for i in range(nextPixel, min(nextPixel + pixelsPerTx, len(data))):
+			ser_out.write(struct.pack('H', data[i]))
+		ser_out.close()
+		ser_in = io.open(__SERIAL1, 'rb')
+		rlist, wlist, xlist = select.select([ser_in], [], [], 3) #longer timeout
+		for reader in rlist:
+			response = reader.readline().rstrip('\r\n')
+			if (len(response) > 0) and (response[0] == __STREAM_IMAGE):
+				nextPixel += pixelsPerTx
+		ser_in.close()
+		
+#Used for testing only
+def testStream(data_size):
+	data = []
+	for i in range(data_size):
+		data.append(i+1)
 	# send an image command
 	print 'sending init...'
-	message = struct.pack('cHHHH', __STREAM_INIT, 32, 32, 4, 2)
+	message = struct.pack('cHHHH', __STREAM_INIT, 32, 32, 8, len(data) / 8)
 	response = __sendCommandWithRetry(__STREAM_IMAGE, message, True)
 	#print len(response)
 	if response == 'error' or len(response) != 4:
 		return 'error'
 	else:
 		bufferSize, firstPixel = struct.unpack('HH', response)
-		print firstPixel, bufferSize
+		# print firstPixel, bufferSize
 		firstPixel *= 8
+
 	# send image file
 	print 'sending image...'
-	if __stream(data, firstPixel, bufferSize) == 'error':
-		return 'error'
+	# if __stream(data, firstPixel, bufferSize) == 'error':
+	# 	return 'error'
+	__stream2(data, bufferSize)
+
 	# send termination command
-	print 'sending temination...'
-	__sendCommandWithoutRetry(__STREAM_IMAGE, __STREAM_FIN)
+	#print 'sending temination...'
+	#__sendCommandWithoutRetry(__STREAM_IMAGE, __STREAM_FIN)
 
