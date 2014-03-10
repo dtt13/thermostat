@@ -137,11 +137,10 @@ void receiveImage(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height)
     int i;
     Serial.println("read bytes: " + String(bytesRead));
     for(i = 0; i < bytesRead; i++) { //TODO remove this loop, only prints packet contents
-      if(image[i] == 0) {
-        Serial.print("00");
-      } else {
-        Serial.print((0x00FF & image[i]), HEX);
+      if(image[i] < 0x10) {
+        Serial.print("0");
       }
+      Serial.print((0x00FF & image[i]), HEX);
     }
     Serial.println();
     // interpret packet
@@ -154,7 +153,9 @@ void receiveImage(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height)
           break;
         case STREAM_SEND:
           Serial.println("send");
+          Serial.println("Before: " + String(pixelCount));
           pixelCount += imageSendResponse(image, bytesRead, pixelCount);
+          Serial.println("After: " + String(pixelCount));
           failCount = 0;
           break;
         case STREAM_FIN:
@@ -191,7 +192,7 @@ uint16_t imageSendResponse(char *image, int len, uint16_t pixelCount) {
       finished = true;
     }
   }
-  responseSend[1] = (0xFF00 & (pixelCount + pixelsRead) >> 8;
+  responseSend[1] = (0xFF00 & (pixelCount + pixelsRead)) >> 8;
   responseSend[2] = (0x00FF & (pixelCount + pixelsRead));
   writeResponse(responseSend, sizeof(responseSend));
   return pixelsRead;

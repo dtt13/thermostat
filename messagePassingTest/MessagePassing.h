@@ -38,7 +38,7 @@ int interpretNumber(char *number, int len); // TODO to be removed
 uint16_t unpackNumber(char *bytes, int start, int len);
 void receiveImage(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height);
 void imageInitResponse();
-void imageSendResponse(char *image, int len, uint16_t pixelCount);
+uint16_t imageSendResponse(char *image, int len, uint16_t pixelCount);
 void writeResponse(char *response, int len);
 uint16_t imageToScreen(char *image, int len, uint16_t pixelCount);
 

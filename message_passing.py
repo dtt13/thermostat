@@ -1,6 +1,6 @@
 
 
-import io, struct, select
+import io, struct, select, time
 from PIL import Image
 
 """ This library is used to send simple messages to and
@@ -166,6 +166,7 @@ def __stream(data, firstPixel, bufferSize):
 	pixelExpected = firstPixel # pixels
 	totalPixels = len(data) # pixels
 	trial = 0
+	print pixelExpected, totalPixels
 	while (pixelExpected < totalPixels) and (trial < __MAX_TRIALS):
 		print 'sending pixel %d' % pixelExpected
 
@@ -175,9 +176,10 @@ def __stream(data, firstPixel, bufferSize):
 		ser_out = io.open(__SERIAL1, 'wb')
 		ser_out.write(struct.pack('ccHH', __STREAM_IMAGE, __STREAM_SEND, pixelExpected / 8, pixelsToTx / 8))
 		for i in range(pixelExpected, pixelsToTx + pixelExpected):
-			print hex(data[i])
+			# print hex(data[i])
 			ser_out.write(struct.pack('H', data[i])) #TODO pad the end with zeros if needed
 		ser_out.close()
+		time.sleep(0.1)
 		# read back response
 		ser_in = io.open(__SERIAL1, 'rb')
 		rlist, wlist, xlist = select.select([ser_in], [], [], __TIMEOUT)
@@ -202,7 +204,7 @@ def testStream():
 	print 'sending init...'
 	message = struct.pack('cHHHH', __STREAM_INIT, 32, 32, 4, 2)
 	response = __sendCommandWithRetry(__STREAM_IMAGE, message, True)
-	print len(response)
+	#print len(response)
 	if response == 'error' or len(response) != 4:
 		return 'error'
 	else:
