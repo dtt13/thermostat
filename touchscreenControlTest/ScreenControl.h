@@ -16,7 +16,7 @@
 enum views {STARTUP, LOADING, THERMOSTAT, WEATHER_TEMP, WEATHER_MAP}; 
 
 // Touchscreen debouncing
-#define TOUCH_DELAY  500 // in milliseconds
+#define TOUCH_DELAY  100 // in milliseconds
 
 //// Layers
 ////enum layers {LAYER1, LAYER2};
@@ -45,7 +45,10 @@ class ScreenControl {
   private:
     Adafruit_RA8875 *tft;// = Adafruit_RA8875(RA8875_CS, RA8875_RESET);
     uint8_t currentView;
-    uint32_t lastTouch;
+    uint32_t lastTouchCheck;
+    uint16_t tx, ty;
+    bool isPressed, wasPressed;
+    // used for display
     void switchToStartupView();
     void switchToLoadingView();
     void switchToThermostatView();
@@ -55,9 +58,12 @@ class ScreenControl {
     void drawThermostatView();
 //    void drawWeatherTempView();
 //    void drawWeatherMapView();
-    void processStartupTouch(uint16_t x, uint16_t y);
-    void processLoadingTouch(uint16_t x, uint16_t y);
-    void processThermostatTouch(uint16_t x, uint16_t y);
+    // used for touch
+    void processStartupTouch();
+    void processLoadingTouch();
+    void processThermostatTouch();
+    bool isTouchDown();
+    bool isTouchUp();
 //    uint8_t currentLayer;
 };
 

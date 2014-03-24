@@ -6,7 +6,9 @@
 ScreenControl::ScreenControl() {
   tft = new Adafruit_RA8875(RA8875_CS, RA8875_RESET);
   currentView = STARTUP;
-  lastTouch = 0;
+  lastTouchCheck = 0;
+  isPressed = false;
+  wasPressed = false;
 //  currentLayer = LAYER1;
 }
 
@@ -36,33 +38,28 @@ bool ScreenControl::init() {
 }
 
 void ScreenControl::processTouch() {
-  // TODO get the touchscreen coordinates pressed
-  uint16_t x = 0;
-  uint16_t y = 0;
-//  Serial.println("processing touch...");
-  if(millis() - lastTouch > TOUCH_DELAY) {
-    if(tft->touched()) {
-      lastTouch = millis();
-      Serial.print("Touch: ");
-      tft->touchRead(&x, &y);
-      Serial.println(String(x) + ", " + String(y));
-  
-      switch(currentView) {
-        case STARTUP:
-          processStartupTouch(x, y);
-          break;
-        case LOADING:
-          processLoadingTouch(x, y);
-          break;
-        case THERMOSTAT:
-          processThermostatTouch(x, y);
-          break;
-        default:
-          // TODO log an error
-          ;
-      }
-      tft->touchRead(&x, &y);
-    }
+  // update the touchscreen coordinates pressed
+  wasPressed = isPressed;
+  if((millis() - lastTouchCheck > TOUCH_DELAY) && (isPressed = tft->touched())) {
+    Serial.print("Touch: ");
+    tft->touchRead(&tx, &ty);
+    Serial.println(String(tx) + ", " + String(ty));
+    lastTouchCheck = millis();
+  }
+  // process touch depending on the view
+  switch(currentView) {
+    case STARTUP:
+      processStartupTouch();
+      break;
+    case LOADING:
+      processLoadingTouch();
+      break;
+    case THERMOSTAT:
+      processThermostatTouch();
+      break;
+    default:
+      // TODO log an error
+      ;
   }
 }
 
@@ -129,17 +126,31 @@ void ScreenControl::drawThermostatView() {
 //  tft->textWrite();
 }
 
-void ScreenControl::processStartupTouch(uint16_t x, uint16_t y) {
-  switchToLoadingView();
+void ScreenControl::processStartupTouch() {
+  if(isTouchUp()) {
+    switchToLoadingView();
+  }
 }
 
 
-void ScreenControl::processLoadingTouch(uint16_t x, uint16_t y) {
-  switchToThermostatView();
+void ScreenControl::processLoadingTouch() {
+  if(isTouchUp()) {
+    switchToThermostatView();
+  }
 }
 
 
-void ScreenControl::processThermostatTouch(uint16_t x, uint16_t y) {
-  switchToStartupView();
+void ScreenControl::processThermostatTouch() {
+  if(isTouchUp()) {
+    switchToStartupView();
+  }
+}
+
+bool ScreenControl::isTouchDown() {
+  return (isPressed && !wasPressed);
+}
+
+bool ScreenControl::isTouchUp() {
+  return (!isPressed && wasPressed);
 }
 
