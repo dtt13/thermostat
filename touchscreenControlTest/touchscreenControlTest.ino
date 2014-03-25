@@ -1,8 +1,7 @@
-
-#include "ScreenControl.h"
+#include <SPI.h>
 #include <Adafruit_GFX.h>
-#include<SPI.h>
 #include <Adafruit_RA8875.h>
+#include "ScreenControl.h"
 
 ScreenControl sc = ScreenControl();
 //Adafruit_RA8875 tft = Adafruit_RA8875(RA8875_CS, RA8875_RESET);
