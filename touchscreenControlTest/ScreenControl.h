@@ -18,35 +18,33 @@ enum views {STARTUP, LOADING, THERMOSTAT, WEATHER_TEMP, WEATHER_MAP};
 // Touchscreen debouncing
 #define TOUCH_DELAY  100 // in milliseconds
 
+//Touchscreen calibration
+#define MATRIX_AN      -178752
+#define MATRIX_BN      4608
+#define MATRIX_CN      6970800
+#define MATRIX_DN      -6758
+#define MATRIX_EN      -120663
+#define MATRIX_FN      17941435
+#define MATRIX_DIVIDER  -344035// cannot be zero
+
 //// Layers
 ////enum layers {LAYER1, LAYER2};
 
-////// Button properties
-////enum button_shapes {CIRCLE, RECTANGLE, IMAGE};
-////
-////struct Button {
-////  int16_t x;
-////  int16_t y;
-////  uint16_t color;
-////  uint8_t layer;
-////  uint8_t shape;
-////};
 class ScreenControl {
   public:
     ScreenControl();
     bool init();
     void processTouch();
-//    void
 //    void clearLayer(uint8_t layer);
 //    uint8_t getCurrentLayer();
 //    void switchCurrentLayer();
-//    bool createCircleButton(int16_t xpos, int16_t ypos, int16_t radius, uint16_t color, uint8_t layer);
  
   private:
     Adafruit_RA8875 *tft;// = Adafruit_RA8875(RA8875_CS, RA8875_RESET);
     uint8_t currentView;
     uint32_t lastTouchCheck;
     uint16_t tx, ty;
+    tsMatrix_t cal_matrix;
     bool isPressed, wasPressed;
     // used for display
     void switchToStartupView();
@@ -64,6 +62,8 @@ class ScreenControl {
     void processThermostatTouch();
     bool isTouchDown();
     bool isTouchUp();
+    void setCalibrationMatrix(tsMatrix_t *matrixPtr);
+    void calibrateTSPoint(tsPoint_t *displayPtr, tsPoint_t *screenPtr, tsMatrix_t *matrixPtr);
 //    uint8_t currentLayer;
 };
 
