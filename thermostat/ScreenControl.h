@@ -30,6 +30,7 @@ enum views {STARTUP, LOADING, THERMOSTAT, WEATHER_TEMP, WEATHER_MAP};
 
 // Thermostat macros
 #define THERMO_UPDATE_DELAY  250 // milliseconds
+#define TEMP_PRESS_DELAY     500 // milliseconds 
 //// Layers
 ////enum layers {LAYER1, LAYER2};
 
@@ -38,28 +39,24 @@ class ScreenControl {
     ScreenControl(TempControl *tc);
     bool init();
     void processTouch();
-//    void clearLayer(uint8_t layer);
-//    uint8_t getCurrentLayer();
-//    void switchCurrentLayer();
- 
+    void setTouchFlag();
+
   private:
     Adafruit_RA8875 *tft;// = Adafruit_RA8875(RA8875_CS, RA8875_RESET);
     TempControl *tc;
     uint8_t currentView;
-    uint32_t lastTouchCheck, lastThermoUpdate;
+    uint32_t lastTouchCheck, lastThermoUpdate, lastScreenPress;
     uint16_t tx, ty;
     tsMatrix_t cal_matrix;
-    bool isPressed, wasPressed;
+    bool isPressed, wasPressed, touchFlag;
+    
     // used for display
-    void switchToStartupView();
-    void switchToLoadingView();
-    void switchToThermostatView();
+    void switchView(int view);
     void drawBackground();
-    void drawStartupView();
-    void drawLoadingView();
-    void drawThermostatView();
-//    void drawWeatherTempView();
-//    void drawWeatherMapView();
+    void drawView(int view);
+    void drawTempButtons();
+    void updateTemps();
+
     // used for touch
     void processStartupTouch();
     void processLoadingTouch();
@@ -68,7 +65,6 @@ class ScreenControl {
     bool isTouchUp();
     void setCalibrationMatrix(tsMatrix_t *matrixPtr);
     void calibrateTSPoint(tsPoint_t *displayPtr, tsPoint_t *screenPtr, tsMatrix_t *matrixPtr);
-//    uint8_t currentLayer;
 };
 
 #endif // SCREEN_CONTROL_H_

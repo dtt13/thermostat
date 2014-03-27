@@ -65,7 +65,7 @@ void processCommands(TempControl *tc) {
         break;
       default:
         Serial.println("Error: message command not recognized");
-        // Serial.println(ret);
+        Serial.println((int)ret, BIN);
     }
   }
 }

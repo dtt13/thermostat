@@ -10,11 +10,10 @@ ScreenControl::ScreenControl(TempControl* tempControl) {
   // display vars
   currentView = STARTUP;
   // touch vars
-  lastTouchCheck, lastThermoUpdate = 0;
-  isPressed = false;
-  wasPressed = false;
+  lastTouchCheck, lastThermoUpdate, lastScreenPress = 0;
+  isPressed, wasPressed, touchFlag = false;
+//  touchFlag = true;
   setCalibrationMatrix(&cal_matrix);
-//  currentLayer = LAYER1;
 }
 
 // initializes the touch screen putting the screen in start up
@@ -32,14 +31,12 @@ bool ScreenControl::init() {
   tft->GPIOX(true);      // Enable TFT - display enable tied to GPIOX
   tft->PWM1config(true, RA8875_PWM_CLK_DIV1024); // PWM output for backlight
   tft->PWM1out(255);
-  tft->fillScreen(RA8875_BLACK);
+  tft->fillScreen(BLACK);
   
   // setup touch enable
-  pinMode(RA8875_INT, INPUT);
-  digitalWrite(RA8875_INT, HIGH);
   tft->touchEnable(true);
   
-  drawStartupView();
+  drawView(STARTUP);
   return true;
 }
 
@@ -59,6 +56,7 @@ void ScreenControl::processTouch() {
     ty = calibrated.y;
     Serial.println(String(tx) + ", " + String(ty));
     lastTouchCheck = millis();
+//    touchFlag = false;
   }
   // process touch depending on the view
   switch(currentView) {
@@ -77,27 +75,16 @@ void ScreenControl::processTouch() {
   }
 }
 
-// changes the view and draws the display for startup view
-void ScreenControl::switchToStartupView() {
-  if(currentView != STARTUP) {
-    currentView = STARTUP;
-    drawStartupView();
-  }
+// sets the touch flag when a touchscreen interrupt is received
+void ScreenControl::setTouchFlag() {
+  touchFlag = true;
 }
 
-// changes the view and draws the display for loading view
-void ScreenControl::switchToLoadingView() {
-  if(currentView != LOADING) {
-    currentView = LOADING;
-    drawLoadingView();
-  }
-}
-
-// changes the view and draws the display for thermostat view
-void ScreenControl::switchToThermostatView() {
-  if(currentView != THERMOSTAT) {
-    currentView = THERMOSTAT;
-    drawThermostatView();
+// changes the view and draws the display for that view
+void ScreenControl::switchView(int view) {
+  if(currentView != view) {
+    currentView = view;
+    drawView(view);
   }
 }
 
@@ -107,42 +94,56 @@ void ScreenControl::drawBackground() {
   tft->fillRect(30, 30, 420, 212, PRIMARY_BLUE);
 }
 
-// outputs the startup view to the display
-void ScreenControl::drawStartupView() {
-  char startupText[20] = "Welcome to Thermos!";
-  drawBackground();
-  tft->textMode();
-  tft->textSetCursor(90, 120);
-  tft->textTransparent(WHITE);
-  tft->textEnlarge(1);
-  tft->textWrite(startupText);
+// outputs the specified view to the display
+void ScreenControl::drawView(int view) {
+  char text[20]; 
+  switch(view) {
+    case STARTUP:
+      strcpy(text, "Welcome to Thermos!");
+      drawBackground();
+      tft->textMode();
+      tft->textSetCursor(90, 120);
+      tft->textTransparent(WHITE);
+      tft->textEnlarge(1);
+      tft->textWrite(text);
+      break;
+    case LOADING:
+      strcpy(text, "Loading...");
+      drawBackground();
+      tft->textMode();
+      tft->textSetCursor(160, 120);
+      tft->textTransparent(WHITE);
+      tft->textEnlarge(1);
+      tft->textWrite(text);
+      break;
+    case THERMOSTAT:
+      drawBackground();
+      drawTempButtons();
+      updateTemps();
+      break;
+    default:
+      switchView(STARTUP);
+  }
 }
 
-// outputs the loading view to the display
-void ScreenControl::drawLoadingView() {
-  char loadingText[11] = "Loading...";
-  drawBackground();
-  tft->textMode();
-  tft->textSetCursor(160, 120);
-  tft->textTransparent(WHITE);
-  tft->textEnlarge(1);
-  tft->textWrite(loadingText);
-}
-
-// outputs the thermostat view to the display
-void ScreenControl::drawThermostatView() {
-  char temp[4];
-  drawBackground();
-  int centerX = 380;
+// draws the arrow temperature control buttons on the screen
+void ScreenControl::drawTempButtons() {
+  int centerX = 400;
   int centerY = 136;
-  tft->fillTriangle(centerX - 30, centerY - 20, centerX + 30, centerY - 20, centerX, centerY - 70, PRIMARY_RED); // heat up
-  tft->fillTriangle(centerX - 30, centerY + 20, centerX + 30, centerY + 20, centerX, centerY + 70, SECONDARY_BLUE); // cool down
+  int separation = 50;
+  tft->fillTriangle(centerX - 30, centerY - separation, centerX + 30, centerY - separation, centerX, centerY - (separation + 50), PRIMARY_RED); // heat up
+  tft->fillTriangle(centerX - 30, centerY + separation, centerX + 30, centerY + separation, centerX, centerY + (separation + 50), SECONDARY_BLUE); // cool down
+}
+
+// writes the updated temperatures to the screen
+void ScreenControl::updateTemps() {
+  char temp[4];
   tft->textMode();
-  tft->textTransparent(WHITE);
+  tft->textColor(WHITE, PRIMARY_BLUE);
   tft->textEnlarge(6);
   // target temp
   itoa(tc->getTargetTemp(), temp, 10);
-  tft->textSetCursor(70, 100);
+  tft->textSetCursor(365, 100);
   tft->textWrite(temp);
   // room temp
   itoa(tc->getRoomTemp(), temp, 10);
@@ -154,24 +155,31 @@ void ScreenControl::drawThermostatView() {
 // processes touch events on the startup view
 void ScreenControl::processStartupTouch() {
   if(isTouchUp()) {
-    switchToLoadingView();
+    switchView(LOADING);
   }
 }
 
 // processes touch events on the loading view
 void ScreenControl::processLoadingTouch() {
   if(isTouchUp()) {
-    switchToThermostatView();
+    switchView(THERMOSTAT);
   }
 }
 
 // processes touch events on the thermostat view
 void ScreenControl::processThermostatTouch() {
   if(millis() - lastThermoUpdate > THERMO_UPDATE_DELAY) {
-    drawThermostatView();
+    updateTemps();
   }
-  if(isTouchUp()) {
-    switchToStartupView();
+  if(isTouchDown() || (isPressed && (millis() - lastScreenPress > TEMP_PRESS_DELAY))) {
+    if(340 < tx && tx < 450 && 30 < ty && ty < 100) { // heat up
+      tc->incrementTargetTemp();
+    } else if(340 < tx && tx < 450 && 172 < ty && ty < 242) { // cool down
+      tc->decrementTargetTemp();
+    }
+    lastScreenPress = millis();
+  } else if(isTouchUp() && tx < 200) {
+    switchView(STARTUP);
   }
 }
 
@@ -201,4 +209,3 @@ void ScreenControl::calibrateTSPoint(tsPoint_t *displayPtr, tsPoint_t *screenPtr
   displayPtr->x = ((matrixPtr->An * screenPtr->x) + (matrixPtr->Bn * screenPtr->y) + matrixPtr->Cn) / matrixPtr->Divider;
   displayPtr->y = ((matrixPtr->Dn * screenPtr->x) + (matrixPtr->En * screenPtr->y) + matrixPtr->Fn) / matrixPtr->Divider;
 }
-
