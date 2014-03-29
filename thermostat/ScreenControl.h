@@ -14,7 +14,7 @@
 #define RA8875_RESET   9
 
 // Screens views
-enum views {STARTUP, LOADING, THERMOSTAT, WEATHER_TEMP, WEATHER_MAP}; 
+enum views {STARTUP, LOADING, THERMOSTAT, SETTINGS, WEATHER_TEMP, WEATHER_MAP}; 
 
 // Touchscreen debouncing
 #define TOUCH_DELAY  100 // in milliseconds
@@ -54,13 +54,16 @@ class ScreenControl {
     void switchView(int view);
     void drawBackground();
     void drawView(int view);
-    void drawTempButtons();
+    void drawThermostatViewButtons();
+    void drawSettingsViewButtons();
+    void drawApp();
     void updateTemps();
 
     // used for touch
     void processStartupTouch();
     void processLoadingTouch();
     void processThermostatTouch();
+    void processSettingsTouch();
     bool isTouchDown();
     bool isTouchUp();
     void setCalibrationMatrix(tsMatrix_t *matrixPtr);

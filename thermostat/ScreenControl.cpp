@@ -69,6 +69,9 @@ void ScreenControl::processTouch() {
     case THERMOSTAT:
       processThermostatTouch();
       break;
+    case SETTINGS:
+      processSettingsTouch();
+      break;
     default:
       // TODO log an error
       ;
@@ -91,7 +94,7 @@ void ScreenControl::switchView(int view) {
 // draws a simple background theme for all views
 void ScreenControl::drawBackground() {
   tft->fillScreen(GRAY);
-  tft->fillRect(30, 30, 420, 212, PRIMARY_BLUE);
+  tft->fillRect(10, 10, 460, 252, PRIMARY_BLUE);
 }
 
 // outputs the specified view to the display
@@ -118,8 +121,19 @@ void ScreenControl::drawView(int view) {
       break;
     case THERMOSTAT:
       drawBackground();
-      drawTempButtons();
+      drawThermostatViewButtons();
       updateTemps();
+      drawApp();
+      break;
+    case SETTINGS:
+      drawBackground();
+      strcpy(text, "Settings");
+      tft->textMode();
+      tft->textSetCursor(20, 20);
+      tft->textTransparent(WHITE);
+      tft->textEnlarge(1);
+      tft->textWrite(text);
+      drawSettingsViewButtons();
       break;
     default:
       switchView(STARTUP);
@@ -127,12 +141,37 @@ void ScreenControl::drawView(int view) {
 }
 
 // draws the arrow temperature control buttons on the screen
-void ScreenControl::drawTempButtons() {
-  int centerX = 400;
+void ScreenControl::drawThermostatViewButtons() {
+  char text[12] = "Settings";
+  int centerX = 420;
   int centerY = 136;
   int separation = 50;
+  // temperature control buttons
+  tft->fillRect(centerX - 35, centerY - (separation + 55), 70, 60, GRAY);
+  tft->fillRect(centerX - 35, centerY + (separation - 5), 70, 60, GRAY);
   tft->fillTriangle(centerX - 30, centerY - separation, centerX + 30, centerY - separation, centerX, centerY - (separation + 50), PRIMARY_RED); // heat up
   tft->fillTriangle(centerX - 30, centerY + separation, centerX + 30, centerY + separation, centerX, centerY + (separation + 50), SECONDARY_BLUE); // cool down
+  // settings button
+  tft->fillRect(30, centerY - (separation + 55), 70, 60, GRAY);
+  tft->textMode();
+  tft->textSetCursor(35, centerY - (separation + 35));
+  tft->textTransparent(BLACK);
+  tft->textEnlarge(0);
+  tft->textWrite(text);
+}
+
+void ScreenControl::drawSettingsViewButtons() {
+  
+}
+
+void ScreenControl::drawApp() {
+  char text[15] = "App goes here.";
+  tft->fillRect(120, 30, 240, 212, BLACK);
+  tft->textMode();
+  tft->textSetCursor(130, 115);
+  tft->textTransparent(WHITE);
+  tft->textEnlarge(1);
+  tft->textWrite(text);
 }
 
 // writes the updated temperatures to the screen
@@ -143,11 +182,11 @@ void ScreenControl::updateTemps() {
   tft->textEnlarge(6);
   // target temp
   itoa(tc->getTargetTemp(), temp, 10);
-  tft->textSetCursor(365, 100);
+  tft->textSetCursor(385, 100);
   tft->textWrite(temp);
   // room temp
   itoa(tc->getRoomTemp(), temp, 10);
-  tft->textSetCursor(200, 100);
+  tft->textSetCursor(30, 100);
   tft->textWrite(temp); // TODO may be better way of doing this
   lastThermoUpdate = millis();
 }
@@ -172,14 +211,22 @@ void ScreenControl::processThermostatTouch() {
     updateTemps();
   }
   if(isTouchDown() || (isPressed && (millis() - lastScreenPress > TEMP_PRESS_DELAY))) {
-    if(340 < tx && tx < 450 && 30 < ty && ty < 100) { // heat up
+    if(360 < tx && tx < 470 && 30 < ty && ty < 100) { // heat up
       tc->incrementTargetTemp();
-    } else if(340 < tx && tx < 450 && 172 < ty && ty < 242) { // cool down
+    } else if(360 < tx && tx < 470 && 172 < ty && ty < 242) { // cool down
       tc->decrementTargetTemp();
     }
     lastScreenPress = millis();
-  } else if(isTouchUp() && tx < 200) {
-    switchView(STARTUP);
+  } else if(isTouchUp()) {
+    if(10 < tx && tx < 120 && 30 < ty && ty < 100) {
+      switchView(SETTINGS);
+    }
+  }
+}
+
+void ScreenControl::processSettingsTouch() {
+  if(isTouchUp()) {
+    switchView(THERMOSTAT);
   }
 }
 

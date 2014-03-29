@@ -43,11 +43,6 @@ enum temperature_units {FAHRENHEIT, CELCIUS};
 
 class TempControl {
   public:
-//    // Makes Temperature Contol a singleton pattern
-//    static TempControl& getInstance() {
-//        static TempControl tempControlInstance;
-//        return tempControlInstance;
-//    }
     TempControl();
     // Get methods
     int getRoomTemp();
@@ -65,18 +60,12 @@ class TempControl {
     void processTemperature();
 
   private:
-//    TempControl();
     int roomTemp, targetTemp;
     bool isSystemOn;
     uint8_t mode, unit, fanOverride;
     uint32_t lastTurnTime, lastProcessTime;
     void turn(uint8_t on_or_off);
     int digitalReadAlt(int pin) const;
-    // Disables copy and assingment operators
-    // TODO what is this about? compile error
-//    TempControl(TempControl const&) {};
-//    TempControl& operator=(TempControl const&) {};
-
 };
 
 #endif // TEMP_CONTROL_H_
