@@ -5,24 +5,24 @@
 // Constructor for the TempControl class
 // Sets a target temperature and mode
 TempControl::TempControl() {
-  Serial.println("Creating new temperature controller");
-  targetTemp = DEFAULT_TARGET_TEMP;
-  roomTemp = 65; // TODO remove this
+//  Serial.println("Creating new temperature controller");
+  targetTemp = DEFAULT_TARGET_TEMP * TEMP_MULTIPLE;
+  roomTemp = DEFAULT_ROOM_TEMP * TEMP_MULTIPLE; // TODO remove this
   isSystemOn = false;
   mode = DEFAULT_MODE;
   unit = DEFAULT_UNIT;
-  lastTurnTime = lastProcessTime = 0;
+  lastTurnTime, lastTempUpdateTime = 0;
   fanOverride = OFF;
 }
 
 // Returns the current temperature of the room
 int TempControl::getRoomTemp() {
-  return roomTemp;
+  return roomTemp / TEMP_MULTIPLE;
 }
 
 // Returns the target temperature
 int TempControl::getTargetTemp() {
-  return targetTemp;
+  return targetTemp / TEMP_MULTIPLE;
 }
 
 // Returns the current mode of operation
@@ -42,17 +42,17 @@ bool TempControl::isOn() {
 
 // Sets the target temperature
 void TempControl::setTargetTemp(int temp) {
-  targetTemp = temp;
+  targetTemp = temp * TEMP_MULTIPLE;
 }
 
 // Lowers the temperature by one unit
 void TempControl::incrementTargetTemp() {
-  targetTemp++;
+  targetTemp += TEMP_MULTIPLE;
 }
 
 // Raises the target temperature by one unit
 void TempControl::decrementTargetTemp() {
-  targetTemp--;
+  targetTemp -= TEMP_MULTIPLE;
 }
 
 // Switches the system between heating and cooling
@@ -77,12 +77,10 @@ void TempControl::switchUnit() {
   switch(unit) {
     case FAHRENHEIT:
       unit = CELCIUS;
-      roomTemp = F2C(roomTemp);
       targetTemp = F2C(targetTemp);
       break;
     case CELCIUS:
       unit = FAHRENHEIT;
-      roomTemp = C2F(roomTemp);
       targetTemp = C2F(targetTemp);
       break;
     default:
@@ -95,29 +93,36 @@ void TempControl::switchUnit() {
 // system should be on or off based on the target temperature.
 // This only processes the temperature every PROCESS_TIME.
 void TempControl::processTemperature() {
-  if((millis() - lastProcessTime) >= PROCESS_TIME) {
-    roomTemp = READTEMP;
+  if((millis() - lastTempUpdateTime) >= TEMP_UPDATE_DELAY) {
+    roomTemp = convertRawTemp(READTEMP); // TODO filter the temperature readings?
+//    Serial.println(getRoomTemp());
+//    roomTemp = 65;
     isSystemOn = (IS_ON(COOL_PIN)) || (IS_ON(HEAT_PIN));
+//    Serial.println(isSystemOn);
     switch(mode) {
       case HEATING:
         if(roomTemp <= targetTemp && !isSystemOn) {
           turn(ON);
+          Serial.println("heat turned on!");
         } else if(roomTemp > targetTemp && isSystemOn) {
           turn(OFF);
+          Serial.println("heat turned off!");
         }
         break;
       case COOLING:
         if(roomTemp >= targetTemp && !isSystemOn) {
           turn(ON);
+          Serial.println("cooling turned on!");
         } else if(roomTemp < targetTemp && isSystemOn) {
           turn(OFF);
+          Serial.println("cooling turned off!");
         }
         break;
       default:
         //TODO Log and error!
         ;
     }
-    lastProcessTime = millis();
+    lastTempUpdateTime = millis();
   }
 }
 
@@ -146,7 +151,7 @@ void TempControl::turn(uint8_t on_or_off) {
         ;
     }
     lastTurnTime = millis();
-    //TODO Log that the system turned on
+    //TODO Log that the system turned on or off
   }
 }
 
@@ -156,3 +161,12 @@ int TempControl::digitalReadAlt(int pin) const {
   return ((*portOutputRegister(digitalPinToPort(pin)) & digitalPinToBitMask(pin)) ? HIGH : LOW);
 }
 
+int TempControl::convertRawTemp(int raw) {
+  int calc = lround((1023 * CALC_MULTIPLE * TEMP_SHIFT) / \
+            ((COMP_RESISTOR) /  \
+              (BASE_RESISTANCE * exp(THERM_B * \
+                (((1 * TEMP_MULTIPLE) / (raw + KELVIN_OFFSET * TEMP_MULTIPLE)) - \
+                ((1) / (RES_THERM_NOM + KELVIN_OFFSET))))) + \
+              (1)) / CALC_MULTIPLE) + CELCIUS_OFFSET * TEMP_MULTIPLE; // TODO remove celcius offset?
+  return (unit == CELCIUS) ? calc : C2F(calc);
+}

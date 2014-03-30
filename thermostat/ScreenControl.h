@@ -14,7 +14,7 @@
 #define RA8875_RESET   9
 
 // Screens views
-enum views {STARTUP, LOADING, THERMOSTAT, SETTINGS, WEATHER_TEMP, WEATHER_MAP}; 
+enum views {STARTUP, THERMOSTAT, SETTINGS}; 
 
 // Touchscreen debouncing
 #define TOUCH_DELAY  100 // in milliseconds
@@ -28,11 +28,18 @@ enum views {STARTUP, LOADING, THERMOSTAT, SETTINGS, WEATHER_TEMP, WEATHER_MAP};
 #define MATRIX_FN      17941435
 #define MATRIX_DIVIDER  -344035// cannot be zero
 
+#define DEGREE_SYM        0xb0
+
 // Thermostat macros
 #define THERMO_UPDATE_DELAY  250 // milliseconds
 #define TEMP_PRESS_DELAY     500 // milliseconds 
 //// Layers
 ////enum layers {LAYER1, LAYER2};
+
+// Buttons
+typedef struct Button {
+  uint16_t x,y,width,height;
+} button_t;
 
 class ScreenControl {
   public:
@@ -49,6 +56,8 @@ class ScreenControl {
     uint16_t tx, ty;
     tsMatrix_t cal_matrix;
     bool isPressed, wasPressed, touchFlag;
+    button_t tempUpButton, tempDownButton, settingsButton; // thermostat view
+    button_t unitsButton, modeButton, backButton; // settings view
     
     // used for display
     void switchView(int view);
@@ -60,12 +69,13 @@ class ScreenControl {
     void updateTemps();
 
     // used for touch
-    void processStartupTouch();
-    void processLoadingTouch();
     void processThermostatTouch();
     void processSettingsTouch();
     bool isTouchDown();
     bool isTouchUp();
+    void createButton(button_t *button, uint16_t x, uint16_t y, uint16_t width, uint16_t height);
+    void displayButton(button_t *button);
+    bool isTouched(button_t *button);
     void setCalibrationMatrix(tsMatrix_t *matrixPtr);
     void calibrateTSPoint(tsPoint_t *displayPtr, tsPoint_t *screenPtr, tsMatrix_t *matrixPtr);
 };

@@ -11,8 +11,8 @@
 #define ON LOW
 #define OFF HIGH
 #define IS_ON(x)        (digitalReadAlt(x) == ON)
-#define ON_TIME_DELAY   60000 // wait 1 minute before turning system back on
-#define PROCESS_TIME    5000 // update the room temperature reading every 5 seconds
+#define ON_TIME_DELAY        60000 // wait 1 minute before turning system back on
+#define TEMP_UPDATE_DELAY    1000 // update the room temperature reading every second
 
 // This reads the value from a digital port set to write without clearing the port. The "protected" version commented below does not work.
 //#define digitalReadAlt(pin) ((*portOutputRegister(digitalPinToPort(pin)) & digitalPinToBitMask(pin)) ? HIGH : LOW)
@@ -22,9 +22,19 @@
 #define OFFSET(x) output_temp(temp_output(temp_ref_ui) + x)
 
 // Quick temperature conversions
-#define TEMP_MULTIPLE    1
 #define C2F(x)      (((9 * x) / 5) + (32 * TEMP_MULTIPLE)) 
 #define F2C(x)      ((((x - (32 * TEMP_MULTIPLE)) * 5) / 9))
+
+// Conversion calculations
+#define CALC_MULTIPLE    1000UL          // Improves calculations by preventing rounding error for a couple of extra digits
+#define TEMP_SHIFT       ((1 << 5) - 1)  // Since there are only 10 bits of AI, gain extra precision by movingg the bits over
+#define TEMP_MULTIPLE    100             // Keep things to hundreds of degrees in the code
+#define COMP_RESISTOR    10000
+#define BASE_RESISTANCE  10000           // Thermistor parameter
+#define RES_THERM_NOM    25.0            // Thermistor parameter
+#define THERM_B          3950            // Thermistor parameter
+#define KELVIN_OFFSET    273.15
+#define CELCIUS_OFFSET   11.11
 
 // Pin definitions
 #define TEMP_PIN 	A4
@@ -38,6 +48,7 @@ enum temperature_units {FAHRENHEIT, CELCIUS};
 
 // Defaults upon first start up
 #define DEFAULT_TARGET_TEMP     75
+#define DEFAULT_ROOM_TEMP       65
 #define DEFAULT_MODE            HEATING
 #define DEFAULT_UNIT            FAHRENHEIT
 
@@ -63,9 +74,10 @@ class TempControl {
     int roomTemp, targetTemp;
     bool isSystemOn;
     uint8_t mode, unit, fanOverride;
-    uint32_t lastTurnTime, lastProcessTime;
+    uint32_t lastTurnTime, lastTempUpdateTime;
     void turn(uint8_t on_or_off);
     int digitalReadAlt(int pin) const;
+    int convertRawTemp(int raw);
 };
 
 #endif // TEMP_CONTROL_H_

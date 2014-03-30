@@ -14,6 +14,12 @@ ScreenControl::ScreenControl(TempControl* tempControl) {
   isPressed, wasPressed, touchFlag = false;
 //  touchFlag = true;
   setCalibrationMatrix(&cal_matrix);
+  createButton(&tempUpButton, 385, 31, 70, 60);
+  createButton(&tempDownButton, 385, 181, 70, 60);
+  createButton(&settingsButton, 30, 31, 70, 40);
+  createButton(&unitsButton, 200, 100, 70, 40);
+  createButton(&modeButton, 200, 175, 70, 40);
+  createButton(&backButton, 385, 200, 70, 40);
 }
 
 // initializes the touch screen putting the screen in start up
@@ -44,6 +50,7 @@ bool ScreenControl::init() {
 // calls the current view's process touch method
 void ScreenControl::processTouch() {
   // update the touchscreen coordinates pressed
+  Serial.println("processing touch...");
   tsPoint_t raw, calibrated;
   wasPressed = isPressed;
   if((millis() - lastTouchCheck > TOUCH_DELAY) && (isPressed = tft->touched())) {
@@ -61,10 +68,8 @@ void ScreenControl::processTouch() {
   // process touch depending on the view
   switch(currentView) {
     case STARTUP:
-      processStartupTouch();
-      break;
-    case LOADING:
-      processLoadingTouch();
+      delay(3000);
+      switchView(THERMOSTAT);
       break;
     case THERMOSTAT:
       processThermostatTouch();
@@ -85,10 +90,9 @@ void ScreenControl::setTouchFlag() {
 
 // changes the view and draws the display for that view
 void ScreenControl::switchView(int view) {
-  if(currentView != view) {
-    currentView = view;
-    drawView(view);
-  }
+  currentView = view;
+  drawView(view);
+  Serial.println("done switching");
 }
 
 // draws a simple background theme for all views
@@ -110,15 +114,6 @@ void ScreenControl::drawView(int view) {
       tft->textEnlarge(1);
       tft->textWrite(text);
       break;
-    case LOADING:
-      strcpy(text, "Loading...");
-      drawBackground();
-      tft->textMode();
-      tft->textSetCursor(160, 120);
-      tft->textTransparent(WHITE);
-      tft->textEnlarge(1);
-      tft->textWrite(text);
-      break;
     case THERMOSTAT:
       drawBackground();
       drawThermostatViewButtons();
@@ -127,13 +122,23 @@ void ScreenControl::drawView(int view) {
       break;
     case SETTINGS:
       drawBackground();
-      strcpy(text, "Settings");
       tft->textMode();
-      tft->textSetCursor(20, 20);
       tft->textTransparent(WHITE);
+      // header
+      strcpy(text, "Settings");
+      tft->textSetCursor(20, 20);
       tft->textEnlarge(1);
       tft->textWrite(text);
+      // units
+      strcpy(text, "units:");
+      tft->textSetCursor(40, 100);
+      tft->textWrite(text);
+      // mode
+      strcpy(text, "mode:");
+      tft->textSetCursor(40, 175);
+      tft->textWrite(text);
       drawSettingsViewButtons();
+      Serial.println("done drawing");
       break;
     default:
       switchView(STARTUP);
@@ -146,22 +151,49 @@ void ScreenControl::drawThermostatViewButtons() {
   int centerX = 420;
   int centerY = 136;
   int separation = 50;
+  displayButton(&tempUpButton);
+  displayButton(&tempDownButton);
+  displayButton(&settingsButton);
   // temperature control buttons
-  tft->fillRect(centerX - 35, centerY - (separation + 55), 70, 60, GRAY);
-  tft->fillRect(centerX - 35, centerY + (separation - 5), 70, 60, GRAY);
   tft->fillTriangle(centerX - 30, centerY - separation, centerX + 30, centerY - separation, centerX, centerY - (separation + 50), PRIMARY_RED); // heat up
   tft->fillTriangle(centerX - 30, centerY + separation, centerX + 30, centerY + separation, centerX, centerY + (separation + 50), SECONDARY_BLUE); // cool down
   // settings button
-  tft->fillRect(30, centerY - (separation + 55), 70, 60, GRAY);
   tft->textMode();
-  tft->textSetCursor(35, centerY - (separation + 35));
+  tft->textSetCursor(35, centerY - (separation + 45));
   tft->textTransparent(BLACK);
   tft->textEnlarge(0);
   tft->textWrite(text);
 }
 
 void ScreenControl::drawSettingsViewButtons() {
-  
+  char text[7];
+  displayButton(&unitsButton);
+  displayButton(&modeButton);
+  displayButton(&backButton);
+  tft->textMode();
+  tft->textTransparent(BLACK);
+  tft->textEnlarge(0);
+  // units
+  tft->textSetCursor(225, 110);
+  if(tc->getUnit() == FAHRENHEIT) {
+    strcpy(text, " F");
+  } else {
+    strcpy(text, " C");
+  }
+  text[0] = DEGREE_SYM;
+  tft->textWrite(text);
+  // mode
+  tft->textSetCursor(207, 185);
+  if(tc->getMode() == HEATING) {
+    strcpy(text, "Heating");
+  } else {
+    strcpy(text, "Cooling");
+  }
+  tft->textWrite(text);
+  // back
+  tft->textSetCursor(405, 210);
+  strcpy(text, "Back");
+  tft->textWrite(text);
 }
 
 void ScreenControl::drawApp() {
@@ -191,40 +223,37 @@ void ScreenControl::updateTemps() {
   lastThermoUpdate = millis();
 }
 
-// processes touch events on the startup view
-void ScreenControl::processStartupTouch() {
-  if(isTouchUp()) {
-    switchView(LOADING);
-  }
-}
-
-// processes touch events on the loading view
-void ScreenControl::processLoadingTouch() {
-  if(isTouchUp()) {
-    switchView(THERMOSTAT);
-  }
-}
-
 // processes touch events on the thermostat view
 void ScreenControl::processThermostatTouch() {
   if(millis() - lastThermoUpdate > THERMO_UPDATE_DELAY) {
     updateTemps();
   }
   if(isTouchDown() || (isPressed && (millis() - lastScreenPress > TEMP_PRESS_DELAY))) {
-    if(360 < tx && tx < 470 && 30 < ty && ty < 100) { // heat up
+    if(isTouched(&tempUpButton)) { // heat up
       tc->incrementTargetTemp();
-    } else if(360 < tx && tx < 470 && 172 < ty && ty < 242) { // cool down
+    } else if(isTouched(&tempDownButton)) { // cool down
       tc->decrementTargetTemp();
     }
     lastScreenPress = millis();
   } else if(isTouchUp()) {
-    if(10 < tx && tx < 120 && 30 < ty && ty < 100) {
+    if(isTouched(&settingsButton)) {
       switchView(SETTINGS);
+      Serial.println("switched to settings");
     }
   }
 }
 
 void ScreenControl::processSettingsTouch() {
+//  if(isTouchDown()) {
+//    if(isTouched(&unitsButton)) {
+//      tc->switchUnit();
+//    } else if(isTouched(&modeButton)) {
+//      tc->switchMode();
+//    }
+//    drawSettingsViewButtons();
+//  } else if(isTouchUp() && isTouched(&backButton)) {
+//    switchView(THERMOSTAT);
+//  }
   if(isTouchUp()) {
     switchView(THERMOSTAT);
   }
@@ -238,6 +267,22 @@ bool ScreenControl::isTouchDown() {
 // determines whether or not the screen was just released
 bool ScreenControl::isTouchUp() {
   return (!isPressed && wasPressed);
+}
+
+void ScreenControl::createButton(button_t *button, uint16_t x, uint16_t y, uint16_t width, uint16_t height) {
+  button->x = x;
+  button->y = y;
+  button->width = width;
+  button->height = height;
+}
+
+void ScreenControl::displayButton(button_t *button) {
+  tft->fillRect(button->x, button->y, button->width, button->height, GRAY);
+}
+
+bool ScreenControl::isTouched(button_t *button) {
+  return ((button->x - 20) <= tx && tx <= (button->x + button->width + 20)
+          && (button->y - 20) <= ty && ty <= (button->y + button->height + 20));
 }
 
 // initializes the calibration matrix

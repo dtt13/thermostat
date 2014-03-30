@@ -2,7 +2,7 @@
 #include "MessagePassing.h"
 #include "TempControl.h"
 #include "ScreenControl.h"
-#include <Process.h>
+//#include <Process.h>
 #include <Adafruit_GFX.h>
 #include <SPI.h>
 #include <Adafruit_RA8875.h>
@@ -22,10 +22,11 @@ void setup() {
   Serial1.begin(250000);
   pinMode(13, OUTPUT);
   digitalWrite(13, LOW);
-  Bridge.begin(); // TODO maybe needs replacing?
+//  Bridge.begin(); // TODO maybe needs replacing?
   pinMode(RA8875_INT, INPUT);
   digitalWrite(RA8875_INT, HIGH);
 //  attachInterrupt(0, touchISR, FALLING);
+  tc->processTemperature();
   if(!sc->init()) {
     while(true) {
       Serial.println("Error");
@@ -37,7 +38,7 @@ void setup() {
 
 // main loop
 void loop() {
-  processCommands(tc);
+//  processCommands(tc);
   sc->processTouch();
   tc->processTemperature();
 }
