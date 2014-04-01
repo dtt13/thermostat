@@ -64,18 +64,22 @@ class ScreenControl {
     void drawBackground();
     void drawView(int view);
     void drawThermostatViewButtons();
-    void drawSettingsViewButtons();
     void drawApp();
     void updateTemps();
+    void drawSettingsViewButtons();
 
     // used for touch
     void processThermostatTouch();
     void processSettingsTouch();
     bool isTouchDown();
     bool isTouchUp();
+    
+    // using buttons
     void createButton(button_t *button, uint16_t x, uint16_t y, uint16_t width, uint16_t height);
     void displayButton(button_t *button);
     bool isTouched(button_t *button);
+    
+    // calibrating touch
     void setCalibrationMatrix(tsMatrix_t *matrixPtr);
     void calibrateTSPoint(tsPoint_t *displayPtr, tsPoint_t *screenPtr, tsMatrix_t *matrixPtr);
 };

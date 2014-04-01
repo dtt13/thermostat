@@ -50,7 +50,6 @@ bool ScreenControl::init() {
 // calls the current view's process touch method
 void ScreenControl::processTouch() {
   // update the touchscreen coordinates pressed
-  Serial.println("processing touch...");
   tsPoint_t raw, calibrated;
   wasPressed = isPressed;
   if((millis() - lastTouchCheck > TOUCH_DELAY) && (isPressed = tft->touched())) {
@@ -92,7 +91,6 @@ void ScreenControl::setTouchFlag() {
 void ScreenControl::switchView(int view) {
   currentView = view;
   drawView(view);
-  Serial.println("done switching");
 }
 
 // draws a simple background theme for all views
@@ -138,7 +136,6 @@ void ScreenControl::drawView(int view) {
       tft->textSetCursor(40, 175);
       tft->textWrite(text);
       drawSettingsViewButtons();
-      Serial.println("done drawing");
       break;
     default:
       switchView(STARTUP);
@@ -165,8 +162,66 @@ void ScreenControl::drawThermostatViewButtons() {
   tft->textWrite(text);
 }
 
+void ScreenControl::drawApp() {
+  char text[15] = "App goes here.";
+  tft->fillRect(120, 30, 240, 212, BLACK);
+  tft->textMode();
+  tft->textSetCursor(130, 115);
+  tft->textTransparent(WHITE);
+  tft->textEnlarge(1);
+  tft->textWrite(text);
+}
+
+// writes the updated temperatures to the screen
+void ScreenControl::updateTemps() {
+  char text[4];
+  tft->textMode();
+  tft->textColor(WHITE, PRIMARY_BLUE);
+  tft->textEnlarge(6);
+  // target temp
+  itoa(tc->getTargetTemp(), text, 10);
+  tft->textSetCursor(385, 100);
+  tft->textWrite(text);
+  // room temp
+  itoa(tc->getRoomTemp(), text, 10);
+  tft->textSetCursor(30, 100);
+  tft->textWrite(text); // TODO may be better way of doing this
+  // system on?
+  tft->textEnlarge(0);
+  tft->textSetCursor(50, 225);
+  if(tc->isOn()) {
+    strcpy(text, "On ");
+    tft->textColor(GREEN, PRIMARY_BLUE);
+  } else {
+    strcpy(text, "Off");
+    tft->textColor(PRIMARY_RED, PRIMARY_BLUE);
+  }
+  tft->textWrite(text);
+  lastThermoUpdate = millis();
+}
+
+// processes touch events on the thermostat view
+void ScreenControl::processThermostatTouch() {
+  if(millis() - lastThermoUpdate > THERMO_UPDATE_DELAY) {
+    updateTemps();
+  }
+  if(isTouchDown() || (isPressed && (millis() - lastScreenPress > TEMP_PRESS_DELAY))) {
+    if(isTouched(&tempUpButton)) { // heat up
+      tc->incrementTargetTemp();
+    } else if(isTouched(&tempDownButton)) { // cool down
+      tc->decrementTargetTemp();
+    }
+    lastScreenPress = millis();
+  } else if(isTouchUp()) {
+    if(isTouched(&settingsButton)) {
+      switchView(SETTINGS);
+      Serial.println("switched to settings");
+    }
+  }
+}
+
 void ScreenControl::drawSettingsViewButtons() {
-  char text[7];
+  char text[8];
   displayButton(&unitsButton);
   displayButton(&modeButton);
   displayButton(&backButton);
@@ -196,65 +251,15 @@ void ScreenControl::drawSettingsViewButtons() {
   tft->textWrite(text);
 }
 
-void ScreenControl::drawApp() {
-  char text[15] = "App goes here.";
-  tft->fillRect(120, 30, 240, 212, BLACK);
-  tft->textMode();
-  tft->textSetCursor(130, 115);
-  tft->textTransparent(WHITE);
-  tft->textEnlarge(1);
-  tft->textWrite(text);
-}
-
-// writes the updated temperatures to the screen
-void ScreenControl::updateTemps() {
-  char temp[4];
-  tft->textMode();
-  tft->textColor(WHITE, PRIMARY_BLUE);
-  tft->textEnlarge(6);
-  // target temp
-  itoa(tc->getTargetTemp(), temp, 10);
-  tft->textSetCursor(385, 100);
-  tft->textWrite(temp);
-  // room temp
-  itoa(tc->getRoomTemp(), temp, 10);
-  tft->textSetCursor(30, 100);
-  tft->textWrite(temp); // TODO may be better way of doing this
-  lastThermoUpdate = millis();
-}
-
-// processes touch events on the thermostat view
-void ScreenControl::processThermostatTouch() {
-  if(millis() - lastThermoUpdate > THERMO_UPDATE_DELAY) {
-    updateTemps();
-  }
-  if(isTouchDown() || (isPressed && (millis() - lastScreenPress > TEMP_PRESS_DELAY))) {
-    if(isTouched(&tempUpButton)) { // heat up
-      tc->incrementTargetTemp();
-    } else if(isTouched(&tempDownButton)) { // cool down
-      tc->decrementTargetTemp();
-    }
-    lastScreenPress = millis();
-  } else if(isTouchUp()) {
-    if(isTouched(&settingsButton)) {
-      switchView(SETTINGS);
-      Serial.println("switched to settings");
-    }
-  }
-}
-
 void ScreenControl::processSettingsTouch() {
-//  if(isTouchDown()) {
-//    if(isTouched(&unitsButton)) {
-//      tc->switchUnit();
-//    } else if(isTouched(&modeButton)) {
-//      tc->switchMode();
-//    }
-//    drawSettingsViewButtons();
-//  } else if(isTouchUp() && isTouched(&backButton)) {
-//    switchView(THERMOSTAT);
-//  }
-  if(isTouchUp()) {
+  if(isTouchDown()) {
+    if(isTouched(&unitsButton)) {
+      tc->switchUnit();
+    } else if(isTouched(&modeButton)) {
+      tc->switchMode();
+    }
+    drawSettingsViewButtons();
+  } else if(isTouchUp() && isTouched(&backButton)) {
     switchView(THERMOSTAT);
   }
 }

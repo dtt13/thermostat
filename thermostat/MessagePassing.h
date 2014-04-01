@@ -10,20 +10,18 @@
 // Command codes
 #define GET_ROOM_TEMP          	'R'
 #define GET_TARGET_TEMP        	'G'
-#define GET_MODE				'H'
-#define GET_UNIT				'J'
-#define IS_ON					'O'
+#define GET_MODE		'H'
+#define GET_UNIT		'J'
+#define IS_ON			'O'
 #define SET_TARGET_TEMP        	'S'
-#define INCREMENT_TARGET_TEMP  	'I'
-#define DECREMENT_TARGET_TEMP  	'D'
-#define SWITCH_MODE				'M'
-#define SWITCH_UNIT				'U'
+#define SWITCH_MODE		'M'
+#define SWITCH_UNIT		'U'
 #define STREAM_IMAGE            'P'
 
 // Image command codes
-#define STREAM_INIT         'i'
-#define STREAM_SEND         's'
-#define STREAM_FIN          'f'
+#define STREAM_INIT             'i'
+#define STREAM_SEND             's'
+#define STREAM_FIN              'f'
 
 // Read buffers
 #define COMMAND_BUFFER_SIZE    16

@@ -8,5 +8,6 @@
 #define SECONDARY_BLUE   0x08CE
 #define PRIMARY_RED      0xCA02
 #define SECONDARY_RED    0xE548
+#define GREEN            0x07E0
 
 #endif

@@ -37,16 +37,6 @@ void processCommands(TempControl *tc) {
         tc->setTargetTemp(interpretNumber(ret, sizeof(ret)));
         Serial1.println(String(SET_TARGET_TEMP));
         break;
-      case INCREMENT_TARGET_TEMP:
-        Serial.println("increment target temperature");
-        tc->incrementTargetTemp();
-        Serial1.println(String(INCREMENT_TARGET_TEMP));
-        break;
-      case DECREMENT_TARGET_TEMP:
-        Serial.println("decrement target temperature");
-        tc->decrementTargetTemp();
-        Serial1.println(String(DECREMENT_TARGET_TEMP));
-        break;
       case SWITCH_MODE:
         Serial.println("switch mode");
         tc->switchMode();

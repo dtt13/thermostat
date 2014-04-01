@@ -19,7 +19,7 @@ void touchISR() {
 // initialization code
 void setup() {
   Serial.begin(115200);
-  Serial1.begin(250000);
+  Serial1.begin(9600);
   pinMode(13, OUTPUT);
   digitalWrite(13, LOW);
 //  Bridge.begin(); // TODO maybe needs replacing?
@@ -38,7 +38,7 @@ void setup() {
 
 // main loop
 void loop() {
-//  processCommands(tc);
+  processCommands(tc);
   sc->processTouch();
   tc->processTemperature();
 }
