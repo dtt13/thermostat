@@ -94,9 +94,9 @@ void TempControl::switchUnit() {
 // This only processes the temperature every PROCESS_TIME.
 void TempControl::processTemperature() {
   if((millis() - lastTempUpdateTime) >= TEMP_UPDATE_DELAY) {
-    roomTemp = convertRawTemp(READTEMP); // TODO filter the temperature readings?
+//    roomTemp = convertRawTemp(READTEMP); // TODO filter the temperature readings?
 //    Serial.println(getRoomTemp());
-//    roomTemp = 65;
+    roomTemp = 65 * TEMP_MULTIPLE;
     isSystemOn = (IS_ON(COOL_PIN)) || (IS_ON(HEAT_PIN));
 //    Serial.println(isSystemOn);
     switch(mode) {
@@ -161,12 +161,12 @@ int TempControl::digitalReadAlt(int pin) const {
   return ((*portOutputRegister(digitalPinToPort(pin)) & digitalPinToBitMask(pin)) ? HIGH : LOW);
 }
 
-int TempControl::convertRawTemp(int raw) {
-  int calc = lround((1023 * CALC_MULTIPLE * TEMP_SHIFT) / \
-            ((COMP_RESISTOR) /  \
-              (BASE_RESISTANCE * exp(THERM_B * \
-                (((1 * TEMP_MULTIPLE) / (raw + KELVIN_OFFSET * TEMP_MULTIPLE)) - \
-                ((1) / (RES_THERM_NOM + KELVIN_OFFSET))))) + \
-              (1)) / CALC_MULTIPLE) + CELCIUS_OFFSET * TEMP_MULTIPLE; // TODO remove celcius offset?
-  return (unit == CELCIUS) ? calc : C2F(calc);
-}
+//int TempControl::convertRawTemp(int raw) {
+//  int calc = lround((1023 * CALC_MULTIPLE * TEMP_SHIFT) / \
+//            ((COMP_RESISTOR) /  \
+//              (BASE_RESISTANCE * exp(THERM_B * \
+//                (((1 * TEMP_MULTIPLE) / (raw + KELVIN_OFFSET * TEMP_MULTIPLE)) - \
+//                ((1) / (RES_THERM_NOM + KELVIN_OFFSET))))) + \
+//              (1)) / CALC_MULTIPLE) + CELCIUS_OFFSET * TEMP_MULTIPLE; // TODO remove celcius offset?
+//  return (unit == CELCIUS) ? calc : C2F(calc);
+//}

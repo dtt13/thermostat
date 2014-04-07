@@ -3,9 +3,10 @@
 #ifndef MESSAGE_PASSING_H_
 #define MESSAGE_PASSING_H_
 
-#include <Bridge.h>
-#include <string.h>
+//#include <Bridge.h>
+//#include <string.h>
 #include "TempControl.h"
+#include "ScreenControl.h"
 
 // Command codes
 #define GET_ROOM_TEMP          	'R'
@@ -16,6 +17,7 @@
 #define SET_TARGET_TEMP        	'S'
 #define SWITCH_MODE		'M'
 #define SWITCH_UNIT		'U'
+#define WRITE_TEXT              'W'
 #define STREAM_IMAGE            'P'
 
 // Image command codes
@@ -24,24 +26,22 @@
 #define STREAM_FIN              'f'
 
 // Read buffers
-#define COMMAND_BUFFER_SIZE    16
+#define COMMAND_BUFFER_SIZE    32
 #define IMAGE_BUFFER_SIZE      512
 #define MAX_FAIL_COUNT         3
 
 // main processing function
-void processCommands(TempControl *tc);
+void processCommands(TempControl *tc, ScreenControl *sc);
 
 // helper functions for interpreting TempControl
 String modeToString(TempControl *tc);
 String unitToString(TempControl *tc);
 String isOnToString(TempControl *tc);
-int interpretNumber(char *number, int len); // TODO to be removed
-
 
 uint16_t unpackNumber(char *bytes, int start, int len);
 
 // helper functions for sending images
-void receiveImage(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height);
+//void receiveImage(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height);
 void imageInitResponse();
 uint32_t imageSendResponse(char *image, int len);
 void imageToScreen(char *image, int len);

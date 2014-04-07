@@ -14,11 +14,7 @@
 #define ON_TIME_DELAY        60000 // wait 1 minute before turning system back on
 #define TEMP_UPDATE_DELAY    1000 // update the room temperature reading every second
 
-// This reads the value from a digital port set to write without clearing the port. The "protected" version commented below does not work.
-//#define digitalReadAlt(pin) ((*portOutputRegister(digitalPinToPort(pin)) & digitalPinToBitMask(pin)) ? HIGH : LOW)
-//#define digitalReadAlt(pin) (digitalPinToPort(pin) == NOT_A_PIN) ? LOW : ((*portOutputRegister(digitalPinToPort(pin)) & digitalPinToBitMask(pin)) ? HIGH : LOW)
 #define READTEMP analogRead(TEMP_PIN) //* TEMP_SHIFT
-//#define CHANGE_UNITS(new_units) C_or_F = new_units
 #define OFFSET(x) output_temp(temp_output(temp_ref_ui) + x)
 
 // Quick temperature conversions
@@ -77,7 +73,7 @@ class TempControl {
     uint32_t lastTurnTime, lastTempUpdateTime;
     void turn(uint8_t on_or_off);
     int digitalReadAlt(int pin) const;
-    int convertRawTemp(int raw);
+//    int convertRawTemp(int raw);
 };
 
 #endif // TEMP_CONTROL_H_

@@ -1,14 +1,14 @@
 
-
 #include "MessagePassing.h"
 
+char ret[COMMAND_BUFFER_SIZE];
+
 // Interprets commands from Linino for controlling the thermostat and touchscreen
-void processCommands(TempControl *tc) {
-  char ret[COMMAND_BUFFER_SIZE];
+void processCommands(TempControl *tc, ScreenControl *sc) {
+  
 //  Serial.println("processing...");
-//  Serial.println(Serial1.available());
   while(Serial1.available() > 0) {
-    memset(ret, 0x00, sizeof(ret));
+//    memset(ret, 0x00, sizeof(ret));
     int numBytes = Serial1.readBytesUntil('\n', ret, COMMAND_BUFFER_SIZE);
     Serial.println("number of bytes read: " + String(numBytes));
     switch(ret[0]) {
@@ -34,7 +34,7 @@ void processCommands(TempControl *tc) {
         break;
       case SET_TARGET_TEMP:
         Serial.println("set target temperature");
-        tc->setTargetTemp(interpretNumber(ret, sizeof(ret)));
+        tc->setTargetTemp(unpackNumber(ret, 1, 2));
         Serial1.println(String(SET_TARGET_TEMP));
         break;
       case SWITCH_MODE:
@@ -47,12 +47,21 @@ void processCommands(TempControl *tc) {
         tc->switchUnit();
         Serial1.println(String(SWITCH_UNIT));
         break;
-      case STREAM_IMAGE:
-        Serial.println("stream image");
-        imageInitResponse();
-        receiveImage(unpackNumber(ret, 3, 2), unpackNumber(ret, 5, 2),
-                      unpackNumber(ret, 7, 2), unpackNumber(ret, 9, 2));
+      case WRITE_TEXT:
+        Serial.println("write text");
+        ret[numBytes] = '\0';
+        sc->layerMode(2);
+        sc->writeText(unpackNumber(ret, 1, 2), unpackNumber(ret, 3, 2),
+                            unpackNumber(ret, 5, 2), unpackNumber(ret, 7, 2),
+                            unpackNumber(ret, 9, 1), ret+10);
+        sc->layerMode(1);
         break;
+//      case STREAM_IMAGE:
+//        Serial.println("stream image");
+//        imageInitResponse();
+//        receiveImage(unpackNumber(ret, 3, 2), unpackNumber(ret, 5, 2),
+//                      unpackNumber(ret, 7, 2), unpackNumber(ret, 9, 2));
+//        break;
       default:
         Serial.println("Error: message command not recognized");
         Serial.println((int)ret, BIN);
@@ -91,16 +100,6 @@ String isOnToString(TempControl *tc) {
   }
 }
 
-int interpretNumber(char *number, int len) { //TODO to be removed and changed to binary
-  int output = 0;
-  int i;
-  for(i = 1; i < len && isdigit(number[i]); i++) {
-    output *= 10;
-    output += number[i] - '0';
-  }
-  return output;
-}
-
 // Grabs the number representation of the a sequence of bytes
 uint16_t unpackNumber(char *bytes, int start, int len) {
   uint16_t output = 0;
@@ -113,42 +112,42 @@ uint16_t unpackNumber(char *bytes, int start, int len) {
 }
 
 // Processes the image and forwards the data to the screen
-void receiveImage(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height) {
-  // allocate the buffer and start receiving data
-  char image[IMAGE_BUFFER_SIZE];
-  uint8_t failCount = 0;
-//  bool success = false;
-  uint32_t pixelCount = 0;
-  Serial.println(String(width) + ", " + String(height));
-  uint32_t pixelTotal = (uint32_t)(width * height);
-  Serial.println("pixelTotal: " + String(pixelTotal));
-  while((failCount < MAX_FAIL_COUNT) && (pixelCount < pixelTotal)) {
-    // read next packet
-    Serial.println("in the loop");
-    memset(image, 0x00, IMAGE_BUFFER_SIZE);
-    int bytesRead = Serial1.readBytes(image, IMAGE_BUFFER_SIZE);
-    printData(image, bytesRead);//TODO remove this; only prints packet contents
-    // interpret packet
-    if(image[0] == STREAM_IMAGE) {
-      switch(image[1]) {
-        case STREAM_INIT:
-          Serial.println("init");
-          imageInitResponse();
-          failCount = 0;
-          break;
-        case STREAM_SEND:
-          Serial.println("send");
-          pixelCount += imageSendResponse(image, bytesRead);
-          break;
-        default:
-          failCount++;
-      }
-    } else {
-      failCount++;
-    }
-  }
-  Serial.println("pixelCount: " + String(pixelCount));
-}
+//void receiveImage(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height) {
+//  // allocate the buffer and start receiving data
+//  char image[IMAGE_BUFFER_SIZE];
+//  uint8_t failCount = 0;
+////  bool success = false;
+//  uint32_t pixelCount = 0;
+//  Serial.println(String(width) + ", " + String(height));
+//  uint32_t pixelTotal = (uint32_t)(width * height);
+//  Serial.println("pixelTotal: " + String(pixelTotal));
+//  while((failCount < MAX_FAIL_COUNT) && (pixelCount < pixelTotal)) {
+//    // read next packet
+//    Serial.println("in the loop");
+//    memset(image, 0x00, IMAGE_BUFFER_SIZE);
+//    int bytesRead = Serial1.readBytes(image, IMAGE_BUFFER_SIZE);
+//    printData(image, bytesRead);//TODO remove this; only prints packet contents
+//    // interpret packet
+//    if(image[0] == STREAM_IMAGE) {
+//      switch(image[1]) {
+//        case STREAM_INIT:
+//          Serial.println("init");
+//          imageInitResponse();
+//          failCount = 0;
+//          break;
+//        case STREAM_SEND:
+//          Serial.println("send");
+//          pixelCount += imageSendResponse(image, bytesRead);
+//          break;
+//        default:
+//          failCount++;
+//      }
+//    } else {
+//      failCount++;
+//    }
+//  }
+//  Serial.println("pixelCount: " + String(pixelCount));
+//}
 
 void printData(char *data, int len) {
   int i;

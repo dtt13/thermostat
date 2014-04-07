@@ -31,7 +31,7 @@ enum views {STARTUP, THERMOSTAT, SETTINGS};
 #define DEGREE_SYM        0xb0
 
 // Thermostat macros
-#define THERMO_UPDATE_DELAY  250 // milliseconds
+#define SCREEN_UPDATE_DELAY  250 // milliseconds
 #define TEMP_PRESS_DELAY     500 // milliseconds 
 //// Layers
 ////enum layers {LAYER1, LAYER2};
@@ -43,19 +43,22 @@ typedef struct Button {
 
 class ScreenControl {
   public:
+    bool touchFlag;
     ScreenControl(TempControl *tc);
     bool init();
     void processTouch();
-    void setTouchFlag();
+    void layerMode(uint8_t layer);
+    void writeText(uint16_t x, uint16_t y, uint16_t color, uint8_t fontSize, char *text);
+    void writeText(uint16_t x, uint16_t y, uint16_t fColor, uint16_t bColor, uint8_t fontSize, char *text);
 
   private:
     Adafruit_RA8875 *tft;// = Adafruit_RA8875(RA8875_CS, RA8875_RESET);
     TempControl *tc;
     uint8_t currentView;
-    uint32_t lastTouchCheck, lastThermoUpdate, lastScreenPress;
+    uint32_t lastTouchCheck, lastScreenUpdate, lastScreenPress;
     uint16_t tx, ty;
     tsMatrix_t cal_matrix;
-    bool isPressed, wasPressed, touchFlag;
+    bool isPressed, wasPressed;
     button_t tempUpButton, tempDownButton, settingsButton; // thermostat view
     button_t unitsButton, modeButton, backButton; // settings view
     
@@ -65,6 +68,7 @@ class ScreenControl {
     void drawView(int view);
     void drawThermostatViewButtons();
     void drawApp();
+    void updateHeader();
     void updateTemps();
     void drawSettingsViewButtons();
 
