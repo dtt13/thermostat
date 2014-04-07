@@ -1,0 +1,1 @@
+* * * * * /mnt/sda1/arduino/ScreenControl/send_timedate.py &> /mnt/sda1/arduino/ScreenControl/timedate.log

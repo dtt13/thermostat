@@ -25,10 +25,11 @@ __GET_MODE 				= 'H'
 __GET_UNIT				= 'J'
 __IS_ON					= 'O'
 __SET_TARGET_TEMP 		= 'S'
-__INCREMENT_TARGET_TEMP = 'I'
-__DECREMENT_TARGET_TEMP = 'D'
+#__INCREMENT_TARGET_TEMP = 'I'
+#__DECREMENT_TARGET_TEMP = 'D'
 __SWITCH_MODE			= 'M'
 __SWITCH_UNIT			= 'U'
+__WRITE_TEXT			= 'W'
 __STREAM_IMAGE			= 'P'
 
 # Image streaming sub-commands
@@ -75,16 +76,17 @@ def isOn():
 
 # Sets the target temperature
 def setTargetTemp(newTargetTemp):
-	tempString = '%d' % newTargetTemp
-	return __sendCommandWithRetry(__SET_TARGET_TEMP, tempString, False)
+	# tempString = '%d' % newTargetTemp
+	temp = struct.pack('h', newTargetTemp)
+	return __sendCommandWithRetry(__SET_TARGET_TEMP, temp, False)
 
-# Increase the target temperature by one degree
-def incrementTargetTemp():
-	return __sendCommandWithRetry(__INCREMENT_TARGET_TEMP, '', False)
+# # Increase the target temperature by one degree
+# def incrementTargetTemp():
+# 	return __sendCommandWithRetry(__INCREMENT_TARGET_TEMP, '', False)
 
-# Decrease the target temperature by one degree
-def decrementTargetTemp():
-	return __sendCommandWithRetry(__DECREMENT_TARGET_TEMP, '', False)
+# # Decrease the target temperature by one degree
+# def decrementTargetTemp():
+# 	return __sendCommandWithRetry(__DECREMENT_TARGET_TEMP, '', False)
 
 # Switches the system between heating and cooling
 def switchMode():
@@ -93,6 +95,11 @@ def switchMode():
 # Switches the temperature units
 def switchUnit():
 	return __sendCommandWithRetry(__SWITCH_UNIT, '', False)
+
+# Sends text to be displayed on the screen
+def writeText(x, y, fColor, bColor, fontSize, text):
+	packet = '%s%s' % (struct.pack('HHHHB', x, y, fColor, bColor, fontSize), text)
+	return __sendCommandWithRetry(__WRITE_TEXT, packet, False)
 
 # Sends an image touchscreen at the specified location
 def streamImage(file, xpos, ypos):
