@@ -50,6 +50,7 @@ class ScreenControl {
     void layerMode(uint8_t layer);
     void writeText(uint16_t x, uint16_t y, uint16_t color, uint8_t fontSize, char *text);
     void writeText(uint16_t x, uint16_t y, uint16_t fColor, uint16_t bColor, uint8_t fontSize, char *text);
+    void hideApp(bool hide);
 
   private:
     Adafruit_RA8875 *tft;// = Adafruit_RA8875(RA8875_CS, RA8875_RESET);

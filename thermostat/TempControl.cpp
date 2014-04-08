@@ -13,6 +13,9 @@ TempControl::TempControl() {
   unit = DEFAULT_UNIT;
   lastTurnTime, lastTempUpdateTime = 0;
   fanOnOverride = OFF;
+  COOL(OFF);
+  HEAT(OFF);
+  FAN(OFF);
 }
 
 // Returns the current temperature of the room
@@ -88,7 +91,12 @@ void TempControl::switchFan() {
     default:
       ;
   }
-  FAN(OFF); // uses just the override
+//  if(IS_ON(COOL_PIN)) {
+//    FAN(ON);
+//  } else {
+//    FAN(OFF);
+//  }
+  FAN(digitalReadAlt(COOL_PIN));
 }
 
 // Swtiches the temperature units
@@ -121,19 +129,15 @@ void TempControl::processTemperature() {
       case HEATING:
         if(roomTemp <= targetTemp && !isSystemOn) {
           turn(ON);
-          Serial.println("heat turned on!");
         } else if(roomTemp > targetTemp && isSystemOn) {
           turn(OFF);
-          Serial.println("heat turned off!");
         }
         break;
       case COOLING:
         if(roomTemp >= targetTemp && !isSystemOn) {
           turn(ON);
-          Serial.println("cooling turned on!");
         } else if(roomTemp < targetTemp && isSystemOn) {
           turn(OFF);
-          Serial.println("cooling turned off!");
         }
         break;
       default:

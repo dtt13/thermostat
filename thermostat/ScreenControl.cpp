@@ -115,6 +115,16 @@ void ScreenControl::writeText(uint16_t x, uint16_t y, uint16_t color, uint8_t fo
   tft->textWrite(text);
 }
 
+void ScreenControl::hideApp(bool hide) {
+  uint16_t color;
+  if(hide) {
+    color = PRIMARY_BLUE;
+  } else {
+    color = TRANSPARENT_COLOR;
+  }
+  tft->fillRect(120, 40, 240, 212, color);
+}
+
 // changes the view and draws the display for that view
 void ScreenControl::switchView(int view) {
   currentView = view;
@@ -134,6 +144,7 @@ void ScreenControl::drawBackground() {
 void ScreenControl::drawView(int view) {
   char text[20]; 
   tft->fillScreen(TRANSPARENT_COLOR);
+  hideApp(true);
   switch(view) {
     case STARTUP:
       strcpy(text, "Welcome to Roost!");
@@ -142,7 +153,7 @@ void ScreenControl::drawView(int view) {
     case THERMOSTAT:
       drawThermostatViewButtons();
       updateTemps();
-      drawApp();
+//      drawApp();
       break;
     case SETTINGS:
       // header
@@ -183,8 +194,10 @@ void ScreenControl::drawThermostatViewButtons() {
 
 void ScreenControl::drawApp() {
   char text[15] = "App goes here.";
+  tft->layerMode(2);
   tft->fillRect(120, 40, 240, 212, BLACK);
   writeText(130, 125, WHITE, 1, text);
+  tft->layerMode(1);
 }
 
 //
@@ -223,19 +236,20 @@ void ScreenControl::updateTemps() {
 
 // processes touch events on the thermostat view
 void ScreenControl::processThermostatTouch() {
-  if(isTouchDown() || (isPressed && (millis() - lastScreenPress > TEMP_PRESS_DELAY))) {
+  if(isTouchDown() && isTouched(&fanButton)) {
+    tc->switchFan();
+  } else if(isTouchDown() || (isPressed && (millis() - lastScreenPress > TEMP_PRESS_DELAY))) {
     if(isTouched(&tempUpButton)) { // heat up
       tc->incrementTargetTemp();
+      hideApp(true);
     } else if(isTouched(&tempDownButton)) { // cool down
       tc->decrementTargetTemp();
+      hideApp(false);
     }
     lastScreenPress = millis();
   } else if(isTouchUp()) {
     if(isTouched(&settingsButton)) {
       switchView(SETTINGS);
-    } else if(isTouched(&fanButton)) {
-      tc->switchFan();
-      Serial.println("pressed fan button");
     }
   }
 }
