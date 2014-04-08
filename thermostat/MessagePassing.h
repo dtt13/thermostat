@@ -26,7 +26,7 @@
 #define STREAM_FIN              'f'
 
 // Read buffers
-#define COMMAND_BUFFER_SIZE    32
+#define COMMAND_BUFFER_SIZE    64
 #define IMAGE_BUFFER_SIZE      512
 #define MAX_FAIL_COUNT         3
 

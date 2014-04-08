@@ -17,6 +17,7 @@ ScreenControl::ScreenControl(TempControl* tempControl) {
   createButton(&tempUpButton, 385, 41, 70, 60);
   createButton(&tempDownButton, 385, 191, 70, 60);
   createButton(&settingsButton, 30, 41, 70, 40);
+  createButton(&fanButton, 30, 211, 70, 40);
   createButton(&unitsButton, 200, 110, 70, 40);
   createButton(&modeButton, 200, 185, 70, 40);
   createButton(&backButton, 385, 210, 70, 40);
@@ -162,18 +163,22 @@ void ScreenControl::drawView(int view) {
 
 // draws the arrow temperature control buttons on the screen
 void ScreenControl::drawThermostatViewButtons() {
-  char text[12] = "Settings";
+  char text[12];
   int centerX = 420;
   int centerY = 146;
   int separation = 50;
   displayButton(&tempUpButton);
   displayButton(&tempDownButton);
   displayButton(&settingsButton);
+  displayButton(&fanButton);
   // temperature control buttons
   tft->fillTriangle(centerX - 30, centerY - separation, centerX + 30, centerY - separation, centerX, centerY - (separation + 50), PRIMARY_RED); // heat up
   tft->fillTriangle(centerX - 30, centerY + separation, centerX + 30, centerY + separation, centerX, centerY + (separation + 50), SECONDARY_BLUE); // cool down
   // settings button
+  strcpy(text, "Settings");
   writeText(35, centerY - (separation + 45), BLACK, 0, text);
+  strcpy(text, "Fan");
+  writeText(53, centerY + (separation + 25), BLACK, 0, text);
 }
 
 void ScreenControl::drawApp() {
@@ -193,6 +198,13 @@ void ScreenControl::updateHeader() {
   } else {
     strcpy(text, "Off");
     writeText(415, 5, PRIMARY_RED, BLACK, 0, text);
+  }
+  // fan on?
+  strcpy(text, "Fan");
+  if(tc->isFanOn()) {
+    writeText(50, 5, PALE_YELLOW, BLACK, 0, text);
+  } else {
+    writeText(50, 5, BLACK, BLACK, 0, text);
   }
   tft->layerMode(1);
 }
@@ -221,6 +233,9 @@ void ScreenControl::processThermostatTouch() {
   } else if(isTouchUp()) {
     if(isTouched(&settingsButton)) {
       switchView(SETTINGS);
+    } else if(isTouched(&fanButton)) {
+      tc->switchFan();
+      Serial.println("pressed fan button");
     }
   }
 }

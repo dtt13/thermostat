@@ -12,7 +12,7 @@ TempControl::TempControl() {
   mode = DEFAULT_MODE;
   unit = DEFAULT_UNIT;
   lastTurnTime, lastTempUpdateTime = 0;
-  fanOverride = OFF;
+  fanOnOverride = OFF;
 }
 
 // Returns the current temperature of the room
@@ -38,6 +38,11 @@ uint8_t TempControl::getUnit() {
 // Returns true is the system is on, false otherwise
 bool TempControl::isOn() {
   return isSystemOn;
+}
+
+// Returns true if the fan is on, false otherwise
+bool TempControl::isFanOn() {
+  return IS_ON(FAN_PIN);
 }
 
 // Sets the target temperature
@@ -67,9 +72,23 @@ void TempControl::switchMode() {
       mode = HEATING;
       break;
     default:
-      //TODO Log an error!
       ;
    }
+}
+
+// Switches the fan on or off
+void TempControl::switchFan() {
+  switch(fanOnOverride) {
+    case ON:
+      fanOnOverride = OFF;
+      break;
+    case OFF:
+      fanOnOverride = ON;
+      break;
+    default:
+      ;
+  }
+  FAN(OFF); // uses just the override
 }
 
 // Swtiches the temperature units
@@ -84,7 +103,6 @@ void TempControl::switchUnit() {
       targetTemp = C2F(targetTemp);
       break;
     default:
-      //TODO Log an error!
       ;
   }
 }
@@ -135,23 +153,19 @@ void TempControl::turn(uint8_t on_or_off) {
       case HEATING:
         if(IS_ON(COOL_PIN)) {
           COOL(OFF);
-          //TODO Log an error!
         }
         HEAT(on_or_off);
         break;
       case COOLING:
         if(IS_ON(HEAT_PIN)) {
           HEAT(OFF);
-          //TODO Log an error! 
         }
         COOL(on_or_off);
         break;
       default:
-        //TODO Log an error!
         ;
     }
     lastTurnTime = millis();
-    //TODO Log that the system turned on or off
   }
 }
 

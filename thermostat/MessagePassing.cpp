@@ -8,7 +8,7 @@ void processCommands(TempControl *tc, ScreenControl *sc) {
   
 //  Serial.println("processing...");
   while(Serial1.available() > 0) {
-//    memset(ret, 0x00, sizeof(ret));
+    memset(ret, 0x00, sizeof(ret));
     int numBytes = Serial1.readBytesUntil('\n', ret, COMMAND_BUFFER_SIZE);
     Serial.println("number of bytes read: " + String(numBytes));
     switch(ret[0]) {
@@ -49,6 +49,7 @@ void processCommands(TempControl *tc, ScreenControl *sc) {
         break;
       case WRITE_TEXT:
         Serial.println("write text");
+        Serial1.println(String(WRITE_TEXT));
         ret[numBytes] = '\0';
         sc->layerMode(2);
         sc->writeText(unpackNumber(ret, 1, 2), unpackNumber(ret, 3, 2),

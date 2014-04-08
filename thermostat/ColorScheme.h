@@ -9,6 +9,7 @@
 #define PRIMARY_RED        0xCA02
 #define SECONDARY_RED      0xE548
 #define GREEN              0x07E0
+#define PALE_YELLOW        0xFF00
 #define TRANSPARENT_COLOR  0x3333
 
 #endif

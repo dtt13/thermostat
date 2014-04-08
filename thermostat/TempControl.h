@@ -7,7 +7,7 @@
 // Heating and cooling functions
 #define HEAT(x)         digitalWrite(HEAT_PIN, x)
 #define COOL(x)         {digitalWrite(COOL_PIN, x); FAN(ON);}
-#define FAN(x)          digitalWrite(FAN_PIN, x || fanOverride)
+#define FAN(x)          digitalWrite(FAN_PIN, x && fanOnOverride)
 #define ON LOW
 #define OFF HIGH
 #define IS_ON(x)        (digitalReadAlt(x) == ON)
@@ -57,11 +57,13 @@ class TempControl {
     uint8_t getMode();
     uint8_t getUnit();
     bool isOn();
+    bool isFanOn();
     // Control methods
     void setTargetTemp(int targetTemp);
     void incrementTargetTemp();
     void decrementTargetTemp();
     void switchMode();
+    void switchFan();
     void switchUnit();
     // Updating methods
     void processTemperature();
@@ -69,7 +71,7 @@ class TempControl {
   private:
     int roomTemp, targetTemp;
     bool isSystemOn;
-    uint8_t mode, unit, fanOverride;
+    uint8_t mode, unit, fanOnOverride;
     uint32_t lastTurnTime, lastTempUpdateTime;
     void turn(uint8_t on_or_off);
     int digitalReadAlt(int pin) const;
