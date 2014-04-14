@@ -37,6 +37,10 @@ __STREAM_INIT			= 'i'
 __STREAM_SEND			= 's'
 __STREAM_FIN			= 'f'
 
+# Buffer size on the Arduino
+__BUFF_SIZE				= 512
+
+
 # Gets the temperature of the room
 def getRoomTemp():
 	result = __sendCommandWithRetry(__GET_ROOM_TEMP, '', True)
@@ -113,26 +117,46 @@ def streamImage(file, xpos, ypos):
 	imagePixels = R
 	for i in range(len(R)):
 		imagePixels[i] = ((R[i] & 0xF8) << 8) | ((G[i] & 0xFC) << 3) | (B[i] >> 3)
-	# send an image command
-	message = struct.pack('cHHHH', __STREAM_INIT, xpos, ypos, width, height)
-	response = __sendCommandWithRetry(__STREAM_IMAGE, message, True)
-	print response
-	if response == 'error' or len(response) != 4:
+	# calculate how much of the image to send per transmission
+	headerSize = 11
+	rowsPerTx = (__BUFF_SIZE - headerSize) / (width * 2)
+	print 'rows per transmission:', rowsPerTx
+	rowCount = 0
+	response = ''
+	while(response != 'error' and rowCount < height):
+	# while(response != 'error' and rowCount <= 0):
+		startPixel = rowCount * width
+		endPixel = min(height, (rowCount + rowsPerTx)) * width
+		print 'start:', startPixel, 'end:', endPixel
+		print xpos, ypos + rowCount, width, (endPixel / width) - rowCount
+		message = struct.pack('HHHH' + (endPixel-startPixel) * 'H', xpos, ypos + rowCount, width, (endPixel / width) - rowCount, *imagePixels[startPixel:endPixel])
+		response = __sendCommandWithRetry(__STREAM_IMAGE, message, False, 1, 1.5)
+		rowCount += rowsPerTx
+	if(response == 'error'):
 		return 'error'
-	else:
-		bufferSize, firstPixel = struct.unpack('HH', response)
-		firstPixel *= 8
-	# send image file
-	if __stream(imagePixels, firstPixel, bufferSize) == 'error':
-		return 'error'
-	# send termination command
-	__sendCommandWithoutRetry(__STREAM_IMAGE, __STREAM_FIN)
+
+
+	# # send an image command
+	# message = struct.pack('cHHHH', __STREAM_INIT, xpos, ypos, width, height)
+	# response = __sendCommandWithRetry(__STREAM_IMAGE, message, True)
+	# print response
+	# if response == 'error' or len(response) != 4:
+	# 	return 'error'
+	# else:
+	# 	bufferSize, firstPixel = struct.unpack('HH', response)
+	# 	firstPixel *= 8
+	# # send image file
+	# if __stream(imagePixels, firstPixel, bufferSize) == 'error':
+	# 	return 'error'
+	# # send termination command
+	# __sendCommandWithoutRetry(__STREAM_IMAGE, __STREAM_FIN)
 
 # Sends a command to the microcontroller with the message
 # expectedResponse should be True if expecting a response
 # from the microcontroller, False otherwise
-def __sendCommandWithRetry(command, message, expectedResponse):
-	packet = '%s%s\n' % (command, message)
+def __sendCommandWithRetry(command, message, expectedResponse, maxTrials = __MAX_TRIALS, timeout = __TIMEOUT):
+	packetSize = struct.pack('H', len(message))
+	packet = '%s%s%s\n' % (command, packetSize, message)
 	# transmit data and wait for response
 	trial = 0
 	success = False
@@ -160,7 +184,8 @@ def __sendCommandWithRetry(command, message, expectedResponse):
 # Does not wait for any response before terminating only sends the
 # packet once
 def __sendCommandWithoutRetry(command, message):
-	packet = '%s%s\n' % (command, message)
+	packetSize = struct.pack('H', len(message))
+	packet = '%s%s%s' % (command, packetSize, message)
 	ser_out = io.open(__SERIAL1, 'wb')
 	ser_out.write(packet)
 	ser_out.close()
@@ -248,4 +273,3 @@ def testStream(data_size):
 	# send termination command
 	#print 'sending temination...'
 	#__sendCommandWithoutRetry(__STREAM_IMAGE, __STREAM_FIN)
-
