@@ -38,7 +38,7 @@ __STREAM_SEND			= 's'
 __STREAM_FIN			= 'f'
 
 # Buffer size on the Arduino
-__BUFF_SIZE				= 512
+__BUFF_SIZE				= 1024
 
 
 # Gets the temperature of the room
