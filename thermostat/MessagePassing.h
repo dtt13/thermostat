@@ -27,11 +27,13 @@
 
 // Read buffers
 #define COMMAND_BUFFER_SIZE    64
-#define IMAGE_BUFFER_SIZE      512
+#define IMAGE_BUFFER_SIZE      1024
 #define MAX_FAIL_COUNT         3
 
 // main processing function
 void processCommands(TempControl *tc, ScreenControl *sc);
+
+int readPacket();
 
 // helper functions for interpreting TempControl
 String modeToString(TempControl *tc);
@@ -39,15 +41,6 @@ String unitToString(TempControl *tc);
 String isOnToString(TempControl *tc);
 
 uint16_t unpackNumber(char *bytes, int start, int len);
-
-// helper functions for sending images
-//void receiveImage(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height);
-void imageInitResponse();
-uint32_t imageSendResponse(char *image, int len);
-void imageToScreen(char *image, int len);
-void writeResponse(char *response, int len);
-//uint16_t imageToScreen(char *image, int len, uint16_t pixelCount);
-void imageCopy(char *dest, char *src, int len);
 
 // helper functions for debugging
 void printData(char *date, int len);
