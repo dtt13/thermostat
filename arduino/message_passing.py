@@ -113,7 +113,6 @@ def streamImage(file, xpos, ypos):
 		imagePixels[i] = ((R[i] & 0xF8) << 8) | ((G[i] & 0xFC) << 3) | (B[i] >> 3)
 	# calculate how much of the image to send per transmission
 	headerSize = 11
-
 	rowsPerTx = (__BUFF_SIZE - headerSize) / (width * 2)
 	print 'rows per transmission:', rowsPerTx
 	rowCount = 0
@@ -134,7 +133,7 @@ def __sendCommandWithRetry(command, message, expectedResponse, maxTrials = __MAX
 	packetSize = struct.pack('H', len(message))
 	packet = '%s%s%s' % (command, packetSize, message)
 	# empty the serial port before sending messages
-	__emptySerial()
+	# __emptySerial()
 	# transmit data and wait for response
 	trial = 0
 	success = False
@@ -144,7 +143,7 @@ def __sendCommandWithRetry(command, message, expectedResponse, maxTrials = __MAX
 		ser_out.write(packet)
 		ser_out.close()
 		ser_in = io.open(__SERIAL1, 'rb')
-		rlist, wlist, xlist = select.select([ser_in], [], [], __TIMEOUT)
+		rlist, wlist, xlist = select.select([ser_in], [], [], timeout)
 		for reader in rlist:
 			response = reader.readline().rstrip('\r\n')
 			# print response

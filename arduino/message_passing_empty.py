@@ -13,8 +13,8 @@ from PIL import Image
 # Serial1 connection
 __SERIAL1 = '/dev/ttyATH0'
 
-# Timeout and maximum number of __TIMEOUT
-trials = 1 # seconds
+# Timeout and maximum number of trials
+__TIMEOUT = 1 # seconds
 __MAX_TRIALS = 3
 
 # Message commands constants
@@ -144,7 +144,7 @@ def __sendCommandWithRetry(command, message, expectedResponse, maxTrials = __MAX
 		ser_out.write(packet)
 		ser_out.close()
 		ser_in = io.open(__SERIAL1, 'rb')
-		rlist, wlist, xlist = select.select([ser_in], [], [], __TIMEOUT)
+		rlist, wlist, xlist = select.select([ser_in], [], [], timeout)
 		for reader in rlist:
 			response = reader.readline().rstrip('\r\n')
 			# print response
