@@ -34,7 +34,7 @@ echo "installing suds..."
 $PIP install suds
 
 # install lxml
-echo "installing lxml..."
-$PIP install lxml
+# echo "installing lxml..."
+# $PIP install lxml
 
 echo "all done."
