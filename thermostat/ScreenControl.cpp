@@ -115,6 +115,20 @@ void ScreenControl::writeText(uint16_t x, uint16_t y, uint16_t color, uint8_t fo
   tft->textWrite(text);
 }
 
+void ScreenControl::drawImage(uint16_t *data, int len, uint16_t x, uint16_t y, uint16_t width, uint16_t height) {
+  tft->graphicsMode();
+  uint16_t currentX, currentY;
+  for(currentY = y; currentY < y + height; currentY++) {
+    for(currentX = x; currentX < x + width; currentX++) {
+      Serial.print("x, y, data: " + String(currentX) + ", " + String(currentY) + ", ");
+      Serial.println(data[(currentY - y) * width + (currentX - x)], HEX);
+      uint16_t pixel = data[(currentY - y) * width + (currentX - x)];
+      pixel = ((pixel & 0xFF00) >> 8) | ((pixel & 0x00FF) << 8);
+      tft->drawPixel(currentX, currentY, pixel);
+    }
+  } 
+}
+
 void ScreenControl::hideApp(bool hide) {
   uint16_t color;
   if(hide) {

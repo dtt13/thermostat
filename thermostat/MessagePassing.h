@@ -20,19 +20,16 @@
 #define WRITE_TEXT              'W'
 #define STREAM_IMAGE            'P'
 
-// Image command codes
-#define STREAM_INIT             'i'
-#define STREAM_SEND             's'
-#define STREAM_FIN              'f'
-
 // Read buffers
-#define COMMAND_BUFFER_SIZE    64
-#define IMAGE_BUFFER_SIZE      1024
+#define COMMAND_BUFFER_SIZE    1024
 #define MAX_FAIL_COUNT         3
+
+char buff[COMMAND_BUFFER_SIZE];
+char *buff_ptr = buff;
+bool isStreaming = false;
 
 // main processing function
 void processCommands(TempControl *tc, ScreenControl *sc);
-
 int readPacket();
 
 // helper functions for interpreting TempControl
@@ -40,9 +37,7 @@ String modeToString(TempControl *tc);
 String unitToString(TempControl *tc);
 String isOnToString(TempControl *tc);
 
+// helper function for unpacking binary data
 uint16_t unpackNumber(char *bytes, int start, int len);
-
-// helper functions for debugging
-void printData(char *date, int len);
 
 #endif // MESSAGE_PASSING_H_

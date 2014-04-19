@@ -66,7 +66,7 @@ class TempControl {
     void switchFan();
     void switchUnit();
     // Updating methods
-    void processTemperature();
+//    void processTemperature();
 
   private:
     int roomTemp, targetTemp;

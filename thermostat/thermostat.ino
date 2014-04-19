@@ -2,6 +2,7 @@
 #include "MessagePassing.h"
 #include "TempControl.h"
 #include "ScreenControl.h"
+//#include <Console.h>
 #include <Bridge.h>
 #include <Adafruit_GFX.h>
 #include <SPI.h>
@@ -19,7 +20,8 @@ void touchISR() {
 // initialization code
 void setup() {
   Serial.begin(115200);
-  Serial1.begin(9600);
+  Serial1.begin(115200);
+  Serial1.setTimeout(1000);
   pinMode(13, OUTPUT);
   digitalWrite(13, LOW);
   Bridge.begin(); // TODO maybe needs replacing?
@@ -39,5 +41,5 @@ void setup() {
 void loop() {
   processCommands(tc, sc);
   sc->processTouch();
-  tc->processTemperature();
+//  tc->processTemperature();
 }

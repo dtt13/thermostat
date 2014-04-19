@@ -50,6 +50,7 @@ class ScreenControl {
     void layerMode(uint8_t layer);
     void writeText(uint16_t x, uint16_t y, uint16_t color, uint8_t fontSize, char *text);
     void writeText(uint16_t x, uint16_t y, uint16_t fColor, uint16_t bColor, uint8_t fontSize, char *text);
+    void drawImage(uint16_t *data, int len, uint16_t x, uint16_t y, uint16_t width, uint16_t height); 
     void hideApp(bool hide);
 
   private:
