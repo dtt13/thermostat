@@ -10,31 +10,39 @@ PIP=$PACK/bin/pip
 opkg update
 mkdir $PACK
 
+# install the PIL package
+echo
+echo "Installing PIL..."
+opkg install python-imaging-library
+
 # install easy_install and pip which is used for installing other packages
+echo
+echo "Installing pip..."
 opkg install distribute
 opkg install python-openssl
 easy_install pip
 
 # install virtualenv
-echo "installing virtualenv..."
+echo
+echo "Installing virtualenv..."
 easy_install virtualenv
-echo "creating virtual environment..."
+echo "Creating virtual environment..."
 virtualenv $PACK
 
-# install the PIL package
-echo "installing PIL..."
-opkg install python-imaging-library
-
 # install the web.py package
-echo "installing web.py..."
+echo
+echo "Installing web.py..."
 $PIP install web.py
 
 # install suds
-echo "installing suds..."
+echo
+echo "Installing suds..."
 $PIP install suds
 
 # install lxml
+# echo
 # echo "installing lxml..."
 # $PIP install lxml
 
-echo "all done."
+echo
+echo "All Done."
