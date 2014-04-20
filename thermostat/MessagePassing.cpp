@@ -1,9 +1,16 @@
 
 #include "MessagePassing.h"
 
+char buff[COMMAND_BUFFER_SIZE];
+char *buff_ptr = buff;
+bool isStreaming = false;
+long lastStreamTime = 0;
+
 // Interprets commands from Linino for controlling the thermostat and touchscreen
 void processCommands(TempControl *tc, ScreenControl *sc) {
-  
+  if(isStreaming && (millis() - lastStreamTime) > STREAM_DELAY) {
+    isStreaming = false;
+  }
 //  Serial.println("processing...");
   while(Serial1.available() > 0) {
     memset(buff_ptr, 0x00, COMMAND_BUFFER_SIZE);
@@ -73,6 +80,8 @@ void processCommands(TempControl *tc, ScreenControl *sc) {
         sc->drawImage((uint16_t *) (buff_ptr + 11), (numBytes - 8) / 2, unpackNumber(buff_ptr, 3, 2), unpackNumber(buff_ptr, 5, 2),
                       unpackNumber(buff_ptr, 7, 2), unpackNumber(buff_ptr, 9, 2));
         Serial1.println(String(STREAM_IMAGE));
+        lastStreamTime = millis();
+        isStreaming = true;
         break;
       default:
         Serial.println("Error: message command not recognized");

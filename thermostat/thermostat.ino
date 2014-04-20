@@ -40,6 +40,8 @@ void setup() {
 // main loop
 void loop() {
   processCommands(tc, sc);
-  sc->processTouch();
+  if(!isStreaming) {
+    sc->processTouch();
 //  tc->processTemperature();
+  }
 }

@@ -22,11 +22,13 @@
 
 // Read buffers
 #define COMMAND_BUFFER_SIZE    1024
+
+// how long before an image is done streaming
+#define STREAM_DELAY           1000 // milliseconds
+
 #define MAX_FAIL_COUNT         3
 
-char buff[COMMAND_BUFFER_SIZE];
-char *buff_ptr = buff;
-bool isStreaming = false;
+extern bool isStreaming;
 
 // main processing function
 void processCommands(TempControl *tc, ScreenControl *sc);
