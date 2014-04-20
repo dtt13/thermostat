@@ -12,6 +12,8 @@ weatherCond = {'sunny' : 'few.jpg',
 
 def updateCondition(conditions):
 	streamImage(weatherCond[conditions], 270, 110)
+	while len(conditions) < 6:
+		conditions += ' '
 	writeText(260, 170, __WHITE, __BACKGROUND, 1, conditions)
 
 def updateTemps(currentTemp):
