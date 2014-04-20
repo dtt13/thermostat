@@ -129,7 +129,7 @@ void ScreenControl::drawImage(uint16_t *data, int len, uint16_t x, uint16_t y, u
   } 
 }
 
-void ScreenControl::hideApp(bool hide) {
+void ScreenControl::hideApp(bool hide, bool loading) {
   uint16_t color;
   if(hide) {
     color = PRIMARY_BLUE;
@@ -137,6 +137,9 @@ void ScreenControl::hideApp(bool hide) {
     color = TRANSPARENT_COLOR;
   }
   tft->fillRect(120, 40, 240, 212, color);
+  if(loading) {
+    writeText(130, 120, WHITE, 2, "Loading...");
+  }
 }
 
 // changes the view and draws the display for that view
@@ -158,7 +161,6 @@ void ScreenControl::drawBackground() {
 void ScreenControl::drawView(int view) {
   char text[20]; 
   tft->fillScreen(TRANSPARENT_COLOR);
-  hideApp(true);
   switch(view) {
     case STARTUP:
       strcpy(text, "Welcome to Roost!");
@@ -170,6 +172,7 @@ void ScreenControl::drawView(int view) {
 //      drawApp();
       break;
     case SETTINGS:
+      hideApp(true, false);
       // header
       strcpy(text, "Settings");
       writeText(20, 35, WHITE, 1, text);
@@ -204,14 +207,6 @@ void ScreenControl::drawThermostatViewButtons() {
   writeText(35, centerY - (separation + 45), BLACK, 0, text);
   strcpy(text, "Fan");
   writeText(53, centerY + (separation + 25), BLACK, 0, text);
-}
-
-void ScreenControl::drawApp() {
-  char text[15] = "App goes here.";
-  tft->layerMode(2);
-  tft->fillRect(120, 40, 240, 212, BLACK);
-  writeText(130, 125, WHITE, 1, text);
-  tft->layerMode(1);
 }
 
 //
@@ -255,10 +250,8 @@ void ScreenControl::processThermostatTouch() {
   } else if(isTouchDown() || (isPressed && (millis() - lastScreenPress > TEMP_PRESS_DELAY))) {
     if(isTouched(&tempUpButton)) { // heat up
       tc->incrementTargetTemp();
-      hideApp(true);
     } else if(isTouched(&tempDownButton)) { // cool down
       tc->decrementTargetTemp();
-      hideApp(false);
     }
     lastScreenPress = millis();
   } else if(isTouchUp()) {

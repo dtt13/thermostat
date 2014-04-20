@@ -114,7 +114,7 @@ def streamImage(file, xpos, ypos):
 	# calculate how much of the image to send per transmission
 	headerSize = 11
 	rowsPerTx = (__BUFF_SIZE - headerSize) / (width * 2)
-	print 'rows per transmission:', rowsPerTx
+	# print 'rows per transmission:', rowsPerTx
 	rowCount = 0
 	response = ''
 	while(response != 'error' and rowCount < height):

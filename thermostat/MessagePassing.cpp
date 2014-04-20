@@ -10,6 +10,7 @@ long lastStreamTime = 0;
 void processCommands(TempControl *tc, ScreenControl *sc) {
   if(isStreaming && (millis() - lastStreamTime) > STREAM_DELAY) {
     isStreaming = false;
+    sc->hideApp(false, false);
   }
 //  Serial.println("processing...");
   while(Serial1.available() > 0) {
@@ -76,10 +77,13 @@ void processCommands(TempControl *tc, ScreenControl *sc) {
       case STREAM_IMAGE:
         Serial.println("stream image");
         numBytes = readPacket();
+        sc->hideApp(true, true);
+        sc->layerMode(2);
 //        Serial.println("read the packet");
         sc->drawImage((uint16_t *) (buff_ptr + 11), (numBytes - 8) / 2, unpackNumber(buff_ptr, 3, 2), unpackNumber(buff_ptr, 5, 2),
                       unpackNumber(buff_ptr, 7, 2), unpackNumber(buff_ptr, 9, 2));
         Serial1.println(String(STREAM_IMAGE));
+        sc->layerMode(1);
         lastStreamTime = millis();
         isStreaming = true;
         break;

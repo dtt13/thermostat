@@ -51,7 +51,7 @@ class ScreenControl {
     void writeText(uint16_t x, uint16_t y, uint16_t color, uint8_t fontSize, char *text);
     void writeText(uint16_t x, uint16_t y, uint16_t fColor, uint16_t bColor, uint8_t fontSize, char *text);
     void drawImage(uint16_t *data, int len, uint16_t x, uint16_t y, uint16_t width, uint16_t height); 
-    void hideApp(bool hide);
+    void hideApp(bool hide, bool loading);
 
   private:
     Adafruit_RA8875 *tft;// = Adafruit_RA8875(RA8875_CS, RA8875_RESET);
@@ -69,7 +69,6 @@ class ScreenControl {
     void drawBackground();
     void drawView(int view);
     void drawThermostatViewButtons();
-    void drawApp();
     void updateHeader();
     void updateTemps();
     void drawSettingsViewButtons();
