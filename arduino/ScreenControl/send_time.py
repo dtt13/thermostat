@@ -3,7 +3,7 @@
 from time import strftime
 import sys
 sys.path.append('/mnt/sda1/arduino')
-from message_passing import *
+from message_passing import writeText
 
 __WHITE = 0xFFFF
 __BLACK = 0x0000
