@@ -42,6 +42,6 @@ void loop() {
   processCommands(tc, sc);
   if(!isStreaming) {
     sc->processTouch();
-//  tc->processTemperature();
+    tc->processTemperature();
   }
 }

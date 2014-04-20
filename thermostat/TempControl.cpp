@@ -115,38 +115,38 @@ void TempControl::switchUnit() {
   }
 }
 
-//// Retrieves the room temperature reading and determines whether the
-//// system should be on or off based on the target temperature.
-//// This only processes the temperature every PROCESS_TIME.
-//void TempControl::processTemperature() {
-//  if((millis() - lastTempUpdateTime) >= TEMP_UPDATE_DELAY) {
-////    roomTemp = convertRawTemp(READTEMP); // TODO filter the temperature readings?
-////    Serial.println(getRoomTemp());
-//    roomTemp = 65 * TEMP_MULTIPLE;
-//    isSystemOn = (IS_ON(COOL_PIN)) || (IS_ON(HEAT_PIN));
-////    Serial.println(isSystemOn);
-//    switch(mode) {
-//      case HEATING:
-//        if(roomTemp <= targetTemp && !isSystemOn) {
-//          turn(ON);
-//        } else if(roomTemp > targetTemp && isSystemOn) {
-//          turn(OFF);
-//        }
-//        break;
-//      case COOLING:
-//        if(roomTemp >= targetTemp && !isSystemOn) {
-//          turn(ON);
-//        } else if(roomTemp < targetTemp && isSystemOn) {
-//          turn(OFF);
-//        }
-//        break;
-//      default:
-//        //TODO Log and error!
-//        ;
-//    }
-//    lastTempUpdateTime = millis();
-//  }
-//}
+// Retrieves the room temperature reading and determines whether the
+// system should be on or off based on the target temperature.
+// This only processes the temperature every PROCESS_TIME.
+void TempControl::processTemperature() {
+  if((millis() - lastTempUpdateTime) >= TEMP_UPDATE_DELAY) {
+//    roomTemp = convertRawTemp(READTEMP); // TODO filter the temperature readings?
+//    Serial.println(getRoomTemp());
+    roomTemp = 65 * TEMP_MULTIPLE;
+    isSystemOn = (IS_ON(COOL_PIN)) || (IS_ON(HEAT_PIN));
+//    Serial.println(isSystemOn);
+    switch(mode) {
+      case HEATING:
+        if(roomTemp <= targetTemp && !isSystemOn) {
+          turn(ON);
+        } else if(roomTemp > targetTemp && isSystemOn) {
+          turn(OFF);
+        }
+        break;
+      case COOLING:
+        if(roomTemp >= targetTemp && !isSystemOn) {
+          turn(ON);
+        } else if(roomTemp < targetTemp && isSystemOn) {
+          turn(OFF);
+        }
+        break;
+      default:
+        //TODO Log and error!
+        ;
+    }
+    lastTempUpdateTime = millis();
+  }
+}
 
 // Turns on and off the heating or cooling system
 // Checks that heating and cooling are never on at the same time

@@ -120,8 +120,8 @@ void ScreenControl::drawImage(uint16_t *data, int len, uint16_t x, uint16_t y, u
   uint16_t currentX, currentY;
   for(currentY = y; currentY < y + height; currentY++) {
     for(currentX = x; currentX < x + width; currentX++) {
-      Serial.print("x, y, data: " + String(currentX) + ", " + String(currentY) + ", ");
-      Serial.println(data[(currentY - y) * width + (currentX - x)], HEX);
+//      Serial.print("x, y, data: " + String(currentX) + ", " + String(currentY) + ", ");
+//      Serial.println(data[(currentY - y) * width + (currentX - x)], HEX);
       uint16_t pixel = data[(currentY - y) * width + (currentX - x)];
       pixel = ((pixel & 0xFF00) >> 8) | ((pixel & 0x00FF) << 8);
       tft->drawPixel(currentX, currentY, pixel);
@@ -138,7 +138,7 @@ void ScreenControl::hideApp(bool hide, bool loading) {
   }
   tft->fillRect(120, 40, 240, 212, color);
   if(loading) {
-    writeText(130, 120, WHITE, 2, "Loading...");
+    writeText(150, 120, WHITE, 1, "Loading...");
   }
 }
 
@@ -159,12 +159,12 @@ void ScreenControl::drawBackground() {
 
 // outputs the specified view to the display
 void ScreenControl::drawView(int view) {
-  char text[20]; 
+//  char text[20]; 
   tft->fillScreen(TRANSPARENT_COLOR);
   switch(view) {
     case STARTUP:
-      strcpy(text, "Welcome to Roost!");
-      writeText(100, 125, WHITE, 1, text);
+//      strcpy(text, "Welcome to Roost!");
+      writeText(100, 125, WHITE, 1, "Welcome to Roost!");
       break;
     case THERMOSTAT:
       drawThermostatViewButtons();
@@ -174,14 +174,14 @@ void ScreenControl::drawView(int view) {
     case SETTINGS:
       hideApp(true, false);
       // header
-      strcpy(text, "Settings");
-      writeText(20, 35, WHITE, 1, text);
+//      strcpy(text, "Settings");
+      writeText(20, 35, WHITE, 1, "Settings");
       // units
-      strcpy(text, "units:");
-      writeText(40, 110, WHITE, 1, text);
+//      strcpy(text, "units:");
+      writeText(40, 110, WHITE, 1, "units:");
       // mode
-      strcpy(text, "mode:");
-      writeText(40, 185, WHITE, 1, text);
+//      strcpy(text, "mode:");
+      writeText(40, 185, WHITE, 1, "mode:");
       drawSettingsViewButtons();
       break;
     default:
@@ -203,30 +203,30 @@ void ScreenControl::drawThermostatViewButtons() {
   tft->fillTriangle(centerX - 30, centerY - separation, centerX + 30, centerY - separation, centerX, centerY - (separation + 50), PRIMARY_RED); // heat up
   tft->fillTriangle(centerX - 30, centerY + separation, centerX + 30, centerY + separation, centerX, centerY + (separation + 50), SECONDARY_BLUE); // cool down
   // settings button
-  strcpy(text, "Settings");
-  writeText(35, centerY - (separation + 45), BLACK, 0, text);
-  strcpy(text, "Fan");
-  writeText(53, centerY + (separation + 25), BLACK, 0, text);
+//  strcpy(text, "Settings");
+  writeText(35, centerY - (separation + 45), BLACK, 0, "Settings");
+//  strcpy(text, "Fan");
+  writeText(53, centerY + (separation + 25), BLACK, 0, "Fan");
 }
 
 //
 void ScreenControl::updateHeader() {
-  char text[4];
+//  char text[4];
   tft->layerMode(2);
   // system on?
   if(tc->isOn()) {
-    strcpy(text, "On ");
-    writeText(415, 5, GREEN, BLACK, 0, text); 
+//    strcpy(text, "On ");
+    writeText(415, 5, GREEN, BLACK, 0, "On "); 
   } else {
-    strcpy(text, "Off");
-    writeText(415, 5, PRIMARY_RED, BLACK, 0, text);
+//    strcpy(text, "Off");
+    writeText(415, 5, PRIMARY_RED, BLACK, 0, "Off");
   }
   // fan on?
-  strcpy(text, "Fan");
+//  strcpy(text, "Fan");
   if(tc->isFanOn()) {
-    writeText(50, 5, PALE_YELLOW, BLACK, 0, text);
+    writeText(50, 5, PALE_YELLOW, BLACK, 0, "Fan");
   } else {
-    writeText(50, 5, BLACK, BLACK, 0, text);
+    writeText(50, 5, BLACK, BLACK, 0, "   ");
   }
   tft->layerMode(1);
 }
@@ -276,14 +276,16 @@ void ScreenControl::drawSettingsViewButtons() {
   writeText(225, 120, BLACK, 0, text);
   // mode
   if(tc->getMode() == HEATING) {
-    strcpy(text, "Heating");
+//    strcpy(text, "Heating");
+    writeText(207, 195, BLACK, 0, "Heating");
   } else {
-    strcpy(text, "Cooling");
+//    strcpy(text, "Cooling");
+    writeText(207, 195, BLACK, 0, "Cooling");
   }
-  writeText(207, 195, BLACK, 0, text);
+//  writeText(207, 195, BLACK, 0, text);
   // back
-  strcpy(text, "Back");
-  writeText(405, 220, BLACK, 0, text);
+//  strcpy(text, "Back");
+  writeText(405, 220, BLACK, 0, "Back");
 }
 
 void ScreenControl::processSettingsTouch() {

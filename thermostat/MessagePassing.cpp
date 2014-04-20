@@ -75,7 +75,7 @@ void processCommands(TempControl *tc, ScreenControl *sc) {
         sc->layerMode(1);
         break;
       case STREAM_IMAGE:
-        Serial.println("stream image");
+//        Serial.println("stream image");
         numBytes = readPacket();
         sc->hideApp(true, true);
         sc->layerMode(2);
