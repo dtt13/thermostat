@@ -57,14 +57,14 @@ void ScreenControl::processTouch() {
   tsPoint_t raw, calibrated;
   wasPressed = isPressed;
   if((millis() - lastTouchCheck > TOUCH_DELAY) && (isPressed = tft->touched())) {
-    Serial.print("Touch: ");
+//    Serial.print("Touch: ");
     tft->touchRead(&tx, &ty);
     raw.x = tx;
     raw.y = ty;
     calibrateTSPoint(&calibrated, &raw, &cal_matrix);
     tx = calibrated.x;
     ty = calibrated.y;
-    Serial.println(String(tx) + ", " + String(ty));
+//    Serial.println(String(tx) + ", " + String(ty));
     lastTouchCheck = millis();
 //    touchFlag = false;
   }
@@ -139,6 +139,12 @@ void ScreenControl::hideApp(bool hide, bool loading) {
   if(loading) {
     writeText(150, 120, WHITE, 1, "Loading...");
   }
+}
+
+void ScreenControl::clearApp() {
+  layerMode(2);
+  tft->fillRect(120, 40, 240, 212, PRIMARY_BLUE);
+  layerMode(1);
 }
 
 // changes the view and draws the display for that view
@@ -251,6 +257,8 @@ void ScreenControl::processThermostatTouch() {
       tc->incrementTargetTemp();
     } else if(isTouched(&tempDownButton)) { // cool down
       tc->decrementTargetTemp();
+    } else {
+      clearApp();
     }
     lastScreenPress = millis();
   } else if(isTouchUp()) {
@@ -288,7 +296,6 @@ void ScreenControl::drawSettingsViewButtons() {
 }
 
 void ScreenControl::processSettingsTouch() {
-  Serial.println("processing settingsTouch");
   if(isTouchDown()) {
     if(isTouched(&unitsButton)) {
       tc->switchUnit();
