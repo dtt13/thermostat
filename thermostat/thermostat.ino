@@ -21,10 +21,8 @@ void touchISR() {
 void setup() {
   Serial.begin(115200);
   Serial1.begin(115200);
-  Serial1.setTimeout(1000);
   pinMode(13, OUTPUT);
   digitalWrite(13, LOW);
-  Bridge.begin(); // TODO maybe needs replacing?
   pinMode(RA8875_INT, INPUT);
   digitalWrite(RA8875_INT, HIGH);
 //  attachInterrupt(0, touchISR, FALLING);
@@ -34,6 +32,7 @@ void setup() {
       delay(2000);
     }
   }
+  Bridge.begin(); // TODO maybe needs replacing?
   digitalWrite(13, HIGH);
 }
 

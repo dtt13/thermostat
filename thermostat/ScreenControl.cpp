@@ -57,14 +57,14 @@ void ScreenControl::processTouch() {
   tsPoint_t raw, calibrated;
   wasPressed = isPressed;
   if((millis() - lastTouchCheck > TOUCH_DELAY) && (isPressed = tft->touched())) {
-//    Serial.print("Touch: ");
+    Serial.print("Touch: ");
     tft->touchRead(&tx, &ty);
     raw.x = tx;
     raw.y = ty;
     calibrateTSPoint(&calibrated, &raw, &cal_matrix);
     tx = calibrated.x;
     ty = calibrated.y;
-//    Serial.println(String(tx) + ", " + String(ty));
+    Serial.println(String(tx) + ", " + String(ty));
     lastTouchCheck = millis();
 //    touchFlag = false;
   }
@@ -80,7 +80,6 @@ void ScreenControl::processTouch() {
   // process touch depending on the view
   switch(currentView) {
     case STARTUP:
-      delay(3000);
       switchView(THERMOSTAT);
       break;
     case THERMOSTAT:
@@ -289,6 +288,7 @@ void ScreenControl::drawSettingsViewButtons() {
 }
 
 void ScreenControl::processSettingsTouch() {
+  Serial.println("processing settingsTouch");
   if(isTouchDown()) {
     if(isTouched(&unitsButton)) {
       tc->switchUnit();

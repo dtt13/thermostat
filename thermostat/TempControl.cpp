@@ -7,7 +7,7 @@
 TempControl::TempControl() {
 //  Serial.println("Creating new temperature controller");
   targetTemp = DEFAULT_TARGET_TEMP * TEMP_MULTIPLE;
-  roomTemp = DEFAULT_ROOM_TEMP * TEMP_MULTIPLE; // TODO remove this
+  roomTemp = DEFAULT_ROOM_TEMP * TEMP_MULTIPLE;
   isSystemOn = false;
   mode = DEFAULT_MODE;
   unit = DEFAULT_UNIT;
@@ -25,7 +25,7 @@ int TempControl::getRoomTemp() {
 
 // Returns the target temperature
 int TempControl::getTargetTemp() {
-  return targetTemp / TEMP_MULTIPLE;
+  return targetTemp / TEMP_MULTIPLE ;
 }
 
 // Returns the current mode of operation
@@ -91,11 +91,6 @@ void TempControl::switchFan() {
     default:
       ;
   }
-//  if(IS_ON(COOL_PIN)) {
-//    FAN(ON);
-//  } else {
-//    FAN(OFF);
-//  }
   FAN(digitalReadAlt(COOL_PIN));
 }
 
@@ -104,11 +99,11 @@ void TempControl::switchUnit() {
   switch(unit) {
     case FAHRENHEIT:
       unit = CELCIUS;
-      targetTemp = F2C(targetTemp);
+      targetTemp = convertTemp(targetTemp, CELCIUS);
       break;
     case CELCIUS:
       unit = FAHRENHEIT;
-      targetTemp = C2F(targetTemp);
+      targetTemp = convertTemp(targetTemp, FAHRENHEIT);
       break;
     default:
       ;
@@ -121,22 +116,23 @@ void TempControl::switchUnit() {
 void TempControl::processTemperature() {
   if((millis() - lastTempUpdateTime) >= TEMP_UPDATE_DELAY) {
 //    roomTemp = convertRawTemp(READTEMP); // TODO filter the temperature readings?
+//      captureRoomTemp();
 //    Serial.println(getRoomTemp());
-    roomTemp = 65 * TEMP_MULTIPLE;
+//    roomTemp = 65 * TEMP_MULTIPLE;
     isSystemOn = (IS_ON(COOL_PIN)) || (IS_ON(HEAT_PIN));
 //    Serial.println(isSystemOn);
     switch(mode) {
       case HEATING:
-        if(roomTemp <= targetTemp && !isSystemOn) {
+        if(getRoomTemp() <= getTargetTemp() && !isSystemOn) {
           turn(ON);
-        } else if(roomTemp > targetTemp && isSystemOn) {
+        } else if(getRoomTemp() > getTargetTemp() && isSystemOn) {
           turn(OFF);
         }
         break;
       case COOLING:
-        if(roomTemp >= targetTemp && !isSystemOn) {
+        if(getRoomTemp() >= getTargetTemp() && !isSystemOn) {
           turn(ON);
-        } else if(roomTemp < targetTemp && isSystemOn) {
+        } else if(getRoomTemp() < getTargetTemp() && isSystemOn) {
           turn(OFF);
         }
         break;
@@ -188,3 +184,24 @@ int TempControl::digitalReadAlt(int pin) const {
 //              (1)) / CALC_MULTIPLE) + CELCIUS_OFFSET * TEMP_MULTIPLE; // TODO remove celcius offset?
 //  return (unit == CELCIUS) ? calc : C2F(calc);
 //}
+
+void TempControl::captureRoomTemp() {
+  long temp = READTEMP;
+  temp = (TEMP_RATE * temp + TEMP_OFFSET) / TEMP_DIV_FACTOR;
+  roomTemp = (unit == CELCIUS) ?  (int)temp : convertTemp((int)temp, FAHRENHEIT);
+}
+
+int TempControl::convertTemp(int tempVal, byte convertTo) {
+  long temp = tempVal;
+  switch(convertTo) {
+    case CELCIUS:
+      temp = ((temp - (32 * TEMP_MULTIPLE)) * 5) / 9;
+      break;
+    case FAHRENHEIT:
+      temp = ((9 * temp) / 5) + (32 * TEMP_MULTIPLE); 
+      break;
+    default:
+      ;
+  }
+  return (int)temp;
+}

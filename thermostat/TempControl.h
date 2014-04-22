@@ -6,7 +6,7 @@
 
 // Heating and cooling functions
 #define HEAT(x)         digitalWrite(HEAT_PIN, x)
-#define COOL(x)         {digitalWrite(COOL_PIN, x); FAN(ON);}
+#define COOL(x)         {digitalWrite(COOL_PIN, x); FAN(x);}
 #define FAN(x)          digitalWrite(FAN_PIN, x && fanOnOverride)
 #define ON LOW
 #define OFF HIGH
@@ -17,20 +17,21 @@
 #define READTEMP analogRead(TEMP_PIN) //* TEMP_SHIFT
 #define OFFSET(x) output_temp(temp_output(temp_ref_ui) + x)
 
-// Quick temperature conversions
-#define C2F(x)      (((9 * x) / 5) + (32 * TEMP_MULTIPLE)) 
-#define F2C(x)      ((((x - (32 * TEMP_MULTIPLE)) * 5) / 9))
-
 // Conversion calculations
-#define CALC_MULTIPLE    1000UL          // Improves calculations by preventing rounding error for a couple of extra digits
-#define TEMP_SHIFT       ((1 << 5) - 1)  // Since there are only 10 bits of AI, gain extra precision by movingg the bits over
-#define TEMP_MULTIPLE    100             // Keep things to hundreds of degrees in the code
-#define COMP_RESISTOR    10000
-#define BASE_RESISTANCE  10000           // Thermistor parameter
-#define RES_THERM_NOM    25.0            // Thermistor parameter
-#define THERM_B          3950            // Thermistor parameter
-#define KELVIN_OFFSET    273.15
-#define CELCIUS_OFFSET   11.11
+//#define CALC_MULTIPLE    1000UL          // Improves calculations by preventing rounding error for a couple of extra digits
+//#define TEMP_SHIFT       ((1 << 5) - 1)  // Since there are only 10 bits of AI, gain extra precision by movingg the bits over
+//#define TEMP_MULTIPLE    100             // Keep things to hundreds of degrees in the code
+//#define COMP_RESISTOR    10000
+//#define BASE_RESISTANCE  10000           // Thermistor parameter
+//#define RES_THERM_NOM    25.0            // Thermistor parameter
+//#define THERM_B          3950            // Thermistor parameter
+//#define KELVIN_OFFSET    273.15
+//#define CELCIUS_OFFSET   11.11
+#define TEMP_MULTIPLE      100
+#define TEMP_RATE          -895
+#define TEMP_OFFSET        708510
+#define TEMP_DIV_FACTOR    100
+
 
 // Pin definitions
 #define TEMP_PIN 	A4
@@ -76,6 +77,8 @@ class TempControl {
     void turn(uint8_t on_or_off);
     int digitalReadAlt(int pin) const;
 //    int convertRawTemp(int raw);
+    void captureRoomTemp();
+    int convertTemp(int tempVal, byte convertTo);
 };
 
 #endif // TEMP_CONTROL_H_
