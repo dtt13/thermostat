@@ -18,13 +18,6 @@ opkg install distribute
 opkg install python-openssl
 # easy_install pip
 
-# install virtualenv
-echo
-echo "Installing virtualenv..."
-easy_install virtualenv
-echo "Creating virtual environment..."
-virtualenv $PACK
-
 # install the PIL package
 echo
 echo "Installing PIL..."
@@ -36,6 +29,13 @@ opkg install python-imaging-library
 # $PYTHON setup.py install
 # cd $PACK
 # rm -rf $PACK/Imaging-1.1.7.tar.gz $PACK/Imaging-1.1.7
+
+# install virtualenv
+echo
+echo "Installing virtualenv..."
+easy_install virtualenv
+echo "Creating virtual environment..."
+virtualenv --system-site-packages $PACK
 
 # install the web.py package
 echo
