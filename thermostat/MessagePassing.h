@@ -21,7 +21,7 @@
 #define STREAM_IMAGE            'P'
 
 // Read buffers
-#define COMMAND_BUFFER_SIZE    1024
+#define COMMAND_BUFFER_SIZE    1536
 
 // how long before an image is done streaming
 #define STREAM_DELAY           1000 // milliseconds

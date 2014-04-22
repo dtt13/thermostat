@@ -32,7 +32,7 @@ __WRITE_TEXT			= 'W'
 __STREAM_IMAGE			= 'P'
 
 # Buffer size on the Arduino
-__BUFF_SIZE				= 1024
+__BUFF_SIZE				= 1536
 
 
 # Gets the temperature of the room
@@ -111,6 +111,7 @@ def streamImage(file, xpos, ypos):
 	imagePixels = R
 	for i in range(len(R)):
 		imagePixels[i] = ((R[i] & 0xF8) << 8) | ((G[i] & 0xFC) << 3) | (B[i] >> 3)
+		imagePixels[i] = ((0x00FF & imagePixels[i]) << 8) | ((0xFF00 & imagePixels[i]) >> 8)
 	# calculate how much of the image to send per transmission
 	headerSize = 11
 	rowsPerTx = (__BUFF_SIZE - headerSize) / (width * 2)

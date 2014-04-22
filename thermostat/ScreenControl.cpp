@@ -122,7 +122,7 @@ void ScreenControl::drawImage(uint16_t *data, int len, uint16_t x, uint16_t y, u
 //      Serial.print("x, y, data: " + String(currentX) + ", " + String(currentY) + ", ");
 //      Serial.println(data[(currentY - y) * width + (currentX - x)], HEX);
       uint16_t pixel = data[(currentY - y) * width + (currentX - x)];
-      pixel = ((pixel & 0xFF00) >> 8) | ((pixel & 0x00FF) << 8);
+//      pixel = ((pixel & 0xFF00) >> 8) | ((pixel & 0x00FF) << 8);
       tft->drawPixel(currentX, currentY, pixel);
     }
   } 
