@@ -25,6 +25,18 @@ easy_install virtualenv
 echo "Creating virtual environment..."
 virtualenv $PACK
 
+# install the PIL package
+echo
+echo "Installing PIL..."
+opkg install python-imaging-library
+# cd $PACK
+# wget http://effbot.org/downloads/Imaging-1.1.7.tar.gz
+# tar xvzf Imaging-1.1.7.tar.gz
+# cd $PACK/Imaging-1.1.7
+# $PYTHON setup.py install
+# cd $PACK
+# rm -rf $PACK/Imaging-1.1.7.tar.gz $PACK/Imaging-1.1.7
+
 # install the web.py package
 echo
 echo "Installing web.py..."
@@ -48,18 +60,6 @@ $PIP install suds
 # $PYTHON setup.py install
 # cd $PACK
 # rm -rf $PACK/suds-0.3.4.tar.gz $PACK/suds-0.3.4
-
-# install the PIL package
-echo
-echo "Installing PIL..."
-opkg install python-imaging-library
-# cd $PACK
-# wget http://effbot.org/downloads/Imaging-1.1.7.tar.gz
-# tar xvzf Imaging-1.1.7.tar.gz
-# cd $PACK/Imaging-1.1.7
-# $PYTHON setup.py install
-# cd $PACK
-# rm -rf $PACK/Imaging-1.1.7.tar.gz $PACK/Imaging-1.1.7
 
 # install ElementTree
 echo

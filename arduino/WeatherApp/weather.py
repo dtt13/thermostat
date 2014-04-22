@@ -20,7 +20,8 @@ def updateTemps(currentTemp):
 	writeText(130, 120, __WHITE, __BACKGROUND, 2, tempStr)
 
 def updateWeather():
-	global data = ndfd_control.update_weather_data()
+	global data
+	data = ndfd_control.update_weather_data()
 	for i in data:
 		print i, data[i]
 	#TODO pull data from database in future
