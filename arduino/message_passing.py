@@ -30,9 +30,10 @@ __SWITCH_MODE			= 'M'
 __SWITCH_UNIT			= 'U'
 __WRITE_TEXT			= 'W'
 __STREAM_IMAGE			= 'P'
+__CLEAR_APP				= 'C'
 
 # Buffer size on the Arduino
-__BUFF_SIZE				= 1536
+__BUFF_SIZE				= 1460
 
 
 # Gets the temperature of the room
@@ -127,19 +128,20 @@ def streamImage(file, xpos, ypos):
 	if(response == 'error'):
 		return 'error'
 
+# Clears the contents of the application area
+def clearApp():
+	return __sendCommandWithRetry(__CLEAR_APP, '', False)
+
 # Sends a command to the microcontroller with the message
 # expectedResponse should be True if expecting a response
 # from the microcontroller, False otherwise
 def __sendCommandWithRetry(command, message, expectedResponse, maxTrials = __MAX_TRIALS, timeout = __TIMEOUT):
 	packetSize = struct.pack('H', len(message))
 	packet = '%s%s%s' % (command, packetSize, message)
-	# empty the serial port before sending messages
-	# __emptySerial()
 	# transmit data and wait for response
 	trial = 0
 	success = False
 	while (not success) and (trial < maxTrials):
-		# print 'trial #:', trial
 		ser_out = io.open(__SERIAL1, 'wb')
 		ser_out.write(packet)
 		ser_out.close()
@@ -147,7 +149,6 @@ def __sendCommandWithRetry(command, message, expectedResponse, maxTrials = __MAX
 		rlist, wlist, xlist = select.select([ser_in], [], [], timeout)
 		for reader in rlist:
 			response = reader.readline().rstrip('\r\n')
-			# print response
 			success = (len(response) > 0) and (response[0] == command)
 		trial += 1
 		ser_in.close()
@@ -167,9 +168,3 @@ def __sendCommandWithoutRetry(command, message):
 	ser_out = io.open(__SERIAL1, 'wb')
 	ser_out.write(packet)
 	ser_out.close()
-
-def __emptySerial():
-	ser_in = io.open(__SERIAL1, 'rb')
-	ser_in.readall()
-	print 'done emptying serial'
-	ser_in.close()

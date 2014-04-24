@@ -9,7 +9,8 @@
 #include <Adafruit_RA8875.h>
 
 TempControl *tc = new TempControl();
-ScreenControl *sc = new ScreenControl(tc);
+ScreenControl *sc = 
+new ScreenControl(tc);
 
 // processes interrupts from touch screen
 void touchISR() {
@@ -26,13 +27,13 @@ void setup() {
   pinMode(RA8875_INT, INPUT);
   digitalWrite(RA8875_INT, HIGH);
 //  attachInterrupt(0, touchISR, FALLING);
+  Bridge.begin(); // TODO maybe needs replacing?
   if(!sc->init()) {
     while(true) {
       Serial.println("Error");
       delay(2000);
     }
   }
-  Bridge.begin(); // TODO maybe needs replacing?
   digitalWrite(13, HIGH);
 }
 

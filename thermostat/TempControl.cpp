@@ -116,7 +116,7 @@ void TempControl::switchUnit() {
 void TempControl::processTemperature() {
   if((millis() - lastTempUpdateTime) >= TEMP_UPDATE_DELAY) {
 //    roomTemp = convertRawTemp(READTEMP); // TODO filter the temperature readings?
-//      captureRoomTemp();
+      captureRoomTemp();
 //    Serial.println(getRoomTemp());
 //    roomTemp = 65 * TEMP_MULTIPLE;
     isSystemOn = (IS_ON(COOL_PIN)) || (IS_ON(HEAT_PIN));

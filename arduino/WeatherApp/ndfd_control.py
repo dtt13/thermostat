@@ -37,6 +37,6 @@ def update_weather_data():
     for j in nv_dict:
         if j == 'Conditions Icons':
             #print (str("wget " + nv_dict[j]))
-            os.system(str("wget " + nv_dict[j]))
+            os.system(str("wget -o icon.jpg " + nv_dict[j]))
     # Now to return what we've found
     return nv_dict

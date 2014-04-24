@@ -118,11 +118,15 @@ void ScreenControl::drawImage(uint16_t *data, int len, uint16_t x, uint16_t y, u
   tft->graphicsMode();
   uint16_t currentX, currentY;
   for(currentY = y; currentY < y + height; currentY++) {
+//    currentX = x;
+//    Serial.println("x,y : " + String(currentX) + "," + String(currentY));
+//    tft->setXY(currentX, currentY);
     for(currentX = x; currentX < x + width; currentX++) {
 //      Serial.print("x, y, data: " + String(currentX) + ", " + String(currentY) + ", ");
 //      Serial.println(data[(currentY - y) * width + (currentX - x)], HEX);
       uint16_t pixel = data[(currentY - y) * width + (currentX - x)];
 //      pixel = ((pixel & 0xFF00) >> 8) | ((pixel & 0x00FF) << 8);
+//      tft->pushPixels(1, pixel);
       tft->drawPixel(currentX, currentY, pixel);
     }
   } 
@@ -130,14 +134,16 @@ void ScreenControl::drawImage(uint16_t *data, int len, uint16_t x, uint16_t y, u
 
 void ScreenControl::hideApp(bool hide, bool loading) {
   uint16_t color;
-  if(hide) {
-    color = PRIMARY_BLUE;
-  } else {
-    color = TRANSPARENT_COLOR;
-  }
-  tft->fillRect(120, 40, 240, 212, color);
-  if(loading) {
-    writeText(150, 120, WHITE, 1, "Loading...");
+  if(currentView != SETTINGS) {
+    if(hide) {
+      color = PRIMARY_BLUE;
+    } else {
+      color = TRANSPARENT_COLOR;
+    }
+    tft->fillRect(120, 40, 240, 212, color);
+    if(loading) {
+      writeText(150, 120, WHITE, 1, "Loading...");
+    }
   }
 }
 
@@ -149,8 +155,8 @@ void ScreenControl::clearApp() {
 
 // changes the view and draws the display for that view
 void ScreenControl::switchView(int view) {
-  currentView = view;
   drawView(view);
+  currentView = view;
 }
 
 // draws a simple background theme for all views
@@ -174,7 +180,6 @@ void ScreenControl::drawView(int view) {
     case THERMOSTAT:
       drawThermostatViewButtons();
       updateTemps();
-//      drawApp();
       break;
     case SETTINGS:
       hideApp(true, false);
@@ -257,8 +262,8 @@ void ScreenControl::processThermostatTouch() {
       tc->incrementTargetTemp();
     } else if(isTouched(&tempDownButton)) { // cool down
       tc->decrementTargetTemp();
-    } else {
-      clearApp();
+//    } else {
+//      clearApp();
     }
     lastScreenPress = millis();
   } else if(isTouchUp()) {

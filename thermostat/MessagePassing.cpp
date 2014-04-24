@@ -79,14 +79,20 @@ void processCommands(TempControl *tc, ScreenControl *sc) {
         numBytes = readPacket();
         sc->hideApp(true, true);
         sc->layerMode(2);
-//        Serial.println("read the packet");
         sc->drawImage((uint16_t *) (buff_ptr + 11), (numBytes - 8) / 2, unpackNumber(buff_ptr, 3, 2), unpackNumber(buff_ptr, 5, 2),
                       unpackNumber(buff_ptr, 7, 2), unpackNumber(buff_ptr, 9, 2));
         Serial1.println(String(STREAM_IMAGE));
         sc->layerMode(1);
         lastStreamTime = millis();
-        isStreaming = true;
+        if(!isStreaming) {
+          isStreaming = true;
+        }
         break;
+      case CLEAR_APP:
+//        Serial.println("clear application");
+        numBytes = readPacket();
+        sc->clearApp();
+        Serial1.println(String(CLEAR_APP));
       default:
         Serial.println("Error: message command not recognized");
         numBytes = Serial1.readBytes(buff_ptr, COMMAND_BUFFER_SIZE);
