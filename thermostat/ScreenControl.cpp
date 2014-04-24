@@ -12,6 +12,7 @@ ScreenControl::ScreenControl(TempControl* tempControl) {
   // touch vars
   lastTouchCheck, lastScreenUpdate, lastScreenPress = 0;
   isPressed, wasPressed, touchFlag = false;
+  strcpy(ipaddr, "Not Connected");
 //  touchFlag = true;
   setCalibrationMatrix(&cal_matrix);
   createButton(&tempUpButton, 385, 41, 70, 60);
@@ -192,6 +193,7 @@ void ScreenControl::drawView(int view) {
       // mode
 //      strcpy(text, "mode:");
       writeText(40, 185, WHITE, 1, "mode:");
+      writeText(200, 45, WHITE, 0, ipaddr);
       drawSettingsViewButtons();
       break;
     default:

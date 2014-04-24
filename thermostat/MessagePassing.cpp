@@ -94,6 +94,11 @@ void processCommands(TempControl *tc, ScreenControl *sc) {
         sc->clearApp();
         Serial1.println(String(CLEAR_APP));
         break;
+      case SET_IP:
+//        Serial.println("setting IP address");
+        numBytes = readPacket();
+        strcpy(sc->ipaddr, buff_ptr + 3);
+        Serial1.println(String(SET_IP));
       default:
         Serial.println("Error: message command not recognized");
         numBytes = Serial1.readBytes(buff_ptr, COMMAND_BUFFER_SIZE);

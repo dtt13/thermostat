@@ -44,6 +44,7 @@ typedef struct Button {
 class ScreenControl {
   public:
     bool touchFlag;
+    char ipaddr[16];
     ScreenControl(TempControl *tc);
     bool init();
     void processTouch();

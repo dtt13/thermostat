@@ -115,12 +115,9 @@ void TempControl::switchUnit() {
 // This only processes the temperature every PROCESS_TIME.
 void TempControl::processTemperature() {
   if((millis() - lastTempUpdateTime) >= TEMP_UPDATE_DELAY) {
-//    roomTemp = convertRawTemp(READTEMP); // TODO filter the temperature readings?
       captureRoomTemp();
-//    Serial.println(getRoomTemp());
 //    roomTemp = 65 * TEMP_MULTIPLE;
     isSystemOn = (IS_ON(COOL_PIN)) || (IS_ON(HEAT_PIN));
-//    Serial.println(isSystemOn);
     switch(mode) {
       case HEATING:
         if(getRoomTemp() <= getTargetTemp() && !isSystemOn) {
@@ -188,6 +185,7 @@ int TempControl::digitalReadAlt(int pin) const {
 void TempControl::captureRoomTemp() {
   long temp = READTEMP;
   temp = (TEMP_RATE * temp + TEMP_OFFSET) / TEMP_DIV_FACTOR;
+//  temp = ((9 * (long)roomTemp) + temp) / 10; // filter
   roomTemp = (unit == CELCIUS) ?  (int)temp : convertTemp((int)temp, FAHRENHEIT);
 }
 

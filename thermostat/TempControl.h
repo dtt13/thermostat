@@ -7,9 +7,9 @@
 // Heating and cooling functions
 #define HEAT(x)         digitalWrite(HEAT_PIN, x)
 #define COOL(x)         {digitalWrite(COOL_PIN, x); FAN(x);}
-#define FAN(x)          digitalWrite(FAN_PIN, x && fanOnOverride)
-#define ON LOW
-#define OFF HIGH
+#define FAN(x)          digitalWrite(FAN_PIN, x || fanOnOverride)
+#define ON HIGH
+#define OFF LOW
 #define IS_ON(x)        (digitalReadAlt(x) == ON)
 #define ON_TIME_DELAY        60000 // wait 1 minute before turning system back on
 #define TEMP_UPDATE_DELAY    1000 // update the room temperature reading every second

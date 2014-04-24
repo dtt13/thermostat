@@ -20,6 +20,7 @@
 #define WRITE_TEXT              'W'
 #define STREAM_IMAGE            'P'
 #define CLEAR_APP               'C'
+#define SET_IP                  'I'
 
 // Read buffers
 #define COMMAND_BUFFER_SIZE    1200

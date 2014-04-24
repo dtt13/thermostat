@@ -31,6 +31,7 @@ __SWITCH_UNIT			= 'U'
 __WRITE_TEXT			= 'W'
 __STREAM_IMAGE			= 'P'
 __CLEAR_APP				= 'C'
+__SET_IP				= 'I'
 
 # Buffer size on the Arduino
 __BUFF_SIZE				= 1200
@@ -131,6 +132,9 @@ def streamImage(file, xpos, ypos):
 # Clears the contents of the application area
 def clearApp():
 	return __sendCommandWithRetry(__CLEAR_APP, '', False)
+
+def setIP():
+	return __sendCommandWithRetry(__SET_IP, 'testing', False)
 
 # Sends a command to the microcontroller with the message
 # expectedResponse should be True if expecting a response
