@@ -64,7 +64,7 @@ void processCommands(TempControl *tc, ScreenControl *sc) {
         Serial1.println(String(SWITCH_UNIT));
         break;
       case WRITE_TEXT:
-//        Serial.println("write text");
+        Serial.println("write text");
         numBytes = readPacket();
         Serial1.println(String(WRITE_TEXT));
         buff_ptr[numBytes + 3] = '\0';
@@ -75,7 +75,7 @@ void processCommands(TempControl *tc, ScreenControl *sc) {
         sc->layerMode(1);
         break;
       case STREAM_IMAGE:
-//        Serial.println("stream image");
+        Serial.println("stream image");
         numBytes = readPacket();
         sc->hideApp(true, true);
         sc->layerMode(2);
@@ -93,6 +93,7 @@ void processCommands(TempControl *tc, ScreenControl *sc) {
         numBytes = readPacket();
         sc->clearApp();
         Serial1.println(String(CLEAR_APP));
+        break;
       default:
         Serial.println("Error: message command not recognized");
         numBytes = Serial1.readBytes(buff_ptr, COMMAND_BUFFER_SIZE);

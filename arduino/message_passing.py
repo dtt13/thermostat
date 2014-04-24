@@ -33,7 +33,7 @@ __STREAM_IMAGE			= 'P'
 __CLEAR_APP				= 'C'
 
 # Buffer size on the Arduino
-__BUFF_SIZE				= 1460
+__BUFF_SIZE				= 1200
 
 
 # Gets the temperature of the room
