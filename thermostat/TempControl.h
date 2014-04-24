@@ -74,9 +74,9 @@ class TempControl {
     bool isSystemOn;
     uint8_t mode, unit, fanOnOverride;
     uint32_t lastTurnTime, lastTempUpdateTime;
+    void coerceTargetTemp();
     void turn(uint8_t on_or_off);
     int digitalReadAlt(int pin) const;
-//    int convertRawTemp(int raw);
     void captureRoomTemp();
     int convertTemp(int tempVal, byte convertTo);
 };

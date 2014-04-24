@@ -1,6 +1,6 @@
 
 
-import io, struct, select, time
+import io, struct, select, time, os
 from PIL import Image
 
 """ This library is used to send simple messages to and
@@ -134,7 +134,9 @@ def clearApp():
 	return __sendCommandWithRetry(__CLEAR_APP, '', False)
 
 def setIP():
-	return __sendCommandWithRetry(__SET_IP, 'testing', False)
+	ip = os.popen('ifconfig wlan0 | grep -o "inet addr:[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}"
+		+ '| grep -o "[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}"').readline()
+	return __sendCommandWithRetry(__SET_IP, ip, False)
 
 # Sends a command to the microcontroller with the message
 # expectedResponse should be True if expecting a response

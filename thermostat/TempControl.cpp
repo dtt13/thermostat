@@ -51,16 +51,19 @@ bool TempControl::isFanOn() {
 // Sets the target temperature
 void TempControl::setTargetTemp(int temp) {
   targetTemp = temp * TEMP_MULTIPLE;
+  coerceTargetTemp();
 }
 
 // Lowers the temperature by one unit
 void TempControl::incrementTargetTemp() {
   targetTemp += TEMP_MULTIPLE;
+  coerceTargetTemp();
 }
 
 // Raises the target temperature by one unit
 void TempControl::decrementTargetTemp() {
   targetTemp -= TEMP_MULTIPLE;
+  coerceTargetTemp();
 }
 
 // Switches the system between heating and cooling
@@ -107,6 +110,15 @@ void TempControl::switchUnit() {
       break;
     default:
       ;
+  }
+}
+
+void TempControl::coerceTargetTemp() {
+  int temp = getTargetTemp();
+  if(temp > 100) {
+    targetTemp = 100 * TEMP_MULTIPLE;
+  } else if(temp < 10) {
+    targetTemp = 10 * TEMP_MULTIPLE;
   }
 }
 
