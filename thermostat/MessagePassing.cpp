@@ -20,15 +20,13 @@ void processCommands(TempControl *tc, ScreenControl *sc) {
     Serial1.readBytes(buff_ptr, 1);
 //    Serial.println("number of bytes read: " + String(numBytes));
     switch(buff_ptr[0]) {
-      case GET_ROOM_TEMP:
+      case GET_TEMP:
 //        Serial.println("get room temperature");
         numBytes = readPacket();
-        Serial1.println(String(GET_ROOM_TEMP) + String(tc->getRoomTemp()));
-        break;
-      case GET_TARGET_TEMP:
-//        Serial.println("get target temperature");
-        numBytes = readPacket();
-        Serial1.println(String(GET_TARGET_TEMP) + String(tc->getTargetTemp()));
+        Serial1.print(String(GET_TEMP));
+        Serial1.write(tc->getRoomTemp());
+        Serial1.write(tc->getTargetTemp());
+        Serial1.println();
         break;
       case GET_MODE:
 //        Serial.println("get mode");
@@ -51,20 +49,22 @@ void processCommands(TempControl *tc, ScreenControl *sc) {
         tc->setTargetTemp(unpackNumber(buff_ptr, 3, 2));
         Serial1.println(String(SET_TARGET_TEMP));
         break;
-      case SWITCH_MODE:
-//        Serial.println("switch mode");
+      case SWITCH:
         numBytes = readPacket();
-        tc->switchMode();
-        Serial1.println(String(SWITCH_MODE));
-        break;
-      case SWITCH_UNIT:
-//        Serial.println("switch unit");
-        numBytes = readPacket();
-        tc->switchUnit();
-        Serial1.println(String(SWITCH_UNIT));
-        break;
+        switch(buff_ptr[3]) {
+          case SWITCH_MODE:
+            tc->switchMode();
+            break;
+          case SWITCH_UNIT:
+            tc->switchUnit();
+            break;
+          case SWITCH_FAN:
+            tc->switchFan();
+            break;
+        }
+        Serial1.println(String(SWITCH));
       case WRITE_TEXT:
-        Serial.println("write text");
+//        Serial.println("write text");
         numBytes = readPacket();
         Serial1.println(String(WRITE_TEXT));
         buff_ptr[numBytes + 3] = '\0';
@@ -75,7 +75,7 @@ void processCommands(TempControl *tc, ScreenControl *sc) {
         sc->layerMode(1);
         break;
       case STREAM_IMAGE:
-        Serial.println("stream image");
+//        Serial.println("stream image");
         numBytes = readPacket();
         sc->hideApp(true, true);
         sc->layerMode(2);
@@ -122,9 +122,9 @@ int readPacket() {
 String modeToString(TempControl *tc) {
   switch(tc->getMode()) {
     case HEATING:
-      return "heating";
+      return "h";
     case CELCIUS:
-      return "cooling";
+      return "c";
   }
   return "";
 }
@@ -143,9 +143,15 @@ String unitToString(TempControl *tc) {
 // Returns a String representation of the whether the thermostat is on or off
 String isOnToString(TempControl *tc) {
   if(tc->isOn()) {
-    return "true";
+    if(tc->isFanOn()) {
+      return "tt";
+    }
+    return "tf";
   } else {
-    return "false";
+    if(tc->isFanOn()) {
+      return "ft";
+    }
+    return "ff";
   }
 }
 

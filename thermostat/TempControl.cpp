@@ -115,8 +115,8 @@ void TempControl::switchUnit() {
 
 void TempControl::coerceTargetTemp() {
   int temp = getTargetTemp();
-  if(temp > 100) {
-    targetTemp = 100 * TEMP_MULTIPLE;
+  if(temp > 99) {
+    targetTemp = 99 * TEMP_MULTIPLE;
   } else if(temp < 10) {
     targetTemp = 10 * TEMP_MULTIPLE;
   }

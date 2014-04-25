@@ -9,14 +9,15 @@
 #include "ScreenControl.h"
 
 // Command codes
-#define GET_ROOM_TEMP          	'R'
-#define GET_TARGET_TEMP        	'G'
+#define GET_TEMP        	'G'
 #define GET_MODE		'H'
 #define GET_UNIT		'J'
 #define IS_ON			'O'
 #define SET_TARGET_TEMP        	'S'
-#define SWITCH_MODE		'M'
-#define SWITCH_UNIT		'U'
+#define SWITCH  		'T'
+#define SWITCH_MODE             'm'
+#define SWITCH_UNIT		'u'
+#define SWITCH_FAN              'f'
 #define WRITE_TEXT              'W'
 #define STREAM_IMAGE            'P'
 #define CLEAR_APP               'C'

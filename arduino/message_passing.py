@@ -18,16 +18,12 @@ __TIMEOUT = 1 # seconds
 __MAX_TRIALS = 3
 
 # Message commands constants
-__GET_ROOM_TEMP 		= 'R'
-__GET_TARGET_TEMP 		= 'G'
+__GET_TEMP 				= 'G'
 __GET_MODE 				= 'H'
 __GET_UNIT				= 'J'
 __IS_ON					= 'O'
 __SET_TARGET_TEMP 		= 'S'
-#__INCREMENT_TARGET_TEMP = 'I'
-#__DECREMENT_TARGET_TEMP = 'D'
-__SWITCH_MODE			= 'M'
-__SWITCH_UNIT			= 'U'
+__SWITCH				= 'T'
 __WRITE_TEXT			= 'W'
 __STREAM_IMAGE			= 'P'
 __CLEAR_APP				= 'C'
@@ -39,25 +35,29 @@ __BUFF_SIZE				= 1200
 
 # Gets the temperature of the room
 def getRoomTemp():
-	result = __sendCommandWithRetry(__GET_ROOM_TEMP, '', True)
-	if(result.isdigit()):
-		return int(result)
+	result = __sendCommandWithRetry(__GET_TEMP, '', True)
+	if len(result) == 2:
+		(roomTemp, targetTemp) = struct.unpack('HH', result)
+		return roomTemp
 	else:
 		return 'error'
 
 # Gets the target temperature
 def getTargetTemp():
-	result = __sendCommandWithRetry(__GET_TARGET_TEMP, '', True)
-	if(result.isdigit()):
-		return int(result)
+	result = __sendCommandWithRetry(__GET_TEMP, '', True)
+	if len(result) == 2:
+		(roomTemp, targetTemp) = struct.unpack('HH', result)
+		return targetTemp
 	else:
 		return 'error'
 
 # Gets the current mode of operation (heating or cooling)
 def getMode():
 	result = __sendCommandWithRetry(__GET_MODE, '', True)
-	if(result == 'heating' or result == 'cooling'):
-		return result
+	if result == 'h': 
+		return 'heating'
+	elif result == 'c':
+		return 'cooling'
 	else:
 		return 'error'
 
@@ -72,7 +72,12 @@ def getUnit():
 # Return True if the system is on, False otherwise
 def isOn():
 	result = __sendCommandWithRetry(__IS_ON, '', True)
-	return (result == 'true')
+	return (result[0] == 't')
+
+# Return True if the fan is on, False otherwise
+def isFanOn():
+	result = __sendCommandWithRetry(__IS_ON, '', True)
+	return (result[1] == 't')
 
 # Sets the target temperature
 def setTargetTemp(newTargetTemp):
@@ -80,21 +85,17 @@ def setTargetTemp(newTargetTemp):
 	temp = struct.pack('h', newTargetTemp)
 	return __sendCommandWithRetry(__SET_TARGET_TEMP, temp, False)
 
-# # Increase the target temperature by one degree
-# def incrementTargetTemp():
-# 	return __sendCommandWithRetry(__INCREMENT_TARGET_TEMP, '', False)
-
-# # Decrease the target temperature by one degree
-# def decrementTargetTemp():
-# 	return __sendCommandWithRetry(__DECREMENT_TARGET_TEMP, '', False)
-
 # Switches the system between heating and cooling
 def switchMode():
-	return __sendCommandWithRetry(__SWITCH_MODE, '', False)
+	return __sendCommandWithRetry(__SWITCH, 'm', False)
 
 # Switches the temperature units
 def switchUnit():
-	return __sendCommandWithRetry(__SWITCH_UNIT, '', False)
+	return __sendCommandWithRetry(__SWITCH, 'u', False)
+
+# Switches the fan override
+def switchFan():
+	return __sendCommandWithRetry(__SWITCH, 'f', False)
 
 # Sends text to be displayed on the screen
 def writeText(x, y, fColor, bColor, fontSize, text):
