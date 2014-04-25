@@ -264,8 +264,6 @@ void ScreenControl::processThermostatTouch() {
       tc->incrementTargetTemp();
     } else if(isTouched(&tempDownButton)) { // cool down
       tc->decrementTargetTemp();
-//    } else {
-//      clearApp();
     }
     lastScreenPress = millis();
   } else if(isTouchUp()) {
@@ -308,6 +306,10 @@ void ScreenControl::processSettingsTouch() {
       tc->switchUnit();
     } else if(isTouched(&modeButton)) {
       tc->switchMode();
+    } else if(isTouched(&app)) {
+      appTouched = true;
+      appX = tx;
+      appY = ty;
     }
     drawSettingsViewButtons();
   } else if(isTouchUp() && isTouched(&backButton)) {

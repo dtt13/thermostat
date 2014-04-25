@@ -86,6 +86,17 @@ void processCommands(TempControl *tc, ScreenControl *sc) {
         sc->clearApp();
         Serial1.println(String(CLEAR_APP));
         break;
+      case APP_TOUCH:
+        numBytes = readPacket();
+        if(sc->appTouched) {
+          Serial1.print(String(APP_TOUCH));
+          Serial1.write(sc->appX);
+          Serial1.write(sc->appY);
+          Serial1.println();
+          sc->appTouched = false;
+        } else {
+          Serial1.println(String(APP_TOUCH) + "X");
+        }
       case SET_IP:
         numBytes = readPacket();
         strcpy(sc->ipaddr, buff_ptr + 3);

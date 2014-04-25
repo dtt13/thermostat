@@ -27,6 +27,7 @@ __SWITCH				= 'T'
 __WRITE_TEXT			= 'W'
 __STREAM_IMAGE			= 'P'
 __CLEAR_APP				= 'C'
+__APP_TOUCH				= 'A'
 __SET_IP				= 'I'
 
 # Buffer size on the Arduino
@@ -134,6 +135,17 @@ def streamImage(file, xpos, ypos):
 def clearApp():
 	return __sendCommandWithRetry(__CLEAR_APP, '', False)
 
+def isAppTouched():
+	result = __sendCommandWithRetry(__APP_TOUCH, '', True)
+	if len(result) == 1:
+		return (False, 0, 0)
+	elif len(result) == 4:
+		(x, y) = struct.unpack('<HH', result)
+		return (True, x, y)
+	else:
+		return 'error'
+
+# Sends the Yun's IP address to the screen
 def setIP():
 	pat = re.compile(r"inet addr:(?P<ip>\d+\.\d+\.\d+\.\d+)")
 	ip = os.popen('ifconfig wlan0 | grep -o "inet addr:[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}"').readline()

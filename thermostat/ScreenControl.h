@@ -43,7 +43,8 @@ typedef struct Button {
 
 class ScreenControl {
   public:
-    bool touchFlag;
+    bool touchFlag, appTouched;
+    uint16_t appX, appY;
     char ipaddr[16];
     ScreenControl(TempControl *tc);
     bool init();
@@ -63,7 +64,7 @@ class ScreenControl {
     uint16_t tx, ty;
     tsMatrix_t cal_matrix;
     bool isPressed, wasPressed;
-    button_t tempUpButton, tempDownButton, settingsButton, fanButton; // thermostat view
+    button_t tempUpButton, tempDownButton, settingsButton, fanButton, app; // thermostat view
     button_t unitsButton, modeButton, backButton; // settings view
     
     // used for display

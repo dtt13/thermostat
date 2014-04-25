@@ -1,7 +1,8 @@
 import sys
 import ndfd_control
 sys.path.append('/mnt/sda1/arduino')
-from message_passing import writeText, streamImage, clearApp
+from message_passing import writeText, streamImage, clearApp, isAppTouched
+from time import sleep
 
 __DEGREE_SYM = 0xb0
 
@@ -98,3 +99,10 @@ def testAll():
         testWarning()
         testConditions()
         testTemps()
+
+# response = ''
+while True: #response != 'error':
+	(touched, x, y) = isAppTouched()
+	if touched:
+		print x, y
+	time.sleep(1)

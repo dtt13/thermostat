@@ -21,6 +21,7 @@
 #define WRITE_TEXT              'W'
 #define STREAM_IMAGE            'P'
 #define CLEAR_APP               'C'
+#define APP_TOUCH               'A'
 #define SET_IP                  'I'
 
 // Read buffers
