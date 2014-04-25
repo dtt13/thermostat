@@ -1,6 +1,6 @@
 
 
-import io, struct, select, time, os
+import io, struct, select, time, os, re
 from PIL import Image
 
 """ This library is used to send simple messages to and

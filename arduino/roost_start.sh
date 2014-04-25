@@ -3,13 +3,12 @@
 
 PYTHON=/mnt/sda1/packages/bin/python
 
-echo "Starting cron"
-/etc/init.d/cron restart
-/etc/init.d/cron start
+# echo "Starting cron"
+# /etc/init.d/cron restart
+# /etc/init.d/cron start
 
 echo
 echo "Killing bridge"
-sleep 60
 kill-bridge
 
 echo
