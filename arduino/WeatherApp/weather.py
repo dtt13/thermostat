@@ -72,7 +72,7 @@ def updateWeather():
 
 def testTemps():
         global data
-        data = {__CURRENT_TEMP : 55, __MAX_TEMP : 66, __MIN_TEMP : 44, __PRECIP
+        data = {__CURRENT_TEMP : 55, __MAX_TEMP : 66, __MIN_TEMP : 44, __PRECIP : 70}
         updateTemps()
 
 def testConditions():

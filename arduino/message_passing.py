@@ -136,6 +136,8 @@ def clearApp():
 def setIP():
 	ip = os.popen('ifconfig wlan0 | grep -o "inet addr:[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}"
 		+ '| grep -o "[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}"').readline()
+	if len(ip) == 0:
+		ip = 'Not Connected'
 	return __sendCommandWithRetry(__SET_IP, ip, False)
 
 # Sends a command to the microcontroller with the message
