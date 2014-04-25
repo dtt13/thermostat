@@ -16,41 +16,37 @@ void processCommands(TempControl *tc, ScreenControl *sc) {
   while(Serial1.available() > 0) {
     memset(buff_ptr, 0x00, COMMAND_BUFFER_SIZE);
     int numBytes;
-//    = Serial1.readBytesUntil('\n', ret, COMMAND_BUFFER_SIZE);
     Serial1.readBytes(buff_ptr, 1);
 //    Serial.println("number of bytes read: " + String(numBytes));
     switch(buff_ptr[0]) {
       case GET_TEMP:
-//        Serial.println("get room temperature");
         numBytes = readPacket();
+        buff_ptr[6] = tc->getRoomTemp();
+        buff_ptr[8] = tc->getTargetTemp();
         Serial1.print(String(GET_TEMP));
-        Serial1.write(tc->getRoomTemp());
-        Serial1.write(tc->getTargetTemp());
+        Serial1.write((uint8_t *)(buff_ptr + 6), 4);
         Serial1.println();
         break;
       case GET_MODE:
-//        Serial.println("get mode");
         numBytes = readPacket();
         Serial1.println(String(GET_MODE) + modeToString(tc));
         break;
       case GET_UNIT:
-//        Serial.println("get unit");
         numBytes = readPacket();
         Serial1.println(String(GET_UNIT) + unitToString(tc));
         break;
       case IS_ON:
-//        Serial.println("is on?");
         numBytes = readPacket();
         Serial1.println(String(IS_ON) + isOnToString(tc));
         break;
       case SET_TARGET_TEMP:
-//        Serial.println("set target temperature");
         numBytes = readPacket();
         tc->setTargetTemp(unpackNumber(buff_ptr, 3, 2));
         Serial1.println(String(SET_TARGET_TEMP));
         break;
       case SWITCH:
         numBytes = readPacket();
+        Serial1.println(String(SWITCH));
         switch(buff_ptr[3]) {
           case SWITCH_MODE:
             tc->switchMode();
@@ -62,9 +58,7 @@ void processCommands(TempControl *tc, ScreenControl *sc) {
             tc->switchFan();
             break;
         }
-        Serial1.println(String(SWITCH));
       case WRITE_TEXT:
-//        Serial.println("write text");
         numBytes = readPacket();
         Serial1.println(String(WRITE_TEXT));
         buff_ptr[numBytes + 3] = '\0';
@@ -75,7 +69,6 @@ void processCommands(TempControl *tc, ScreenControl *sc) {
         sc->layerMode(1);
         break;
       case STREAM_IMAGE:
-//        Serial.println("stream image");
         numBytes = readPacket();
         sc->hideApp(true, true);
         sc->layerMode(2);
@@ -89,20 +82,17 @@ void processCommands(TempControl *tc, ScreenControl *sc) {
         }
         break;
       case CLEAR_APP:
-//        Serial.println("clear application");
         numBytes = readPacket();
         sc->clearApp();
         Serial1.println(String(CLEAR_APP));
         break;
       case SET_IP:
-//        Serial.println("setting IP address");
         numBytes = readPacket();
         strcpy(sc->ipaddr, buff_ptr + 3);
         Serial1.println(String(SET_IP));
       default:
         Serial.println("Error: message command not recognized");
         numBytes = Serial1.readBytes(buff_ptr, COMMAND_BUFFER_SIZE);
-//        printData(buff_ptr, numBytes);
     }
   }
 }

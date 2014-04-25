@@ -6,14 +6,15 @@ ARD=$YUN/arduino
 PACK=$YUN/packages
 PYTHON=$PACK/bin/python
 PIP=$PACK/bin/pip
+CRON=/etc/init.d/cron
 
 opkg update
 mkdir $PACK
 
 
 # # install easy_install and pip which is used for installing other packages
-# echo
-# echo "Installing pip..."
+echo
+echo "Installing dependencies..."
 opkg install distribute
 opkg install python-openssl
 # easy_install pip
@@ -63,7 +64,7 @@ $PIP install suds
 
 # install ElementTree
 echo
-echo "installing ElementTree..."
+echo "Installing ElementTree..."
 # $PIP install lxml
 wget http://effbot.org/media/downloads/elementtree-1.2.6-20050316.tar.gz
 tar xvzf elementtree-1.2.6-20050316.tar.gz
@@ -71,6 +72,11 @@ cd $PACK/elementtree-1.2.6-20050316
 $PYTHON setup.py install
 cd $PACK
 rm -rf $PACK/elementtree-1.2.6-20050316.tar.gz $PACK/elementtree-1.2.6-20050316
+
+echo
+echo "Setting up cron..."
+$CRON start
+$CRON enable
 
 echo
 echo "All Done."

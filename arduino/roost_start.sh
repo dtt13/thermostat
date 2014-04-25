@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/ash
 # roost_start.sh
 
 PYTHON=/mnt/sda1/packages/bin/python

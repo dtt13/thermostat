@@ -36,8 +36,8 @@ __BUFF_SIZE				= 1200
 # Gets the temperature of the room
 def getRoomTemp():
 	result = __sendCommandWithRetry(__GET_TEMP, '', True)
-	if len(result) == 2:
-		(roomTemp, targetTemp) = struct.unpack('HH', result)
+	if len(result) == 4:
+		(roomTemp, targetTemp) = struct.unpack('<HH', result)
 		return roomTemp
 	else:
 		return 'error'
@@ -45,8 +45,8 @@ def getRoomTemp():
 # Gets the target temperature
 def getTargetTemp():
 	result = __sendCommandWithRetry(__GET_TEMP, '', True)
-	if len(result) == 2:
-		(roomTemp, targetTemp) = struct.unpack('HH', result)
+	if len(result) == 4:
+		(roomTemp, targetTemp) = struct.unpack('<HH', result)
 		return targetTemp
 	else:
 		return 'error'

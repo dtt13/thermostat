@@ -111,6 +111,7 @@ void TempControl::switchUnit() {
     default:
       ;
   }
+  coerceTargetTemp();
 }
 
 void TempControl::coerceTargetTemp() {
@@ -127,7 +128,7 @@ void TempControl::coerceTargetTemp() {
 // This only processes the temperature every PROCESS_TIME.
 void TempControl::processTemperature() {
   if((millis() - lastTempUpdateTime) >= TEMP_UPDATE_DELAY) {
-      captureRoomTemp();
+//      captureRoomTemp.();
 //    roomTemp = 65 * TEMP_MULTIPLE;
     isSystemOn = (IS_ON(COOL_PIN)) || (IS_ON(HEAT_PIN));
     switch(mode) {
