@@ -134,9 +134,12 @@ def clearApp():
 	return __sendCommandWithRetry(__CLEAR_APP, '', False)
 
 def setIP():
-	ip = os.popen('ifconfig wlan0 | grep -o "inet addr:[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}"
-		+ '| grep -o "[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}"').readline()
-	if len(ip) == 0:
+	pat = re.compile(r"inet addr:(?P<ip>\d+\.\d+\.\d+\.\d+)")
+	ip = os.popen('ifconfig wlan0 | grep -o "inet addr:[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}"').readline()
+	match = pat.match(ip)
+	if match:
+		ip = match.group('ip')
+	else:
 		ip = 'Not Connected'
 	return __sendCommandWithRetry(__SET_IP, ip, False)
 
