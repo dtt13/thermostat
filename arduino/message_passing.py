@@ -137,13 +137,11 @@ def clearApp():
 
 def isAppTouched():
 	result = __sendCommandWithRetry(__APP_TOUCH, '', True)
-	if len(result) == 1:
-		return (False, 0, 0)
-	elif len(result) == 4:
+	if len(result) == 4:
 		(x, y) = struct.unpack('<HH', result)
 		return (True, x, y)
 	else:
-		return 'error'
+		return (False, 0, 0)
 
 # Sends the Yun's IP address to the screen
 def setIP():

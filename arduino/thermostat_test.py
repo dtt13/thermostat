@@ -2,8 +2,6 @@ from message_passing import *
 
 expectedRoomTemp = getRoomTemp()
 expectedTargetTemp = getTargetTemp()
-expectedIncTemp = expectedTargetTemp + 1
-expectedDecTemp = expectedTargetTemp
 expectedMode = 'heating'
 expectedSwitchMode = 'cooling'
 expectedUnit = 'f'
@@ -23,15 +21,6 @@ for i in range(0,5000):
 	setTargetTemp(expectedTargetTemp)
 	if(getTargetTemp() != expectedTargetTemp):
 		print 'Error! Did not set target temp down'
-		error = True
-	# Test incrementing and decrementing the target temp
-	incrementTargetTemp()
-	if(getTargetTemp() != expectedIncTemp):
-		print 'Error! Did not increment target temp'
-		error = True
-	decrementTargetTemp()
-	if(getTargetTemp() != expectedDecTemp):
-		print 'Error! Did not decrement target temp'
 		error = True
 	# Test getting the room temp
 	if(getRoomTemp() != expectedRoomTemp):

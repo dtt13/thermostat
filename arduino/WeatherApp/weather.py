@@ -105,4 +105,4 @@ while True: #response != 'error':
 	(touched, x, y) = isAppTouched()
 	if touched:
 		print x, y
-	time.sleep(1)
+	sleep(1)

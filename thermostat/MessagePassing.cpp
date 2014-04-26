@@ -58,6 +58,7 @@ void processCommands(TempControl *tc, ScreenControl *sc) {
             tc->switchFan();
             break;
         }
+        break;
       case WRITE_TEXT:
         numBytes = readPacket();
         Serial1.println(String(WRITE_TEXT));
@@ -89,18 +90,21 @@ void processCommands(TempControl *tc, ScreenControl *sc) {
       case APP_TOUCH:
         numBytes = readPacket();
         if(sc->appTouched) {
+          buff_ptr[6] = sc->appX;
+          buff_ptr[8] = sc->appY;
           Serial1.print(String(APP_TOUCH));
-          Serial1.write(sc->appX);
-          Serial1.write(sc->appY);
+          Serial1.write((uint8_t *)(buff_ptr + 6), 4);
           Serial1.println();
           sc->appTouched = false;
         } else {
           Serial1.println(String(APP_TOUCH) + "X");
         }
+        break;
       case SET_IP:
         numBytes = readPacket();
         strcpy(sc->ipaddr, buff_ptr + 3);
         Serial1.println(String(SET_IP));
+        break;
       default:
         Serial.println("Error: message command not recognized");
         numBytes = Serial1.readBytes(buff_ptr, COMMAND_BUFFER_SIZE);

@@ -19,6 +19,7 @@ ScreenControl::ScreenControl(TempControl* tempControl) {
   createButton(&tempDownButton, 385, 191, 70, 60);
   createButton(&settingsButton, 30, 41, 70, 40);
   createButton(&fanButton, 30, 211, 70, 40);
+  createButton(&app, 120, 40, 240, 212);
   createButton(&unitsButton, 200, 110, 70, 40);
   createButton(&modeButton, 200, 185, 70, 40);
   createButton(&backButton, 385, 210, 70, 40);
@@ -141,7 +142,7 @@ void ScreenControl::hideApp(bool hide, bool loading) {
     } else {
       color = TRANSPARENT_COLOR;
     }
-    tft->fillRect(120, 40, 240, 212, color);
+    tft->fillRect(app.x, app.y, app.width, app.height, color);
     if(loading) {
       writeText(150, 120, WHITE, 1, "Loading...");
     }
@@ -150,7 +151,7 @@ void ScreenControl::hideApp(bool hide, bool loading) {
 
 void ScreenControl::clearApp() {
   layerMode(2);
-  tft->fillRect(120, 40, 240, 212, PRIMARY_BLUE);
+  tft->fillRect(app.x-30, app.y, app.width+60, app.height, PRIMARY_BLUE);
   layerMode(1);
 }
 
@@ -171,11 +172,9 @@ void ScreenControl::drawBackground() {
 
 // outputs the specified view to the display
 void ScreenControl::drawView(int view) {
-//  char text[20]; 
   tft->fillScreen(TRANSPARENT_COLOR);
   switch(view) {
     case STARTUP:
-//      strcpy(text, "Welcome to Roost!");
       writeText(100, 125, WHITE, 1, "Welcome to Roost!");
       break;
     case THERMOSTAT:
@@ -185,13 +184,10 @@ void ScreenControl::drawView(int view) {
     case SETTINGS:
       hideApp(true, false);
       // header
-//      strcpy(text, "Settings");
       writeText(20, 35, WHITE, 1, "Settings");
       // units
-//      strcpy(text, "units:");
       writeText(40, 110, WHITE, 1, "units:");
       // mode
-//      strcpy(text, "mode:");
       writeText(40, 185, WHITE, 1, "mode:");
       writeText(200, 45, WHITE, 0, ipaddr);
       drawSettingsViewButtons();
@@ -269,6 +265,10 @@ void ScreenControl::processThermostatTouch() {
   } else if(isTouchUp()) {
     if(isTouched(&settingsButton)) {
       switchView(SETTINGS);
+    } else if(isTouched(&app)) {
+      appTouched = true;
+      appX = tx;
+      appY = ty;
     }
   }
 }
@@ -306,10 +306,6 @@ void ScreenControl::processSettingsTouch() {
       tc->switchUnit();
     } else if(isTouched(&modeButton)) {
       tc->switchMode();
-    } else if(isTouched(&app)) {
-      appTouched = true;
-      appX = tx;
-      appY = ty;
     }
     drawSettingsViewButtons();
   } else if(isTouchUp() && isTouched(&backButton)) {
