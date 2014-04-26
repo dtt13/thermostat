@@ -1,43 +1,81 @@
-import web, os
+import web
+import re
+import base64
 from web import form
 
-from subprocess import Popen, PIPE
-
-import sys
-sys.path.append('/mnt/sda1/arduino')
-import message_passing
-
 urls = (
-  '/', 'Index',
-  '/settings', 'Settings'
+    '/','Index',
+    '/login','Login',
+    '/settings', 'Settings',
+    '/schedule', 'Schedule'
 )
 
-app = web.application(urls, globals())
+app = web.application(urls,globals())
 
-cur_temp_form = form.Form(
-	form.Textbox("temperature", description="temperature"),
-	form.Button("update", type="submit", description="Update")
+allowed = (
+    ('user1','pass1'),
+    ('admin', 'password')
+)
+
+temp_schedule_form = form.Form(
+    form.Textbox("day", description="day"),
+    form.Textbox("time", description="time"), 
+    form.Textbox("temp", description="temp")
 )
 
 render = web.template.render('templates/')
 
-class Index(object):
+class Index:
     def GET(self):
-        return render.index()
+        if web.ctx.env.get('HTTP_AUTHORIZATION') is not None:
+            return render.index()
+        else:
+            raise web.seeother('/login')
 
-class Settings(object):
-	def GET(self):
-		out1 = message_passing.getRoomTemp()
-		outA = message_passing.getTargetTemp()
-		#proc = Popen('python ./static/pull_temp.py', shell=True, stdout=PIPE)
-		#proc.wait()
-		#(out1, out2) = proc.communicate()
-		#proc2 = Popen('python ./static/pull_target_temp.py', shell=True, stdout=PIPE)
-		#(outA, outB) = proc2.communicate()
-		# do $:f.render() in the template
-		f = cur_temp_form()
-		return render.settings(f, out1, outA)
-		
+class Settings:
+    def GET(self):
+        if web.ctx.env.get('HTTP_AUTHORIZATION') is not None:
+            return render.settings()
+        else:
+            raise web.seeother('/login')
 
-if __name__ == "__main__":
+class Schedule:
+    def GET(self):
+        if web.ctx.env.get('HTTP_AUTHORIZATION') is not None:
+            # Access the schedule file
+            sch_file = open("bin/schedule.txt", "r")
+            sch_str = sch_file.read()
+            sch_file.close()
+            setting_list = sch_str.split(';')
+            sch_arr = []
+            for x in setting_list:
+                triple = x.split('::')
+                # Now in the format (day/date, time, temp, repeat status)
+                if (triple[0] and triple[1] and triple[2] and triple[3] and triple[4]):
+                    sch_arr.append([triple[0], triple[1], triple[2], triple[3], triple[4]])
+            arrLen = len(sch_arr)
+            f = temp_schedule_form()
+            return render.schedule(f, arrLen, sch_arr)
+        else:
+            raise web.seeother('/login')
+
+class Login:
+    def GET(self):
+        auth = web.ctx.env.get('HTTP_AUTHORIZATION')
+        authreq = False
+        if auth is None:
+            authreq = True
+        else:
+            auth = re.sub('^Basic ','',auth)
+            username,password = base64.decodestring(auth).split(':')
+            if (username,password) in allowed:
+                raise web.seeother('/')
+            else:
+                authreq = True
+        if authreq:
+            web.header('WWW-Authenticate','Basic realm="Auth example"')
+            web.ctx.status = '401 Unauthorized'
+            return
+
+if __name__=='__main__':
     app.run()

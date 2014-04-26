@@ -1,0 +1,307 @@
+$def with (f, arrLen, valArr)
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title>Thermostat</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" href="/static/css/style.css" type="text/css" media="screen, projection, tv" />
+<link rel="stylesheet" href="/static/css/style-print.css" type="text/css" media="print" />
+<link href="/static/css/smoothness/jquery-ui-1.10.4.custom.css" rel="stylesheet" />
+<script src="/static/js/jquery-2.1.0.min.js"></script>
+<script src="/static/js/jquery-ui-1.10.4.custom.min.js"></script>
+<script>
+	$$(function(){
+		$$(".datepicker").datepicker({inline:true});
+	});
+	function switchDate(rowNum,selectID){
+		if (rowNum=="" || selectID=="") return;
+		//element --> the element to be displayed
+		//selValue--> the element calling this function
+		selValue = selectID.value; //The element calling this function
+		if (selValue == "once"){
+			var elementID = "date_o"+rowNum.toString();
+			var ele_d = "date_d"+rowNum.toString();
+			var ele_w = "date_w"+rowNum.toString();
+			var ele_m = "date_m"+rowNum.toString();
+			element = document.getElementById(elementID);
+			hide_d = document.getElementById(ele_d);
+			hide_w = document.getElementById(ele_w);
+			hide_m = document.getElementById(ele_m);
+			if (!element || !hide_d || !hide_w || !hide_m)return;
+			hide_d.style.display="none";
+			hide_w.style.display="none";
+			hide_m.style.display="none";
+			element.style.display="inline";
+		} else if (selValue =="monthly"){
+			var elementID = "date_m"+rowNum.toString();
+			var ele_d = "date_d"+rowNum.toString();
+			var ele_w = "date_w"+rowNum.toString();
+			var ele_o = "date_o"+rowNum.toString();
+			element = document.getElementById(elementID);
+			hide_d = document.getElementById(ele_d);
+			hide_w = document.getElementById(ele_w);
+			hide_o = document.getElementById(ele_o);
+			if (!element || !hide_d || !hide_w || !hide_o)return;
+			hide_d.style.display="none";
+			hide_w.style.display="none";
+			hide_o.style.display="none";
+			element.style.display="inline";
+		} else if (selValue =="weekly"){
+			var elementID = "date_w"+rowNum.toString();
+			var ele_d = "date_d"+rowNum.toString();
+			var ele_m = "date_m"+rowNum.toString();
+			var ele_o = "date_o"+rowNum.toString();
+			element = document.getElementById(elementID);
+			hide_d = document.getElementById(ele_d);
+			hide_m = document.getElementById(ele_m);
+			hide_o = document.getElementById(ele_o);
+			if (!element || !hide_d || !hide_m || !hide_o)return;
+			hide_d.style.display="none";
+			hide_m.style.display="none";
+			hide_o.style.display="none";
+			element.style.display="inline";
+		} else{
+			var elementID = "date_d"+rowNum.toString();
+			var ele_w = "date_w"+rowNum.toString();
+			var ele_m = "date_m"+rowNum.toString();
+			var ele_o = "date_o"+rowNum.toString();
+			element = document.getElementById(elementID);
+			hide_w = document.getElementById(ele_w);
+			hide_m = document.getElementById(ele_m);
+			hide_o = document.getElementById(ele_o);
+			if (!element || !hide_w || !hide_m || !hide_o)return;
+			hide_w.style.display="none";
+			hide_m.style.display="none";
+			hide_o.style.display="none";
+			element.style.display="inline";
+		}
+	};
+</script>
+<style>
+table,th,th{border:0px;border-collapse:collapse;}
+th,td{padding:5px;text-align:center}
+</style>
+</head>
+<body>
+<div id="wrapper">
+  <div class="title">
+    <div class="title-top">
+      <div class="title-left">
+        <div class="title-right">
+          <div class="title-bottom">
+            <div class="title-top-left">
+              <div class="title-bottom-left">
+                <div class="title-top-right">
+                  <div class="title-bottom-right">
+						<h1><a href="http://roosthermostat.com">Roost <span>Thermostat</span> Settings</a></h1>
+                    <p>View and edit your settings&hellip;</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <hr class="noscreen" />
+  <div class="content">
+    <div class="column-left">
+      <h3>MENU</h3>
+      <a href="#skip-menu" class="hidden">Skip menu</a>
+      <ul class="menu">
+        <li><a href="/">Home</a></li>
+        <li><a href="/schedule" class="active">Schedule</a></li>
+        <li class="last"><a href="/settings">User Settings</a></li>
+      </ul>
+    </div>
+    <div id="skip-menu"></div>
+    <div class="column-right">
+      <div class="box">
+        <div class="box-top"></div>
+        <div class="box-in">
+          <h2>Outside Temperature: xx degrees</h2>
+          <h2>Set Temperature: xx degrees</h2>
+          <h2>Current Schedule:</h2>
+          <p>Your thermostat can be scheduled to change it's target temperature at
+          predetermined times.  Order of the entries does not matter.  They
+          will be run chronologically.  The current schedule is as follows:</p>
+          <div align="center"><table id="settingsTable" style="width:75%">
+          <tr>
+          	<th>Name/Tag</th><th>Day/Date</th><th>Hr.</th><th>Min.</th><th>Temp.</th><th>Repeat</th>
+          </tr>
+          $for i in range(arrLen):
+          	<tr>
+          	<td><input type="text" value=$valArr[i][0] size=6></td>
+          	$if valArr[i][4] == 'd':
+          		<td id="row$i">
+          		<input type="text" id="date_d$i" value="NA" style="display:inline" size=6 disabled>
+          		<select id="date_w$i" style="display:none;">
+          		$ dayArr = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
+          		$for x in range(0,7):
+          			<option value="$dayArr[x]">$dayArr[x]</option>
+          		</select>
+          		<select id="date_m$i" style="display:none;">
+          		$for y in range(1,32):
+          			<option value=$y>$y</option>
+          		</select>
+          		<input type="text" class="datepicker" id="date_o$i" value=$valArr[i][1] size=6 style="display:none;">
+          		</td>
+          	$elif valArr[i][4] == 'w':
+          		<td id="row$i">
+          		<input type="text" id="date_d$i" value="NA" style="display:none" size=6 disabled>
+          		<select id="date_w$i" style="display:inline;">
+          		$ dayArr = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
+          		$for x in range(0,7):
+          			<option value="$dayArr[x]">$dayArr[x]</option>
+          		</select>
+          		<select id="date_m$i" style="display:none;">
+          		$for y in range(1,32):
+          			<option value=$y>$y</option>
+          		</select>
+          		<input type="text" class="datepicker" id="date_o$i" value=$valArr[i][1] size=6 style="display:none;">
+          		</td>
+          	$elif valArr[i][4] == 'm':
+          		<td id="row$i">
+          		<input type="text" id="date_d$i" value="NA" style="display:none" size=6 disabled>
+          		<select id="date_w$i" style="display:none;">
+          		$ dayArr = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
+          		$for x in range(0,7):
+          			<option value="$dayArr[x]">$dayArr[x]</option>
+          		</select>
+          		<select id="date_m$i" style="display:inline;">
+          		$for y in range(1,32):
+          			<option value=$y>$y</option>
+          		</select>
+          		<input type="text" class="datepicker" id="date_o$i" value=$valArr[i][1] size=6 style="display:none;">
+          		</td>
+          	$else:
+          		<td id="row$i">
+          		<input type="text" id="date_d$i" value="NA" style="display:none" size=6 disabled>
+          		<select id="date_w$i" style="display:none;">
+          		$ dayArr = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
+          		$for x in range(0,7):
+          			<option value="$dayArr[x]">$dayArr[x]</option>
+          		</select>
+          		<select id="date_m$i" style="display:none;">
+          		$for y in range(1,32):
+          			<option value=$y>$y</option>
+          		</select>
+          		<input type="text" class="datepicker" id="date_o$i" value=$valArr[i][1] size=6 style="display:inline;">
+          		</td>
+          	$ sTime = valArr[i][2].split(':')
+          	<td>
+         	<select>
+         		$for y in range(0,24):
+          			$if (int(sTime[0])==y):
+          				<option value=$y selected>$y</option>
+          			$else:
+          				<option value=$y>$y</option>
+          	</select>
+          	</td>
+          	<td>
+          	<select>
+          		$for l in range(0,60):
+          			$if (int(sTime[1])==l):
+          				<option value=$l selected>$l</option>
+          			$else:
+          				<option value=$l>$l</option>
+          	</select>
+          	</td>
+          	<td>
+          	<select>
+          		$for x in range(30,100):
+          			$if (int(valArr[i][3]) == x):
+          				<option value=$x selected>$x</option>
+          			$else:
+          				<option value=$x>$x</option>
+          	</select>
+          	</td>
+          	<td>
+          	$if valArr[i][4] == 'd':
+          		<select id="sel$i" onChange=switchDate("$i",(this))>
+          			<option value="once">Once</option>
+          			<option value="daily" selected>Daily</option>
+          			<option value="weekly">Weekly</option>
+          			<option value="monthly">Monthly</option>
+          		</select>
+          	$elif valArr[i][4] == 'w':
+          		<select id="sel$i" onChange=switchDate("$i",(this))>
+          			<option value="once">Once</option>
+          			<option value="daily">Daily</option>
+          			<option value="weekly" selected>Weekly</option>
+          			<option value="monthly">Monthly</option>
+          		</select>
+          	$elif valArr[i][4] == 'm':
+          		<select id="sel$i" onChange=switchDate("$i",(this))>
+          			<option value="once">Once</option>
+          			<option value="daily">Daily</option>
+          			<option value="weekly">Weekly</option>
+          			<option value="monthly" selected>Monthly</option>
+          		</select>
+          	$else:
+          		<select id="sel$i" onChange=switchDate("$i",(this))>
+          			<option value="once" selected>Once</option>
+          			<option value="daily">Daily</option>
+          			<option value="weekly">Weekly</option>
+          			<option value="monthly">Monthly</option>
+          		</select>
+          	</td>
+          	</tr>
+          $for j in range(5):
+          	$ k = j + arrLen
+          	<tr>
+          	<td><input type="text" size=6 value=""></td>
+          	<td id="row$k">
+          	<input type="text" id="date_d$k" value="NA" style="display:none" size=6 disabled>
+          	<select id="date_w$k" style="display:none;">
+          	$ dayArr = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
+          	$for x in range(0,7):
+          		<option value="$dayArr[x]">$dayArr[x]</option>
+          	</select>
+          	<select id="date_m$k" style="display:none;">
+          	$for y in range(1,32):
+          		<option value=$y>$y</option>
+          	</select>
+          	<input type="text" class="datepicker" id="date_o$k" value="" size=6 style="display:inline;">
+          	</td>
+          	<td>
+			<select>
+          		$for l in range(0,24):
+          			<option value=$l>$l</option>
+          	</select>
+			</td>
+          	<td>
+          	<select>
+          		$for r in range(0,60):
+          			<option value=$r>$r</option>
+          	</select>
+          	</td>
+          	<td>
+          	<select>
+          		$for v in range(30,100):
+          			<option value=$v>$v</option>
+          	</select>
+          	</td>
+          	<td>
+          	<select id="sel$k" onChange=switchDate("$k",(this))>
+          		<option value="once" selected>Once</option>
+          		<option value="daily">Daily</option>
+          		<option value="weekly">Weekly</option>
+          		<option value="monthly">Monthly</option>
+          	</select>
+          	</td>
+          	</tr>
+         </table></div>
+        </div>
+      </div>
+      <div class="box-bottom">
+        <hr class="noscreen" />
+        <div class="footer-info-left"><a href="http://roosthermostat.com">Roost</a>, 2014.</div>
+      </div>
+    </div>
+    <div class="cleaner">&nbsp;</div>
+  </div>
+</div>
+</body>
+</html>
