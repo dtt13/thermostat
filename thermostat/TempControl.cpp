@@ -13,6 +13,9 @@ TempControl::TempControl() {
   unit = DEFAULT_UNIT;
   lastTurnTime, lastTempUpdateTime = 0;
   fanOnOverride = OFF;
+  pinMode(COOL_PIN, OUTPUT);
+  pinMode(HEAT_PIN, OUTPUT);
+  pinMode(FAN_PIN, OUTPUT);
   COOL(OFF);
   HEAT(OFF);
   FAN(OFF);
