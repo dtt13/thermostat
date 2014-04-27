@@ -73,10 +73,18 @@ $PYTHON setup.py install
 cd $PACK
 rm -rf $PACK/elementtree-1.2.6-20050316.tar.gz $PACK/elementtree-1.2.6-20050316
 
+# start up cron
 echo
 echo "Setting up cron..."
 $CRON start
 $CRON enable
+
+# change necessary files to executables
+echo
+echo "Setting up executables..."
+chmod 755 $ARD/ScreenControl/send_ip.py
+chmod 755 $ARD/ScreenControl/send_time.py
+chmod 755 $ARD/roost_start.sh
 
 echo
 echo "All Done."
