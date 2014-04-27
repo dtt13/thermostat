@@ -1,10 +1,12 @@
+#!/usr/bin/env python
+
 import sys
 import ndfd_control
 sys.path.append('/mnt/sda1/arduino')
 from message_passing import writeText, streamImage, clearApp, isAppTouched
 from time import sleep
 
-# Characters
+# special characters
 __DEGREE_SYM = 0xb0
 
 # Screen colors
