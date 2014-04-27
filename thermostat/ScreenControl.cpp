@@ -14,7 +14,17 @@ ScreenControl::ScreenControl(TempControl* tempControl) {
   isPressed, wasPressed, touchFlag = false;
   strcpy(ipaddr, "Not Connected");
 //  touchFlag = true;
-  setCalibrationMatrix(&cal_matrix);
+//  setCalibrationMatrix(&cal_matrix);
+  cal_matrix.An = MATRIX_AN;
+  cal_matrix.Bn = MATRIX_BN;
+  cal_matrix.Cn = MATRIX_CN;
+  cal_matrix.Dn = MATRIX_DN;
+  cal_matrix.En = MATRIX_EN;
+  cal_matrix.Fn = MATRIX_FN;
+  cal_matrix.Divider = MATRIX_DIVIDER;
+  
+  
+  // create the buttons
   createButton(&tempUpButton, 385, 41, 70, 60);
   createButton(&tempDownButton, 385, 191, 70, 60);
   createButton(&settingsButton, 30, 41, 70, 40);
@@ -58,6 +68,13 @@ bool ScreenControl::init() {
   return true;
 }
 
+void ScreenControl::clearTouch() {
+  uint16_t x, y;
+  if(tft->touched()) {
+    tft->touchRead(&x, &y);
+  }
+}
+
 // processes any input from the touch screen and stores the touched coordinates in tx, ty
 // calls the current view's process touch method
 void ScreenControl::processTouch() {
@@ -69,17 +86,15 @@ void ScreenControl::processTouch() {
     tft->touchRead(&tx, &ty);
     raw.x = tx;
     raw.y = ty;
-    calibrateTSPoint(&calibrated, &raw, &cal_matrix);
+    calibrateTSPoint(&calibrated, &raw);
     tx = calibrated.x;
     ty = calibrated.y;
 //    Serial.println(String(tx) + ", " + String(ty));
     lastTouchCheck = millis();
-//    touchFlag = false;
   }
   // update screen
   if(millis() - lastScreenUpdate > SCREEN_UPDATE_DELAY) {
-//    updateHeader();
-    // update header infor
+    // update header info
     tft->layerMode(2);
     // system on?
     if(tc->isOn()) {
@@ -96,7 +111,6 @@ void ScreenControl::processTouch() {
     tft->layerMode(1);
     
     if(currentView == THERMOSTAT) {
-//      updateTemps();
       // update the temperatures
       char text[ 4];
       // target temp
@@ -156,7 +170,6 @@ void ScreenControl::drawImage(uint16_t *data, int len, uint16_t x, uint16_t y, u
 //      Serial.print("x, y, data: " + String(currentX) + ", " + String(currentY) + ", ");
 //      Serial.println(data[(currentY - y) * width + (currentX - x)], HEX);
       uint16_t pixel = data[(currentY - y) * width + (currentX - x)];
-//      pixel = ((pixel & 0xFF00) >> 8) | ((pixel & 0x00FF) << 8);
 //      tft->pushPixels(1, pixel);
       tft->drawPixel(currentX, currentY, pixel);
     }
@@ -189,15 +202,6 @@ void ScreenControl::switchView(int view) {
   drawView(view);
   currentView = view;
 }
-//
-//// draws a simple background theme for all views
-//void ScreenControl::drawBackground() {
-//  tft->layerMode(2);
-//  tft->fillScreen(GRAY);
-//  tft->fillRect(10, 30, 460, 232, PRIMARY_BLUE);
-//  tft->fillRect(0, 0, 480, 20, BLACK);
-//  tft->layerMode(1);
-//}
 
 // outputs the specified view to the display
 void ScreenControl::drawView(int view) {
@@ -208,7 +212,6 @@ void ScreenControl::drawView(int view) {
       break;
     case THERMOSTAT:
       drawThermostatViewButtons();
-      updateTemps();
       break;
     case SETTINGS:
       hideApp(true, false);
@@ -245,36 +248,6 @@ void ScreenControl::drawThermostatViewButtons() {
 //  strcpy(text, "Fan");
   writeText(53, centerY + (separation + 25), BLACK, 0, "Fan");
 }
-
-////
-//void ScreenControl::updateHeader() {
-//  tft->layerMode(2);
-//  // system on?
-//  if(tc->isOn()) {
-//    writeText(415, 5, GREEN, BLACK, 0, "On "); 
-//  } else {
-//    writeText(415, 5, PRIMARY_RED, BLACK, 0, "Off");
-//  }
-//  // fan on?
-//  if(tc->isFanOn()) {
-//    writeText(50, 5, PALE_YELLOW, BLACK, 0, "Fan");
-//  } else {
-//    writeText(50, 5, BLACK, BLACK, 0, "   ");
-//  }
-//  tft->layerMode(1);
-//}
-
-
-//// writes the updated temperatures to the screen
-//void ScreenControl::updateTemps() {
-//  char text[4];
-//  // target temp
-//  itoa(tc->getTargetTemp(), text, 10);
-//  writeText(385, 110, WHITE, PRIMARY_BLUE, 6, text);
-//  // room temp
-//  itoa(tc->getRoomTemp(), text, 10);
-//  writeText(30, 110, WHITE, PRIMARY_BLUE, 6, text);
-//}
 
 // processes touch events on the thermostat view
 void ScreenControl::processThermostatTouch() {
@@ -355,28 +328,30 @@ void ScreenControl::createButton(button_t *button, uint16_t x, uint16_t y, uint1
   button->height = height;
 }
 
+// draws the button on the screen
 void ScreenControl::displayButton(button_t *button) {
   tft->fillRoundRect(button->x, button->y, button->width, button->height, 5, GRAY);
 }
 
+// determines if the button was recently pressed
 bool ScreenControl::isTouched(button_t *button) {
   return ((button->x - 20) <= tx && tx <= (button->x + button->width + 20)
           && (button->y - 20) <= ty && ty <= (button->y + button->height + 20));
 }
 
-// initializes the calibration matrix
-void ScreenControl::setCalibrationMatrix(tsMatrix_t *matrixPtr) {
-  matrixPtr->An = MATRIX_AN;
-  matrixPtr->Bn = MATRIX_BN;
-  matrixPtr->Cn = MATRIX_CN;
-  matrixPtr->Dn = MATRIX_DN;
-  matrixPtr->En = MATRIX_EN;
-  matrixPtr->Fn = MATRIX_FN;
-  matrixPtr->Divider = MATRIX_DIVIDER;
-}
+//// initializes the calibration matrix
+//void ScreenControl::setCalibrationMatrix(tsMatrix_t *matrixPtr) {
+//  matrixPtr->An = MATRIX_AN;
+//  matrixPtr->Bn = MATRIX_BN;
+//  matrixPtr->Cn = MATRIX_CN;
+//  matrixPtr->Dn = MATRIX_DN;
+//  matrixPtr->En = MATRIX_EN;
+//  matrixPtr->Fn = MATRIX_FN;
+//  matrixPtr->Divider = MATRIX_DIVIDER;
+//}
 
 // calibrates the raw touch screen input into valid display coordinates using the calibration matrix
-void ScreenControl::calibrateTSPoint(tsPoint_t *displayPtr, tsPoint_t *screenPtr, tsMatrix_t *matrixPtr) {
-  displayPtr->x = ((matrixPtr->An * screenPtr->x) + (matrixPtr->Bn * screenPtr->y) + matrixPtr->Cn) / matrixPtr->Divider;
-  displayPtr->y = ((matrixPtr->Dn * screenPtr->x) + (matrixPtr->En * screenPtr->y) + matrixPtr->Fn) / matrixPtr->Divider;
+void ScreenControl::calibrateTSPoint(tsPoint_t *displayPtr, tsPoint_t *screenPtr) {//, tsMatrix_t *matrixPtr) {
+  displayPtr->x = ((MATRIX_AN * screenPtr->x) + (MATRIX_BN * screenPtr->y) + MATRIX_CN) / MATRIX_DIVIDER;
+  displayPtr->y = ((MATRIX_DN * screenPtr->x) + (MATRIX_EN * screenPtr->y) + MATRIX_FN) / MATRIX_DIVIDER;
 }

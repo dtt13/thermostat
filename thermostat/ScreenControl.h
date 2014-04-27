@@ -49,6 +49,7 @@ class ScreenControl {
     ScreenControl(TempControl *tc);
     bool init();
     void processTouch();
+    void clearTouch();
     void layerMode(uint8_t layer);
     void writeText(uint16_t x, uint16_t y, uint16_t color, uint8_t fontSize, char *text);
     void writeText(uint16_t x, uint16_t y, uint16_t fColor, uint16_t bColor, uint8_t fontSize, char *text);
@@ -69,11 +70,8 @@ class ScreenControl {
     
     // used for display
     void switchView(int view);
-//    void drawBackground();
     void drawView(int view);
     void drawThermostatViewButtons();
-    void updateHeader();
-    void updateTemps();
     void drawSettingsViewButtons();
 
     // used for touch
@@ -88,8 +86,8 @@ class ScreenControl {
     bool isTouched(button_t *button);
     
     // calibrating touch
-    void setCalibrationMatrix(tsMatrix_t *matrixPtr);
-    void calibrateTSPoint(tsPoint_t *displayPtr, tsPoint_t *screenPtr, tsMatrix_t *matrixPtr);
+//    void setCalibrationMatrix(tsMatrix_t *matrixPtr);
+    void calibrateTSPoint(tsPoint_t *displayPtr, tsPoint_t *screenPtr);//, tsMatrix_t *matrixPtr);
 };
 
 #endif // SCREEN_CONTROL_H_

@@ -10,6 +10,7 @@ long lastStreamTime = 0;
 void processCommands(TempControl *tc, ScreenControl *sc) {
   if(isStreaming && (millis() - lastStreamTime) > STREAM_DELAY) {
     isStreaming = false;
+    sc->clearTouch();
     sc->hideApp(false, false);
   }
 //  Serial.println("processing...");
