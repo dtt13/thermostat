@@ -11,22 +11,12 @@
 #define ON HIGH
 #define OFF LOW
 #define IS_ON(x)        (digitalReadAlt(x) == ON)
-#define ON_TIME_DELAY        60000 // wait 1 minute before turning system back on
-#define TEMP_UPDATE_DELAY    1000 // update the room temperature reading every second
+#define ON_TIME_DELAY        10000 // wait 10 seconds before turning system back on
+#define TEMP_UPDATE_DELAY    5000 // update the room temperature reading every second
 
-#define READTEMP analogRead(TEMP_PIN) //* TEMP_SHIFT
+#define READTEMP analogRead(TEMP_PIN) 
 #define OFFSET(x) output_temp(temp_output(temp_ref_ui) + x)
 
-// Conversion calculations
-//#define CALC_MULTIPLE    1000UL          // Improves calculations by preventing rounding error for a couple of extra digits
-//#define TEMP_SHIFT       ((1 << 5) - 1)  // Since there are only 10 bits of AI, gain extra precision by movingg the bits over
-//#define TEMP_MULTIPLE    100             // Keep things to hundreds of degrees in the code
-//#define COMP_RESISTOR    10000
-//#define BASE_RESISTANCE  10000           // Thermistor parameter
-//#define RES_THERM_NOM    25.0            // Thermistor parameter
-//#define THERM_B          3950            // Thermistor parameter
-//#define KELVIN_OFFSET    273.15
-//#define CELCIUS_OFFSET   11.11
 #define TEMP_MULTIPLE      100
 #define TEMP_RATE          -895
 #define TEMP_OFFSET        708510

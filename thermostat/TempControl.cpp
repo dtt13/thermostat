@@ -5,7 +5,6 @@
 // Constructor for the TempControl class
 // Sets a target temperature and mode
 TempControl::TempControl() {
-//  Serial.println("Creating new temperature controller");
   targetTemp = DEFAULT_TARGET_TEMP * TEMP_MULTIPLE;
   roomTemp = DEFAULT_ROOM_TEMP * TEMP_MULTIPLE;
   isSystemOn = false;
@@ -18,7 +17,6 @@ TempControl::TempControl() {
   pinMode(FAN_PIN, OUTPUT);
   COOL(OFF);
   HEAT(OFF);
-  FAN(OFF);
 }
 
 // Returns the current temperature of the room
@@ -117,6 +115,7 @@ void TempControl::switchUnit() {
   coerceTargetTemp();
 }
 
+// Forces the target temperature to be between 10 and 100
 void TempControl::coerceTargetTemp() {
   int temp = getTargetTemp();
   if(temp > 99) {
@@ -131,7 +130,7 @@ void TempControl::coerceTargetTemp() {
 // This only processes the temperature every PROCESS_TIME.
 void TempControl::processTemperature() {
   if((millis() - lastTempUpdateTime) >= TEMP_UPDATE_DELAY) {
-//      captureRoomTemp.();
+      captureRoomTemp();
 //    roomTemp = 65 * TEMP_MULTIPLE;
     isSystemOn = (IS_ON(COOL_PIN)) || (IS_ON(HEAT_PIN));
     switch(mode) {
@@ -150,7 +149,6 @@ void TempControl::processTemperature() {
         }
         break;
       default:
-        //TODO Log and error!
         ;
     }
     lastTempUpdateTime = millis();
@@ -188,20 +186,11 @@ int TempControl::digitalReadAlt(int pin) const {
   return ((*portOutputRegister(digitalPinToPort(pin)) & digitalPinToBitMask(pin)) ? HIGH : LOW);
 }
 
-//int TempControl::convertRawTemp(int raw) {
-//  int calc = lround((1023 * CALC_MULTIPLE * TEMP_SHIFT) / \
-//            ((COMP_RESISTOR) /  \
-//              (BASE_RESISTANCE * exp(THERM_B * \
-//                (((1 * TEMP_MULTIPLE) / (raw + KELVIN_OFFSET * TEMP_MULTIPLE)) - \
-//                ((1) / (RES_THERM_NOM + KELVIN_OFFSET))))) + \
-//              (1)) / CALC_MULTIPLE) + CELCIUS_OFFSET * TEMP_MULTIPLE; // TODO remove celcius offset?
-//  return (unit == CELCIUS) ? calc : C2F(calc);
-//}
-
+// Reads the temperatures from the thermistor circuit in the proper units
 void TempControl::captureRoomTemp() {
   long temp = READTEMP;
   temp = (TEMP_RATE * temp + TEMP_OFFSET) / TEMP_DIV_FACTOR;
-//  temp = ((9 * (long)roomTemp) + temp) / 10; // filter
+//  temp = ((3 * (long)roomTemp) + temp) / 4; // filter
   roomTemp = (unit == CELCIUS) ?  (int)temp : convertTemp((int)temp, FAHRENHEIT);
 }
 

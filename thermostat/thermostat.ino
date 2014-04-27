@@ -12,21 +12,12 @@ TempControl *tc = new TempControl();
 ScreenControl *sc = 
 new ScreenControl(tc);
 
-// processes interrupts from touch screen
-void touchISR() {
-  sc->touchFlag = true;
-  Serial.println("You touched the screen");
-}
-
 // initialization code
 void setup() {
   Serial.begin(115200);
   Serial1.begin(115200);
   pinMode(13, OUTPUT);
   digitalWrite(13, LOW);
-  pinMode(RA8875_INT, INPUT);
-  digitalWrite(RA8875_INT, HIGH);
-//  attachInterrupt(0, touchISR, FALLING);
   Bridge.begin(); // TODO maybe needs replacing?
   if(!sc->init()) {
     while(true) {

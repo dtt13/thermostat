@@ -17,7 +17,6 @@ void processCommands(TempControl *tc, ScreenControl *sc) {
     memset(buff_ptr, 0x00, COMMAND_BUFFER_SIZE);
     int numBytes;
     Serial1.readBytes(buff_ptr, 1);
-//    Serial.println("number of bytes read: " + String(numBytes));
     switch(buff_ptr[0]) {
       case GET_TEMP:
         numBytes = readPacket();
@@ -106,7 +105,7 @@ void processCommands(TempControl *tc, ScreenControl *sc) {
         Serial1.println(String(SET_IP));
         break;
       default:
-        Serial.println("Error: message command not recognized");
+        Serial.println("Error: no such command");
         numBytes = Serial1.readBytes(buff_ptr, COMMAND_BUFFER_SIZE);
     }
   }
@@ -117,7 +116,6 @@ int readPacket() {
   int packetSize = unpackNumber(buff_ptr, 1, 2);
   int bytesRead = 0;
   while(bytesRead < packetSize && Serial1.available() > 0) {
-//    Serial.println("bytes read: " + String(bytesRead));
     bytesRead += Serial1.readBytes(buff_ptr + bytesRead + 3, packetSize-bytesRead);
   }
   return bytesRead;

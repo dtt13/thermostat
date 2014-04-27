@@ -69,7 +69,7 @@ class ScreenControl {
     
     // used for display
     void switchView(int view);
-    void drawBackground();
+//    void drawBackground();
     void drawView(int view);
     void drawThermostatViewButtons();
     void updateHeader();

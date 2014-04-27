@@ -30,10 +30,10 @@ ScreenControl::ScreenControl(TempControl* tempControl) {
 bool ScreenControl::init() {
   // connect to the screen
   if (!tft->begin(RA8875_480x272)) {
-    Serial.println("RA8875 Not Found!");
+//    Serial.println("RA8875 Not Found!");
     return false;
   }
-  Serial.println("Found RA8875");
+//  Serial.println("Found RA8875");
   
   // setup display
   tft->displayOn(true);
@@ -42,12 +42,18 @@ bool ScreenControl::init() {
   tft->PWM1out(255);
   tft->enableTwoLayers(true);
   tft->enableTransparentMode(true, TRANSPARENT_COLOR);
+//  tft->layerMode(1);
+//  tft->fillScreen(BLACK);
+  // draw the background
+//  drawBackground();
+  tft->layerMode(2);
+  tft->fillScreen(GRAY);
+  tft->fillRect(10, 30, 460, 232, PRIMARY_BLUE);
+  tft->fillRect(0, 0, 480, 20, BLACK);
   tft->layerMode(1);
-  tft->fillScreen(BLACK);
-  drawBackground();
   // setup touch enable
   tft->touchEnable(true);
-  
+  // draw the start up view
   drawView(STARTUP);
   return true;
 }
@@ -72,9 +78,33 @@ void ScreenControl::processTouch() {
   }
   // update screen
   if(millis() - lastScreenUpdate > SCREEN_UPDATE_DELAY) {
-    updateHeader();
+//    updateHeader();
+    // update header infor
+    tft->layerMode(2);
+    // system on?
+    if(tc->isOn()) {
+      writeText(415, 5, GREEN, BLACK, 0, "On "); 
+    } else {
+      writeText(415, 5, PRIMARY_RED, BLACK, 0, "Off");
+    }
+    // fan on?
+    if(tc->isFanOn()) {
+      writeText(50, 5, PALE_YELLOW, BLACK, 0, "Fan");
+    } else {
+      writeText(50, 5, BLACK, BLACK, 0, "   ");
+    }
+    tft->layerMode(1);
+    
     if(currentView == THERMOSTAT) {
-      updateTemps();
+//      updateTemps();
+      // update the temperatures
+      char text[ 4];
+      // target temp
+      itoa(tc->getTargetTemp(), text, 10);
+      writeText(385, 110, WHITE, PRIMARY_BLUE, 6, text);
+      // room temp
+      itoa(tc->getRoomTemp(), text, 10);
+      writeText(30, 110, WHITE, PRIMARY_BLUE, 6, text);
     }
     lastScreenUpdate = millis();
   }
@@ -91,7 +121,6 @@ void ScreenControl::processTouch() {
       processSettingsTouch();
       break;
     default:
-      // TODO log an error
       ;
   }
 }
@@ -160,15 +189,15 @@ void ScreenControl::switchView(int view) {
   drawView(view);
   currentView = view;
 }
-
-// draws a simple background theme for all views
-void ScreenControl::drawBackground() {
-  tft->layerMode(2);
-  tft->fillScreen(GRAY);
-  tft->fillRect(10, 30, 460, 232, PRIMARY_BLUE);
-  tft->fillRect(0, 0, 480, 20, BLACK);
-  tft->layerMode(1);
-}
+//
+//// draws a simple background theme for all views
+//void ScreenControl::drawBackground() {
+//  tft->layerMode(2);
+//  tft->fillScreen(GRAY);
+//  tft->fillRect(10, 30, 460, 232, PRIMARY_BLUE);
+//  tft->fillRect(0, 0, 480, 20, BLACK);
+//  tft->layerMode(1);
+//}
 
 // outputs the specified view to the display
 void ScreenControl::drawView(int view) {
@@ -217,39 +246,35 @@ void ScreenControl::drawThermostatViewButtons() {
   writeText(53, centerY + (separation + 25), BLACK, 0, "Fan");
 }
 
-//
-void ScreenControl::updateHeader() {
+////
+//void ScreenControl::updateHeader() {
+//  tft->layerMode(2);
+//  // system on?
+//  if(tc->isOn()) {
+//    writeText(415, 5, GREEN, BLACK, 0, "On "); 
+//  } else {
+//    writeText(415, 5, PRIMARY_RED, BLACK, 0, "Off");
+//  }
+//  // fan on?
+//  if(tc->isFanOn()) {
+//    writeText(50, 5, PALE_YELLOW, BLACK, 0, "Fan");
+//  } else {
+//    writeText(50, 5, BLACK, BLACK, 0, "   ");
+//  }
+//  tft->layerMode(1);
+//}
+
+
+//// writes the updated temperatures to the screen
+//void ScreenControl::updateTemps() {
 //  char text[4];
-  tft->layerMode(2);
-  // system on?
-  if(tc->isOn()) {
-//    strcpy(text, "On ");
-    writeText(415, 5, GREEN, BLACK, 0, "On "); 
-  } else {
-//    strcpy(text, "Off");
-    writeText(415, 5, PRIMARY_RED, BLACK, 0, "Off");
-  }
-  // fan on?
-//  strcpy(text, "Fan");
-  if(tc->isFanOn()) {
-    writeText(50, 5, PALE_YELLOW, BLACK, 0, "Fan");
-  } else {
-    writeText(50, 5, BLACK, BLACK, 0, "   ");
-  }
-  tft->layerMode(1);
-}
-
-
-// writes the updated temperatures to the screen
-void ScreenControl::updateTemps() {
-  char text[4];
-  // target temp
-  itoa(tc->getTargetTemp(), text, 10);
-  writeText(385, 110, WHITE, PRIMARY_BLUE, 6, text);
-  // room temp
-  itoa(tc->getRoomTemp(), text, 10);
-  writeText(30, 110, WHITE, PRIMARY_BLUE, 6, text);
-}
+//  // target temp
+//  itoa(tc->getTargetTemp(), text, 10);
+//  writeText(385, 110, WHITE, PRIMARY_BLUE, 6, text);
+//  // room temp
+//  itoa(tc->getRoomTemp(), text, 10);
+//  writeText(30, 110, WHITE, PRIMARY_BLUE, 6, text);
+//}
 
 // processes touch events on the thermostat view
 void ScreenControl::processThermostatTouch() {
