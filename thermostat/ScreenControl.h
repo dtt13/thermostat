@@ -63,7 +63,6 @@ class ScreenControl {
     uint8_t currentView;
     uint32_t lastTouchCheck, lastScreenUpdate, lastScreenPress;
     uint16_t tx, ty;
-    tsMatrix_t cal_matrix;
     bool isPressed, wasPressed;
     button_t tempUpButton, tempDownButton, settingsButton, fanButton, app; // thermostat view
     button_t unitsButton, modeButton, backButton; // settings view
@@ -86,8 +85,7 @@ class ScreenControl {
     bool isTouched(button_t *button);
     
     // calibrating touch
-//    void setCalibrationMatrix(tsMatrix_t *matrixPtr);
-    void calibrateTSPoint(tsPoint_t *displayPtr, tsPoint_t *screenPtr);//, tsMatrix_t *matrixPtr);
+    void calibrateTSPoint(tsPoint_t *displayPtr, tsPoint_t *screenPtr);
 };
 
 #endif // SCREEN_CONTROL_H_

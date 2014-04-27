@@ -12,18 +12,7 @@ ScreenControl::ScreenControl(TempControl* tempControl) {
   // touch vars
   lastTouchCheck, lastScreenUpdate, lastScreenPress = 0;
   isPressed, wasPressed, touchFlag = false;
-  strcpy(ipaddr, "Not Connected");
-//  touchFlag = true;
-//  setCalibrationMatrix(&cal_matrix);
-  cal_matrix.An = MATRIX_AN;
-  cal_matrix.Bn = MATRIX_BN;
-  cal_matrix.Cn = MATRIX_CN;
-  cal_matrix.Dn = MATRIX_DN;
-  cal_matrix.En = MATRIX_EN;
-  cal_matrix.Fn = MATRIX_FN;
-  cal_matrix.Divider = MATRIX_DIVIDER;
-  
-  
+  strcpy(ipaddr, "Not Connected");  
   // create the buttons
   createButton(&tempUpButton, 385, 41, 70, 60);
   createButton(&tempDownButton, 385, 191, 70, 60);
@@ -321,6 +310,7 @@ bool ScreenControl::isTouchUp() {
   return (!isPressed && wasPressed);
 }
 
+// initializes the button struct
 void ScreenControl::createButton(button_t *button, uint16_t x, uint16_t y, uint16_t width, uint16_t height) {
   button->x = x;
   button->y = y;
@@ -338,17 +328,6 @@ bool ScreenControl::isTouched(button_t *button) {
   return ((button->x - 20) <= tx && tx <= (button->x + button->width + 20)
           && (button->y - 20) <= ty && ty <= (button->y + button->height + 20));
 }
-
-//// initializes the calibration matrix
-//void ScreenControl::setCalibrationMatrix(tsMatrix_t *matrixPtr) {
-//  matrixPtr->An = MATRIX_AN;
-//  matrixPtr->Bn = MATRIX_BN;
-//  matrixPtr->Cn = MATRIX_CN;
-//  matrixPtr->Dn = MATRIX_DN;
-//  matrixPtr->En = MATRIX_EN;
-//  matrixPtr->Fn = MATRIX_FN;
-//  matrixPtr->Divider = MATRIX_DIVIDER;
-//}
 
 // calibrates the raw touch screen input into valid display coordinates using the calibration matrix
 void ScreenControl::calibrateTSPoint(tsPoint_t *displayPtr, tsPoint_t *screenPtr) {//, tsMatrix_t *matrixPtr) {
