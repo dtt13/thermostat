@@ -4,22 +4,29 @@ sys.path.append('/mnt/sda1/arduino')
 from message_passing import writeText, streamImage, clearApp, isAppTouched
 from time import sleep
 
+# Characters
 __DEGREE_SYM = 0xb0
 
+# Screen colors
 __WHITE = 0xFFFF
 __BLACK = 0x0000
 __BACKGROUND = 0x29D5
 __ADVIS_COLOR = 0xF681
 __WARN_COLOR = 0xE883
 
-__CURRENT_TEMP = 'Daily Temperature'
-__MAX_TEMP = 'Daily Maximum Temperature'
-__MIN_TEMP = 'Daily Minimum Temperature'
-__PRECIP = '12 Hourly Probability of Precipitation'
-__ICON = 'Conditions Icon'
-__CONDITIONS = 'Weather Type, Coverage, Intensity'
-__ADVISORY = 'Weather Advisory'
-__WARNING = 'Weather Warning'
+# Weather tags
+__CURRENT_TEMP 		= 'Daily Temperature'
+__MAX_TEMP 			= 'Daily Maximum Temperature'
+__MIN_TEMP 			= 'Daily Minimum Temperature'
+__PRECIP 			= '12 Hourly Probability of Precipitation'
+__ICON 				= 'Conditions Icon'
+__CONDITIONS 		= 'Weather Type, Coverage, Intensity'
+__ADVISORY 			= 'Weather Advisory'
+__WARNING 			= 'Weather Warning'
+
+# States of the weather app
+__WEATHER_TODAY		= 1
+__WEATHER_MAP		= 2
 
 data = {}
 
@@ -71,6 +78,9 @@ def updateWeather():
 		updateConditions()
 		updateTemps()
 
+def updateMap():
+	streamImage('map.jpg', 120, 40)
+
 def testTemps():
         global data
         data = {__CURRENT_TEMP : 55, __MAX_TEMP : 66, __MIN_TEMP : 44, __PRECIP : 70}
@@ -91,18 +101,22 @@ def testWarning():
         data = {__WARNING : 'Shitstorm Warning forever!'}
         updateWarning()
 
-def testClearApp():
-        clearApp()
-
 def testAll():
         clearApp()
         testWarning()
         testConditions()
         testTemps()
 
+state = __WEATHER_TODAY
+testAll()
+
 # response = ''
 while True: #response != 'error':
 	(touched, x, y) = isAppTouched()
 	if touched:
-		print x, y
+		if state == __WEATHER_TODAY:
+			testAll()
+		else if state == __WEATHER_MAP:
+			# updateMap()
+			testAll()
 	sleep(1)

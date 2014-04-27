@@ -20,4 +20,9 @@ echo "Starting webpage"
 cd /mnt/sda1/arduino/Webpage
 $PYTHON bin/app.py &
 
+echo
+echo "Starting weather app"
+cd /mnt/sda1/arduino/WeatherApp
+$PYTHON weather.py &
+
 echo "All done roost start up."

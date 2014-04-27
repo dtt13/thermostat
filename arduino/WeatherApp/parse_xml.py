@@ -1,8 +1,7 @@
 ###############################################################
 # Necessary imports.                                          #
 ###############################################################
-import xml.etree.ElementTree as ET
-#from lxml import etree
+import re
 ###############################################################
 # Short method to print data. (to text file)                  #
 # Inputs: name - short string describing 'val'                #
@@ -21,83 +20,71 @@ def print_data(name, val, f):
         #print ("\nNo available %s from XML." % name[0])
 ###############################################################
 # Parse xml and save data into array of [name, value] pairs   #
-# NDFD xml follows a strict schema, so we can use xpath to    #
-# directly search for the desired result.                     #
 ###############################################################
-#Make the parser parse the xml document into an ETree object.
-doc_tree = ET.parse('ndfd_info.xml')
-doc_root = doc_tree.getroot()
+# Read teh xml
+w_file = open("ndfd_info.xml", "r")
+xml_str = w_file.read()
+w_file.close()
 # Open a file to print to
-p_file = open("weather_data.txt", "w")
+p_file = open("weather_data_reg.txt", "w")
+###
 # Maximum temperature
-max_t_node = doc_root.find(".//parameters/temperature[@type='maximum']")
-if max_t_node is not None:
-    max_t_name = (max_t_node.find('name').text)
-    max_t_value = (max_t_node.find('value').text)
-    if (max_t_name and max_t_value):
-        print_data(max_t_name, max_t_value, p_file)
+###
+max_t = re.search("<name>Daily Maximum Temperature</name>\s*<value>(\d*)</value>", xml_str)
+if (max_t):
+    print_data("Daily Maximum Temperature", max_t.group(1), p_file)
+###
 # Minimum temperature
-min_t_node = doc_root.find(".//parameters/temperature[@type='minimum']")
-if min_t_node is not None:
-    min_t_name = (min_t_node.find('name').text) 
-    min_t_value = (min_t_node.find('value').text)
-    if (min_t_name and min_t_value):
-        print_data(min_t_name, min_t_value, p_file)
+###
+min_t = re.search("<name>Daily Minimum Temperature</name>\s*<value>(\d*)</value>", xml_str)
+if (min_t):
+    print_data("Daily Minimum Temperature", min_t.group(1), p_file)
+###
 # 3 Hourly temperature
-hrl_t_node = doc_root.find(".//parameters/temperature[@type='hourly']")
-if hrl_t_node is not None:
-    hrl_t_name = (hrl_t_node.find('name').text)
-    hrl_t_value = (hrl_t_node.find('value').text)
-    if (hrl_t_name and hrl_t_value):
-        print_data(hrl_t_name, hrl_t_value, p_file)
+###
+hrl_t = re.search("<name>Temperature</name>\s*<value>(\d*)</value>", xml_str)
+if (hrl_t):
+    print_data("Temperature", hrl_t.group(1), p_file)
+###
 # Apparent Temperature
-app_t_node = doc_root.find(".//parameters/temperature[@type='apparent']")
-if app_t_node is not None:
-    app_t_name = (app_t_node.find('name').text)
-    app_t_value = (app_t_node.find('value').text)
-    if (app_t_name and app_t_value):
-        print_data(app_t_name, app_t_value, p_file)
+###
+app_t = re.search("<name>Apparent Temperature</name>\s*<value>(\d*)</value>", xml_str)
+if (app_t):
+    print_data("Apparent Temperature", app_t.group(1), p_file)
+###
 # Relative humidity
-hum_r_node = doc_root.find(".//parameters/humidity[@type='relative']")
-if hum_r_node is not None:
-    hum_r_name = (hum_r_node.find('name').text)
-    hum_r_value = (hum_r_node.find('value').text)
-    if (hum_r_name and hum_r_value):
-        print_data(hum_r_name, hum_r_value, p_file)
+###
+hum_r = re.search("<name>Relative Humidity</name>\s*<value>(\d*)</value>", xml_str)
+if (hum_r):
+    print_data("Relative Humidity", hum_r.group(1), p_file)
+###
 # Probability of precipitation for next 12 hours
-prb_p_node = doc_root.find(".//parameters/probability-of-precipitation[@type='12 hour']")
-if prb_p_node is not None:
-    prb_p_name = (prb_p_node.find('name').text)
-    prb_p_value = (prb_p_node.find('value').text)
-    if (prb_p_name and prb_p_value):
-        print_data(prb_p_name, prb_p_value, p_file)
+###
+prb_p = re.search("<name>12 Hourly Probability of Precipitation</name>\s*<value>(\d*)</value>", xml_str)
+if (prb_p):
+    print_data("12 Hourly Probability of Precipitation", prb_p.group(1), p_file)
+###
 # Liquid precipitation in inches
-pcp_i_node = doc_root.find(".//parameters/precipitation[@type='liquid']")
-if pcp_i_node is not None:
-    pcp_i_name = (pcp_i_node.find('name').text)
-    pcp_i_value = (pcp_i_node.find('value').text)
-    if (pcp_i_name and pcp_i_value):
-        print_data(pcp_i_name, pcp_i_value, p_file)
+###
+pcp_i = re.search("<name>Liquid Precipitation Amount</name>\s*<value>([\d\.]*)</value>", xml_str)
+if (pcp_i):
+    print_data("Liquid Precipitation Amount", pcp_i.group(1), p_file)
+###
 # Weather
-wthr_node = doc_root.find(".//parameters/weather")
-if wthr_node is not None:
-    wthr_name = (wthr_node.find('name').text)
-    wthr_cond = (wthr_node.find('weather-conditions').text)
-    if (wthr_name and wthr_cond):
-        print_data(wthr_name, wthr_cond, p_file)
+###
+wthr = re.search("<name>Weather Type, Coverage, and Intensity</name>\s*<weather-conditions>(\w*)</weather-conditions>", xml_str)
+if (wthr):
+    print_data("Weather Type, Coverage, and Intensity", wthr.group(1), p_file)
+###
 # Weather icons
-icon_node = doc_root.find(".//parameters/conditions-icon[@type='forecast-NWS']")
-if icon_node is not None:
-    icon_name = (icon_node.find('name').text)
-    icon_link = (icon_node.find('icon-link').text)
-    if (icon_name and icon_link):
-        print_data(icon_name, icon_link, p_file)
+###
+icon = re.search('<name>Conditions Icons</name>\s*<icon-link>(https?://[^\s<>"]+|www\.[^s<>"]+)</icon-link>', xml_str)
+if (icon):
+    print_data("Conditions Icons", icon.group(1), p_file)
+###
 # Weather warnings and advisories
-wwa_node = doc_root.find(".//parameters/hazards")
-if wwa_node is not None:
-    wwa_name = (wwa_node.find('name').text)
-    wwa_cond = (wwa_node.find('hazard-conditions').text)
-    if (wwa_name and wwa_cond):
-        print_data(wwa_name, wwa_cond, p_file)
-# Close the file we were printing to
+###
+wwa = re.search("<name>Watches, Warnings, and Advisories</name>\s*<hazard-conditions>(\w*)</hazard-conditions>", xml_str)
+if (wwa):
+    print_data("Watches, Warnings, and Advisories", wwa.group(1), p_file)
 p_file.close()
