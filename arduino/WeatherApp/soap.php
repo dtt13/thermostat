@@ -44,7 +44,7 @@ $weatherParams = array('maxt'=>'1',
                        'pxhail'=>'0',
                        'pxtstmwinds'=>'0',
                        'ptotsvrtstm'=>'0',
-                       'ptotxsvrtstm'=>'0',
+                       'pxtotsvrtstm'=>'0',
                        'tmpabv14d'=>'0',
                        'tmpblw14d'=>'0',
                        'tmpabv30d'=>'0',
@@ -67,11 +67,22 @@ $weatherParams = array('maxt'=>'1',
                        'iceaccum'=>'0',
                        'maxrh'=>'0',
                        'minrh'=>'0');
+
+if (preg_match('/<latLonList>(.*)<\/latLonList>/', $latLonList, $matches)){
+  // print("regex works: " . $matches[1] . "\n");
+  $strArr = explode(',',$matches[1]);
+  $lat = $strArr[0];
+  $long = $strArr[1];
+  // foreach ($strArr as $v){
+  //   print($v . "\n");
+  // }
+}
+
 // This is the actual array of parameters that will be passed to the database
 // in the second request.  It contains the above array, along with the needed
 // contextual parameters.
-$weatherParams2 = array('latitude'=>'81',
-                        'longitude'=>'44',
+$weatherParams2 = array('latitude'=>$lat,
+                        'longitude'=>$long,
                         'product'=>'time-series',
                         'startTime'=>'',
                         'endTime'=>'',
@@ -80,13 +91,6 @@ $weatherParams2 = array('latitude'=>'81',
 // This is the first call, which returns our lat/lon
 $latLonList = $client->__soapCall("LatLonListZipCode", $getZip);
 
-if (preg_match('/<latLonList>(.*)<\/latLonList>/', $latLonList, $matches)){
-  print("regex works: " . $matches[0]);
-  $strArr = explode(',',$matches[0]);
-  foreach ($strArr as $v){
-    print($v);
-  }
-}
 
 //This is the second call, which returns current weather information
 $response = $client->__soapCall("NDFDgen",$weatherParams2);
