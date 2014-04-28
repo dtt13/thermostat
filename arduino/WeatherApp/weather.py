@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
-import sys
+import sys, os.path
 import ndfd_control
+import map_utils
 sys.path.append('/mnt/sda1/arduino')
 from message_passing import writeText, streamImage, clearApp, isAppTouched
 from time import sleep
@@ -30,12 +31,16 @@ __WARNING 			= 'Weather Warning'
 __WEATHER_TODAY		= 1
 __WEATHER_MAP		= 2
 
+# Files
+__ICON_IMAGE 		= '/mnt/sda1/arduino/WeatherApp/icon.jpg'
+__MAP_IMAGE			= '/mnt/sda1/arduino/WeatherApp/map.jpg'
+
 data = {}
 
 # Draws the conditions icon and writes the conditions text
 def updateConditions():
-	if __ICON in data:
-		streamImage('icon.jpg', 280, 80)
+	if __ICON in data and os.path.isfile(__ICON_IMAGE):
+		streamImage(__ICON_IMAGE, 280, 80)
 	if __CONDITIONS in data:
 		writeText(140, 140, __WHITE, __BACKGROUND, 0, data[__CONDITIONS]) #TODO
 	# while len(conditions) < 6:
@@ -81,9 +86,12 @@ def updateWeather():
 		updateTemps()
 
 def updateMap():
-	streamImage('map.jpg', 120, 40)
-def
- testTemps():
+	map_utils.formatMap()
+	if os.path.isfile(__MAP_IMAGE):
+		clearApp()
+		streamImage(__MAP_IMAGE, 120, 40)
+
+def testTemps():
         global data
         data = {__CURRENT_TEMP : 55, __MAX_TEMP : 66, __MIN_TEMP : 44, __PRECIP : 70}
         updateTemps()
@@ -119,6 +127,6 @@ while True: #response != 'error':
 		if state == __WEATHER_TODAY:
 			testAll()
 		elif state == __WEATHER_MAP:
-			# updateMap()
-			testAll()
+			updateMap()
+			# testAll()
 	sleep(1)
