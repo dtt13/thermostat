@@ -17,19 +17,12 @@ echo
 echo "Installing dependencies..."
 opkg install distribute
 opkg install python-openssl
-# easy_install pip
 
 # install the PIL package
 echo
 echo "Installing PIL..."
 opkg install python-imaging-library
-# cd $PACK
-# wget http://effbot.org/downloads/Imaging-1.1.7.tar.gz
-# tar xvzf Imaging-1.1.7.tar.gz
-# cd $PACK/Imaging-1.1.7
-# $PYTHON setup.py install
-# cd $PACK
-# rm -rf $PACK/Imaging-1.1.7.tar.gz $PACK/Imaging-1.1.7
+
 
 # install virtualenv
 echo
@@ -50,28 +43,27 @@ $PYTHON setup.py install
 cd $PACK
 rm -rf $PACK/web.py-0.37.tar.gz $PACK/web.py-0.37
 
-# install suds
+#install PHP
 echo
-echo "Installing suds..."
-$PIP install suds
-# cd $PACK
-# wget https://pypi.python.org/packages/source/s/suds/suds-0.3.4.tar.gz
-# tar xvzf suds-0.3.4.tar.gz
-# cd $PACK/suds-0.3.4
+echo "Installing PHP..."
+opkg install php5-cli
+opkg install php5-mod-soap
+
+# # install suds
+# echo
+# echo "Installing suds..."
+# $PIP install suds
+
+# # install ElementTree
+# echo
+# echo "Installing ElementTree..."
+# # $PIP install lxml
+# wget http://effbot.org/media/downloads/elementtree-1.2.6-20050316.tar.gz
+# tar xvzf elementtree-1.2.6-20050316.tar.gz
+# cd $PACK/elementtree-1.2.6-20050316
 # $PYTHON setup.py install
 # cd $PACK
-# rm -rf $PACK/suds-0.3.4.tar.gz $PACK/suds-0.3.4
-
-# install ElementTree
-echo
-echo "Installing ElementTree..."
-# $PIP install lxml
-wget http://effbot.org/media/downloads/elementtree-1.2.6-20050316.tar.gz
-tar xvzf elementtree-1.2.6-20050316.tar.gz
-cd $PACK/elementtree-1.2.6-20050316
-$PYTHON setup.py install
-cd $PACK
-rm -rf $PACK/elementtree-1.2.6-20050316.tar.gz $PACK/elementtree-1.2.6-20050316
+# rm -rf $PACK/elementtree-1.2.6-20050316.tar.gz $PACK/elementtree-1.2.6-20050316
 
 # start up cron
 echo
@@ -82,12 +74,13 @@ $CRON enable
 # change necessary files to executables
 echo
 echo "Setting up executables..."
-chmod 755 $ARD/ScreenControl/send_ip.py
-chmod 755 $ARD/ScreenControl/send_time.py
-chmod 755 $ARD/Scheduler/remove_once_tag.py
-chmod 755 $ARD/Scheduler/set_temp.py
-chmod 755 $ARD/TempLog/temp_logger.py
-chmod 755 $ARD/roost_start.sh
+chmod +x $ARD/ScreenControl/send_ip.py
+chmod +x $ARD/ScreenControl/send_time.py
+chmod +x $ARD/Scheduler/remove_once_tag.py
+chmod +x $ARD/Scheduler/set_temp.py
+chmod +x $ARD/TempLog/temp_logger.py
+chmod +x $ARD/WeatherApp/weather.py
+chmod +x $ARD/roost_start.sh
 
 echo
 echo "All Done."
