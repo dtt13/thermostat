@@ -1,6 +1,7 @@
 """converts a text file into chron file"""
 
 __SET_TEMP = "/mnt/sda1/arduino/Scheduler/set_temp.py"
+__REMOVE_ONCE = "/mnt/sda1/arduino/Scheduler/remove_once_tag.py"
 
 # Takes a timeslot string and returns a cron command
 def makeEvent(timeslot):
@@ -16,7 +17,7 @@ def makeEvent(timeslot):
 		elif repeat == "o":
 			Month = repeatVal.split('/')[0]
 			Day = repeatVal.split('/')[1]
-			return Min + " " + Hr + " " + Day + " " + Month + " " + "*" + " " + __SET_TEMP + " " + temperature + "\n"
+			return Min + " " + Hr + " " + Day + " " + Month + " " + "*" + " " + __SET_TEMP + " " + temperature + "\n" + Min + " " + Hr + " " + Day + " " + Month + " " + "*" + " " + __REMOVE_ONCE + " " + tag + "\n"
 	except ValueError:
 		pass
 	return ""
