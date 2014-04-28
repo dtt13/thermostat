@@ -85,6 +85,7 @@ echo "Setting up executables..."
 chmod 755 $ARD/ScreenControl/send_ip.py
 chmod 755 $ARD/ScreenControl/send_time.py
 chmod 755 $ARD/Scheduler/remove_once_tag.py
+chmod 755 $ARD/Scheduler/set_temp.py
 chmod 755 $ARD/TempLog/temp_logger.py
 chmod 755 $ARD/roost_start.sh
 

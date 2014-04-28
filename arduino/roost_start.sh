@@ -12,10 +12,6 @@ echo "Killing bridge"
 kill-bridge
 
 echo
-echo "Starting scheduler"
-# TODO
-
-echo
 echo "Starting webpage"
 cd /mnt/sda1/arduino/Webpage
 $PYTHON bin/app.py &
