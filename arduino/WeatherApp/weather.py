@@ -86,7 +86,6 @@ def updateWeather():
 		updateTemps()
 
 def updateMap():
-	map_utils.formatMap()
 	if os.path.isfile(__MAP_IMAGE):
 		clearApp()
 		streamImage(__MAP_IMAGE, 120, 40)
@@ -108,7 +107,7 @@ def testAdvisory():
 
 def testWarning():
         global data
-        data = {__WARNING : 'Shitstorm Warning forever!'}
+        data = {__WARNING : 'Thunderstorm Warning'}
         updateWarning()
 
 def testAll():
@@ -123,10 +122,16 @@ testAll()
 # response = ''
 while True: #response != 'error':
 	(touched, x, y) = isAppTouched()
-	if touched:
-		if state == __WEATHER_TODAY:
-			testAll()
-		elif state == __WEATHER_MAP:
+	if state == __WEATHER_TODAY:
+		map_utils.formatMap()
+		if touched:
 			updateMap()
-			# testAll()
+			state = __WEATHER_MAP
+	elif state == __WEATHER_MAP:
+		changed = map_utils.formatMap()
+		if touched:
+			testAll() #TODO make it use real data
+			state = __WEATHER_TODAY
+		elif changed:
+			updateMap()
 	sleep(1)
