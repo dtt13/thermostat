@@ -78,6 +78,9 @@ if (preg_match('/<latLonList>(.*)<\/latLonList>/', $latLonList, $matches)){
   // }
 }
 
+//This is the second call, which returns current weather information
+$response = $client->__soapCall("NDFDgen",$weatherParams2);
+
 // This is the actual array of parameters that will be passed to the database
 // in the second request.  It contains the above array, along with the needed
 // contextual parameters.
@@ -90,10 +93,6 @@ $weatherParams2 = array('latitude'=>$lat,
                         'weatherParameters'=>$weatherParams);
 // This is the first call, which returns our lat/lon
 $latLonList = $client->__soapCall("LatLonListZipCode", $getZip);
-
-
-//This is the second call, which returns current weather information
-$response = $client->__soapCall("NDFDgen",$weatherParams2);
 
 //Output response to file
 $file = fopen("ndfd_info.xml", "w");

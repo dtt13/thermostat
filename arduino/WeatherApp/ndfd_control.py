@@ -18,7 +18,7 @@ def update_weather_data():
         file_age_sec = 5000 # Default value >3600 if the file doesn't exist
     if (file_age_sec >= 3600):
         # Create a new xml document from the ndfd database
-        os.system("python contact_ndfd_server.py")
+        os.system("php-cli soap.php")
         if not os.path.isfile('ndfd_info.xml'):
             exit()
         # Parse the xml document into a text file
@@ -37,6 +37,6 @@ def update_weather_data():
     for j in nv_dict:
         if j == 'Conditions Icons':
             #print (str("wget " + nv_dict[j]))
-            os.system(str("wget -o icon.jpg " + nv_dict[j]))
+            os.system(str("wget -O icon.jpg " + nv_dict[j]))
     # Now to return what we've found
     return nv_dict

@@ -26,7 +26,7 @@ w_file = open("ndfd_info.xml", "r")
 xml_str = w_file.read()
 w_file.close()
 # Open a file to print to
-p_file = open("weather_data_reg.txt", "w")
+p_file = open("weather_data.txt", "w")
 ###
 # Maximum temperature
 ###

@@ -14,7 +14,7 @@ __DEGREE_SYM = 0xb0
 __WHITE = 0xFFFF
 __BLACK = 0x0000
 __BACKGROUND = 0x29D5
-__ADVIS_COLOR = 0xF681
+# __ADVIS_COLOR = 0xF681
 __WARN_COLOR = 0xE883
 
 # Weather tags
@@ -24,8 +24,7 @@ __MIN_TEMP 			= 'Daily Minimum Temperature'
 __PRECIP 			= '12 Hourly Probability of Precipitation'
 __ICON 				= 'Conditions Icon'
 __CONDITIONS 		= 'Weather Type, Coverage, Intensity'
-__ADVISORY 			= 'Weather Advisory'
-__WARNING 			= 'Weather Warning'
+__WARNING 			= 'Watches, Warnings, and Advisories'
 
 # States of the weather app
 __WEATHER_TODAY		= 1
@@ -43,12 +42,6 @@ def updateConditions():
 		streamImage(__ICON_IMAGE, 270, 70)
 	if __CONDITIONS in data:
 		writeText(140, 140, __WHITE, __BACKGROUND, 0, data[__CONDITIONS]) #TODO
-
-# Draws an advisory bar along the top of the application area
-def updateAdvisory():
-	if __ADVISORY in data:
-		streamImage('advisory.jpg', 120, 40)
-		writeText(125, 45, __BLACK, __ADVIS_COLOR, 0, data[__ADVISORY])
 
 # Draws a warning bar along the top of the application area
 def updateWarning():
@@ -77,7 +70,6 @@ def updateWeather():
 	data = ndfd_control.update_weather_data()
 	if not data:
 		clearApp()
-		updateAdvisory()
 		updateWarning()
 		updateConditions()
 		updateTemps()
@@ -116,7 +108,7 @@ def testAll():
 
 #initialize
 state = __WEATHER_TODAY
-testAll()
+updateWeather()
 
 #process touching
 while True:
@@ -129,7 +121,7 @@ while True:
 	elif state == __WEATHER_MAP:
 		changed = map_utils.formatMap()
 		if touched:
-			testAll() #TODO make it use real data
+			updateWeather()
 			state = __WEATHER_TODAY
 		elif changed:
 			updateMap()
