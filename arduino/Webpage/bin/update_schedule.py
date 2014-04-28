@@ -1,11 +1,14 @@
 #import cgi
+import sys
+sys.path.append('/mnt/sda1/arduino/Scheduler')
+import schedule_processing as sch
 
 def print_data(tag,date,time,temp,repeat, f):
     if (tag and date and time and temp and repeat and f):
         f.write(str(tag+"::"+date+"::"+time+"::"+temp+"::"+repeat+";"))
 
 def updateSchedule(arrLen, form):
-    p_file = open("bin/schedule.txt", "w")
+    p_file = open("/mnt/sda1/arduino/Scheduler/schedule.txt", "w")
     
     #tag = form['name_0']
     #if (tag):
@@ -45,3 +48,4 @@ def updateSchedule(arrLen, form):
                 print_data(tag,date,time,temp,'o',p_file)
     
     p_file.close()
+    sch.makeCron()
