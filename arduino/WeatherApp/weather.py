@@ -18,11 +18,11 @@ __BACKGROUND = 0x29D5
 __WARN_COLOR = 0xE883
 
 # Weather tags
-__CURRENT_TEMP 		= 'Daily Temperature'
+__CURRENT_TEMP 		= 'Temperature'
 __MAX_TEMP 			= 'Daily Maximum Temperature'
 __MIN_TEMP 			= 'Daily Minimum Temperature'
 __PRECIP 			= '12 Hourly Probability of Precipitation'
-__ICON 				= 'Conditions Icon'
+__ICON 				= 'Conditions Icons'
 __CONDITIONS 		= 'Weather Type, Coverage, Intensity'
 __WARNING 			= 'Watches, Warnings, and Advisories'
 
@@ -68,7 +68,7 @@ def updateTemps():
 def updateWeather():
 	global data
 	data = ndfd_control.update_weather_data()
-	if not data:
+	if data:
 		clearApp()
 		updateWarning()
 		updateConditions()
@@ -80,31 +80,31 @@ def updateMap():
 		clearApp()
 		streamImage(__MAP_IMAGE, 140, 60)
 
-def testTemps():
-        global data
-        data = {__CURRENT_TEMP : 55, __MAX_TEMP : 66, __MIN_TEMP : 44, __PRECIP : 70}
-        updateTemps()
+# def testTemps():
+#         global data
+#         data = {__CURRENT_TEMP : 55, __MAX_TEMP : 66, __MIN_TEMP : 44, __PRECIP : 70}
+#         updateTemps()
 
-def testConditions():
-        global data
-        data = {__ICON : 'blah.jpg', __CONDITIONS : 'Chance of Rain'}
-        updateConditions()
+# def testConditions():
+#         global data
+#         data = {__ICON : 'blah.jpg', __CONDITIONS : 'Chance of Rain'}
+#         updateConditions()
 
-def testAdvisory():
-        global data
-        data = {__ADVISORY : 'Wind Advisory till 10PM'}
-        updateAdvisory()
+# def testAdvisory():
+#         global data
+#         data = {__ADVISORY : 'Wind Advisory till 10PM'}
+#         updateAdvisory()
 
-def testWarning():
-        global data
-        data = {__WARNING : 'Thunderstorm Warning'}
-        updateWarning()
+# def testWarning():
+#         global data
+#         data = {__WARNING : 'Thunderstorm Warning'}
+#         updateWarning()
 
-def testAll():
-        clearApp()
-        testWarning()
-        testConditions()
-        testTemps()
+# def testAll():
+#         clearApp()
+#         testWarning()
+#         testConditions()
+#         testTemps()
 
 #initialize
 state = __WEATHER_TODAY
