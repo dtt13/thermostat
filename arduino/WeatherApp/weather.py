@@ -82,8 +82,8 @@ def updateWeather():
 
 def updateMap():
 	streamImage('map.jpg', 120, 40)
-
-def testTemps():
+def
+ testTemps():
         global data
         data = {__CURRENT_TEMP : 55, __MAX_TEMP : 66, __MIN_TEMP : 44, __PRECIP : 70}
         updateTemps()
@@ -118,7 +118,7 @@ while True: #response != 'error':
 	if touched:
 		if state == __WEATHER_TODAY:
 			testAll()
-		else if state == __WEATHER_MAP:
+		elif state == __WEATHER_MAP:
 			# updateMap()
 			testAll()
 	sleep(1)
