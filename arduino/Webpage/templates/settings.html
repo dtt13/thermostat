@@ -1,3 +1,4 @@
+$def with (zipcode)
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
@@ -5,6 +6,33 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <link rel="stylesheet" href="/static/css/style.css" type="text/css" media="screen, projection, tv" />
 <link rel="stylesheet" href="/static/css/style-print.css" type="text/css" media="print" />
+<link href="/static/css/smoothness/jquery-ui-1.10.4.custom.css" rel="stylesheet" />
+<script src="/static/js/jquery-2.1.0.min.js"></script>
+<script src="/static/js/jquery-ui-1.10.4.custom.min.js"></script>
+<script>
+	function zcChange(){
+		hideChange = document.getElementById("changeZC");
+		showCancel = document.getElementById("cancelZC");
+		showSubmit = document.getElementById("sub1");
+		zcbox = document.getElementById("zc");
+		if (!hideChange || !showCancel || !showSubmit || !zcbox)return;
+		hideChange.style.display="none";
+		showCancel.style.display="inline";
+		showSubmit.style.display="inline";
+		zcbox.disabled=false;
+	};
+	function zcCancel(){
+		hideChange = document.getElementById("changeZC");
+		showCancel = document.getElementById("cancelZC");
+		showSubmit = document.getElementById("sub1");
+		zcbox = document.getElementById("zc");
+		if (!hideChange || !showCancel || !showSubmit || !zcbox)return;
+		hideChange.style.display="inline";
+		showCancel.style.display="none";
+		showSubmit.style.display="none";
+		zcbox.disabled=true;
+	};
+</script>
 </head>
 <body>
 <div id="wrapper">
@@ -17,8 +45,8 @@
               <div class="title-bottom-left">
                 <div class="title-top-right">
                   <div class="title-bottom-right">
-						<h1><a href="http://robodonald.com">Online <span>Thermostat</span> Settings</a></h1>
-                    <p>View and edit your settings&hellip;</p>
+						<h1><a href="http://roosthermostat.com">Roost <span>Thermostat</span> Settings</a></h1>
+                    <p>View and edit the settings for your Thermostat&hellip;</p>
                   </div>
                 </div>
               </div>
@@ -44,18 +72,60 @@
       <div class="box">
         <div class="box-top"></div>
         <div class="box-in">
-          <h2>Current Temperature:</h2>
-          <p>78</p>
+          <h2>Zip Code</h2>
+          <p>Your zip code is used to acquire accurate weather data for your
+          location.  You currently have your zip code set to:</p>
+          <div align="center">
+          <form method="POST" action="/settings">
+          	<input type="text" value="$zipcode" name="zc" id="zc" size=5 disabled>
+          	<input type="button" value="Change" name="changeZC" id="changeZC" style="display:inline;" onclick=zcChange()>
+          	<input type="submit" value="Save" name="sub1" id="sub1" style="display:none;">
+          	<input type="button" value="Cancel" name="cancelZC" id="cancelZC" style="display:none;" onclick=zcCancel()>
+          </form>
+          </div>
           <br />
-          <h2>Target Temperature:</h2>
-          <ul class="main-list">
-            <p>76</p>
-          </ul>
+          <h2>Login Information</h2>
+          <p>You may change your username and password (for logging in to this site) using the form below:</p>
+          <div align="center">
+          	<form method="POST" action="/settings">
+          		<table>
+          			<tr>
+          				<td><p>Current Username: </p>
+          				</td>
+          				<td>
+          					<input type="text" name="cu" id="cu" value="">
+          				</td>
+          			</tr>
+          			<tr>
+          				<td><p>Current Password: </p>
+          				</td>
+          				<td>
+          					<input type="password" name="cp" id="cp" value="">
+          				</td>
+          			</tr>
+          			<tr>
+          				<td><p>New Username: </p>
+          				</td>
+          				<td>
+          					<input type="text" name="nu" id="nu" value="">
+          				</td>
+          			</tr>
+          			<tr>
+          				<td><p>New Password: </p>
+          				</td>
+          				<td>
+          					<input type="password" name="np" id="np" value="">
+          				</td>
+          			</tr>
+          		</table>
+          		<input type="submit" value="Update Login Info" name="sub2">
+          	</form>
+          </div>
         </div>
       </div>
       <div class="box-bottom">
         <hr class="noscreen" />
-        <div class="footer-info-left"><a href="http://robodonald.com">Project Group</a>, 2014. All rights reserved.</div>
+        <div class="footer-info-left"><a href="http://roosthermostat.com">Roost</a>, 2014.</div>
       </div>
     </div>
     <div class="cleaner">&nbsp;</div>

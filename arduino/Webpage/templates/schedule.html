@@ -1,4 +1,4 @@
-$def with (f, arrLen, valArr)
+$def with (arrLen, valArr)
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
@@ -94,7 +94,7 @@ th,td{padding:5px;text-align:center}
                 <div class="title-top-right">
                   <div class="title-bottom-right">
 						<h1><a href="http://roosthermostat.com">Roost <span>Thermostat</span> Settings</a></h1>
-                    <p>View and edit your settings&hellip;</p>
+                    <p>View and edit the settings for your Thermostat&hellip;</p>
                   </div>
                 </div>
               </div>
@@ -120,96 +120,132 @@ th,td{padding:5px;text-align:center}
       <div class="box">
         <div class="box-top"></div>
         <div class="box-in">
-          <h2>Outside Temperature: xx degrees</h2>
-          <h2>Set Temperature: xx degrees</h2>
           <h2>Current Schedule:</h2>
           <p>Your thermostat can be scheduled to change it's target temperature at
-          predetermined times.  Order of the entries does not matter.  They
-          will be run chronologically.  The current schedule is as follows:</p>
-          <div align="center"><table id="settingsTable" style="width:75%">
+          predetermined times.  Order of the entries does not matter, as they
+          will be run chronologically.  Any untagged/unnamed entries will be removed
+          when the Submit/Update button is clicked. The current schedule is as follows:</p>
+          <div align="center">
+          <form method="POST" action="/schedule">
+          <table id="settingsTable" style="width:75%">
           <tr>
           	<th>Name/Tag</th><th>Day/Date</th><th>Hr.</th><th>Min.</th><th>Temp.</th><th>Repeat</th>
           </tr>
           $for i in range(arrLen):
           	<tr>
-          	<td><input type="text" value=$valArr[i][0] size=6></td>
+          	<td><input type="text" name="name_$i" id="name_$i" value=$valArr[i][0] size=6></td>
           	$if valArr[i][4] == 'd':
           		<td id="row$i">
-          		<input type="text" id="date_d$i" value="NA" style="display:inline" size=6 disabled>
-          		<select id="date_w$i" style="display:none;">
+          		<input type="text" name="date_d$i" id="date_d$i" value="NA" style="display:inline" size=6 disabled>
+          		<select name="date_w$i" id="date_w$i" style="display:none;">
           		$ dayArr = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
           		$for x in range(0,7):
           			<option value="$dayArr[x]">$dayArr[x]</option>
           		</select>
-          		<select id="date_m$i" style="display:none;">
+          		<select name="date_m$i" id="date_m$i" style="display:none;">
           		$for y in range(1,32):
-          			<option value=$y>$y</option>
+          			$if (y<10):
+          				<option value=$y>0$y</option>
+          			$else:
+          				<option value=$y>$y</option>
           		</select>
-          		<input type="text" class="datepicker" id="date_o$i" value=$valArr[i][1] size=6 style="display:none;">
+          		<input type="text" class="datepicker" name="date_o$i" id="date_o$i" value=$valArr[i][1] size=6 style="display:none;">
           		</td>
           	$elif valArr[i][4] == 'w':
           		<td id="row$i">
-          		<input type="text" id="date_d$i" value="NA" style="display:none" size=6 disabled>
-          		<select id="date_w$i" style="display:inline;">
+          		<input type="text" name="date_d$i" id="date_d$i" value="NA" style="display:none" size=6 disabled>
+          		<select name="date_w$i" id="date_w$i" style="display:inline;">
           		$ dayArr = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
+          		$ tarr = ["1","2","3","4","5","6","7"]
           		$for x in range(0,7):
-          			<option value="$dayArr[x]">$dayArr[x]</option>
+          			$if (tarr[x] == valArr[i][1]):
+          				<option value="$dayArr[x]" selected>$dayArr[x]</option>
+          			$else:
+          				<option value="$dayArr[x]">$dayArr[x]</option>
           		</select>
-          		<select id="date_m$i" style="display:none;">
+          		<select name="date_m$i" id="date_m$i" style="display:none;">
           		$for y in range(1,32):
-          			<option value=$y>$y</option>
+          			$if (y<10):
+          				<option value=$y>0$y</option>
+          			$else:
+          				<option value=$y>$y</option>
           		</select>
-          		<input type="text" class="datepicker" id="date_o$i" value=$valArr[i][1] size=6 style="display:none;">
+          		<input type="text" class="datepicker" name="date_o$i" id="date_o$i" value=$valArr[i][1] size=6 style="display:none;">
           		</td>
           	$elif valArr[i][4] == 'm':
           		<td id="row$i">
-          		<input type="text" id="date_d$i" value="NA" style="display:none" size=6 disabled>
-          		<select id="date_w$i" style="display:none;">
+          		<input type="text" name="date_d$i" id="date_d$i" value="NA" style="display:none" size=6 disabled>
+          		<select name="date_w$i" id="date_w$i" style="display:none;">
           		$ dayArr = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
           		$for x in range(0,7):
           			<option value="$dayArr[x]">$dayArr[x]</option>
           		</select>
-          		<select id="date_m$i" style="display:inline;">
+          		<select name="date_m$i" id="date_m$i" style="display:inline;">
+          		$ tarr = ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31"]
           		$for y in range(1,32):
-          			<option value=$y>$y</option>
+          			$if (y<10):
+          				$if (tarr[y-1] == valArr[i][1]):
+	          				<option value=$y selected>0$y</option>
+          				$else:
+          					<option value=$y>0$y</option>
+          			$else:
+          				$if (tarr[y-1] == valArr[i][1]):
+	          				<option value=$y selected>$y</option>
+          				$else:
+          					<option value=$y>$y</option>
           		</select>
-          		<input type="text" class="datepicker" id="date_o$i" value=$valArr[i][1] size=6 style="display:none;">
+          		<input type="text" class="datepicker" name="date_o$i" id="date_o$i" value=$valArr[i][1] size=6 style="display:none;">
           		</td>
           	$else:
           		<td id="row$i">
-          		<input type="text" id="date_d$i" value="NA" style="display:none" size=6 disabled>
-          		<select id="date_w$i" style="display:none;">
+          		<input type="text" name="date_d$i" id="date_d$i" value="NA" style="display:none" size=6 disabled>
+          		<select name="date_w$i" id="date_w$i" style="display:none;">
           		$ dayArr = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
           		$for x in range(0,7):
           			<option value="$dayArr[x]">$dayArr[x]</option>
           		</select>
-          		<select id="date_m$i" style="display:none;">
+          		<select name="date_m$i" id="date_m$i" style="display:none;">
           		$for y in range(1,32):
-          			<option value=$y>$y</option>
+          			$if (y<10):
+          				<option value=$y>0$y</option>
+          			$else:
+          				<option value=$y>$y</option>
           		</select>
-          		<input type="text" class="datepicker" id="date_o$i" value=$valArr[i][1] size=6 style="display:inline;">
+          		<input type="text" class="datepicker" name="date_o$i" id="date_o$i" value=$valArr[i][1] size=6 style="display:inline;">
           		</td>
           	$ sTime = valArr[i][2].split(':')
           	<td>
-         	<select>
+         	<select name="hr_$i" id="hr_$i">
          		$for y in range(0,24):
-          			$if (int(sTime[0])==y):
-          				<option value=$y selected>$y</option>
+         			$if (y<10):
+          				$if (int(sTime[0])==y):
+	          				<option value=$y selected>0$y</option>
+          				$else:
+          					<option value=$y>0$y</option>
           			$else:
-          				<option value=$y>$y</option>
+          				$if (int(sTime[0])==y):
+	          				<option value=$y selected>$y</option>
+          				$else:
+          					<option value=$y>$y</option>
           	</select>
           	</td>
           	<td>
-          	<select>
+          	<select name="min_$i" id="min_$i">
           		$for l in range(0,60):
-          			$if (int(sTime[1])==l):
-          				<option value=$l selected>$l</option>
+          			$if (l<10):
+          				$if (int(sTime[1])==l):
+	          				<option value=$l selected>0$l</option>
+          				$else:
+          					<option value=$l>0$l</option>
           			$else:
-          				<option value=$l>$l</option>
+          				$if (int(sTime[1])==l):
+	          				<option value=$l selected>$l</option>
+          				$else:
+          					<option value=$l>$l</option>
           	</select>
           	</td>
           	<td>
-          	<select>
+          	<select name="temp_$i" id="temp_$i">
           		$for x in range(30,100):
           			$if (int(valArr[i][3]) == x):
           				<option value=$x selected>$x</option>
@@ -219,28 +255,28 @@ th,td{padding:5px;text-align:center}
           	</td>
           	<td>
           	$if valArr[i][4] == 'd':
-          		<select id="sel$i" onChange=switchDate("$i",(this))>
+          		<select name="sel$i" id="sel$i" onChange=switchDate("$i",(this))>
           			<option value="once">Once</option>
           			<option value="daily" selected>Daily</option>
           			<option value="weekly">Weekly</option>
           			<option value="monthly">Monthly</option>
           		</select>
           	$elif valArr[i][4] == 'w':
-          		<select id="sel$i" onChange=switchDate("$i",(this))>
+          		<select name="sel$i" id="sel$i" onChange=switchDate("$i",(this))>
           			<option value="once">Once</option>
           			<option value="daily">Daily</option>
           			<option value="weekly" selected>Weekly</option>
           			<option value="monthly">Monthly</option>
           		</select>
           	$elif valArr[i][4] == 'm':
-          		<select id="sel$i" onChange=switchDate("$i",(this))>
+          		<select name="sel$i" id="sel$i" onChange=switchDate("$i",(this))>
           			<option value="once">Once</option>
           			<option value="daily">Daily</option>
           			<option value="weekly">Weekly</option>
           			<option value="monthly" selected>Monthly</option>
           		</select>
           	$else:
-          		<select id="sel$i" onChange=switchDate("$i",(this))>
+          		<select name="sel$i" id="sel$i" onChange=switchDate("$i",(this))>
           			<option value="once" selected>Once</option>
           			<option value="daily">Daily</option>
           			<option value="weekly">Weekly</option>
@@ -251,40 +287,49 @@ th,td{padding:5px;text-align:center}
           $for j in range(5):
           	$ k = j + arrLen
           	<tr>
-          	<td><input type="text" size=6 value=""></td>
+          	<td><input name="name_$k" id="name_$k" type="text" size=6 value=""></td>
           	<td id="row$k">
-          	<input type="text" id="date_d$k" value="NA" style="display:none" size=6 disabled>
-          	<select id="date_w$k" style="display:none;">
+          	<input type="text" name="date_d$k" id="date_d$k" value="NA" style="display:none" size=6 disabled>
+          	<select name="date_w$k" id="date_w$k" style="display:none;">
           	$ dayArr = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
           	$for x in range(0,7):
           		<option value="$dayArr[x]">$dayArr[x]</option>
           	</select>
-          	<select id="date_m$k" style="display:none;">
+          	<select name="date_m$k" id="date_m$k" style="display:none;">
           	$for y in range(1,32):
-          		<option value=$y>$y</option>
+          		$if (y<10):
+          			<option value=$y>0$y</option>
+          		$else:
+          			<option value=$y>$y</option>
           	</select>
-          	<input type="text" class="datepicker" id="date_o$k" value="" size=6 style="display:inline;">
+          	<input type="text" class="datepicker" name="date_o$k" id="date_o$k" value="" size=6 style="display:inline;">
           	</td>
           	<td>
-			<select>
+			<select name="hr_$k" id="hr_$k">
           		$for l in range(0,24):
-          			<option value=$l>$l</option>
+          			$if (l<10):
+          				<option value=$l>0$l</option>
+          			$else:
+          				<option value=$l>$l</option>
           	</select>
 			</td>
           	<td>
-          	<select>
+          	<select name="min_$k" id="min_$k">
           		$for r in range(0,60):
-          			<option value=$r>$r</option>
+          			$if (r<10):
+          				<option value=$r>0$r</option>
+          			$else:
+          				<option value=$r>$r</option>
           	</select>
           	</td>
           	<td>
-          	<select>
+          	<select name="temp_$k" id="temp_$k">
           		$for v in range(30,100):
           			<option value=$v>$v</option>
           	</select>
           	</td>
           	<td>
-          	<select id="sel$k" onChange=switchDate("$k",(this))>
+          	<select name="sel$k" id="sel$k" onChange=switchDate("$k",(this))>
           		<option value="once" selected>Once</option>
           		<option value="daily">Daily</option>
           		<option value="weekly">Weekly</option>
@@ -292,7 +337,10 @@ th,td{padding:5px;text-align:center}
           	</select>
           	</td>
           	</tr>
-         </table></div>
+         </table>
+         <p><input type="submit" value="Submit/Update Schedule" name="sub1" style="width:35%;height:2em;"</p>
+         </form>
+         </div>
         </div>
       </div>
       <div class="box-bottom">
