@@ -43,9 +43,6 @@ def updateConditions():
 		streamImage(__ICON_IMAGE, 280, 80)
 	if __CONDITIONS in data:
 		writeText(140, 140, __WHITE, __BACKGROUND, 0, data[__CONDITIONS]) #TODO
-	# while len(conditions) < 6:
-		# conditions += ' '
-	# writeText(260, 170, __WHITE, __BACKGROUND, 1, conditions)
 
 # Draws an advisory bar along the top of the application area
 def updateAdvisory():
@@ -85,6 +82,7 @@ def updateWeather():
 		updateConditions()
 		updateTemps()
 
+# Draws the weather map on the screen
 def updateMap():
 	if os.path.isfile(__MAP_IMAGE):
 		clearApp()
@@ -116,11 +114,12 @@ def testAll():
         testConditions()
         testTemps()
 
+#initialize
 state = __WEATHER_TODAY
 testAll()
 
-# response = ''
-while True: #response != 'error':
+#process touching
+while True:
 	(touched, x, y) = isAppTouched()
 	if state == __WEATHER_TODAY:
 		map_utils.formatMap()
