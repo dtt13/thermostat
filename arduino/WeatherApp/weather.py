@@ -40,7 +40,7 @@ data = {}
 # Draws the conditions icon and writes the conditions text
 def updateConditions():
 	if __ICON in data and os.path.isfile(__ICON_IMAGE):
-		streamImage(__ICON_IMAGE, 280, 80)
+		streamImage(__ICON_IMAGE, 270, 70)
 	if __CONDITIONS in data:
 		writeText(140, 140, __WHITE, __BACKGROUND, 0, data[__CONDITIONS]) #TODO
 
@@ -86,7 +86,7 @@ def updateWeather():
 def updateMap():
 	if os.path.isfile(__MAP_IMAGE):
 		clearApp()
-		streamImage(__MAP_IMAGE, 120, 40)
+		streamImage(__MAP_IMAGE, 140, 60)
 
 def testTemps():
         global data

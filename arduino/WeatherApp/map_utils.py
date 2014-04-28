@@ -1,4 +1,4 @@
-import os, time
+import os, time, subprocess
 from PIL import Image
 
 TOPO_FILE = '/mnt/sda1/arduino/WeatherApp/topo.jpg'
@@ -33,12 +33,12 @@ def formatMap():
 def downloadMapImages(radarId):
 	now = time.time()
 	if not os.path.isfile(NCR_FILE) or (now - os.stat(NCR_FILE).st_mtime) > 3600:
-		os.call(['wget', '-O', NCR_FILE, 'http://radar.weather.gov/ridge/RadarImg/NCR/' + radarId + '_NCR_0.gif'])
+		subprocess.call(['wget', '-O', NCR_FILE, 'http://radar.weather.gov/ridge/RadarImg/NCR/' + radarId + '_NCR_0.gif'])
 	if not os.path.isfile(WARN_FILE) or (now - os.stat(WARN_FILE).st_mtime) > 3600:
-		os.call(['wget', '-O', WARN_FILE, 'http://radar.weather.gov/ridge/Warnings/Short/' + radarId + '_Short_Warnings_0.gif'])
+		subprocess.call(['wget', '-O', WARN_FILE, 'http://radar.weather.gov/ridge/Warnings/Short/' + radarId + '_Short_Warnings_0.gif'])
 	if not os.path.isfile(CITY_FILE):
-		os.call(['wget', '-O', CITY_FILE, 'http://radar.weather.gov/ridge/Overlays/Cities/Short/' +  radarId + '_City_Short.gif'])
+		subprocess.call(['wget', '-O', CITY_FILE, 'http://radar.weather.gov/ridge/Overlays/Cities/Short/' +  radarId + '_City_Short.gif'])
 	if not os.path.isfile(TOPO_FILE):
-		os.call(['wget', '-O', TOPO_FILE, 'http://radar.weather.gov/ridge/Overlays/Topo/Short/' + radarId + '_Topo_Short.jpg'])
+		subprocess.call(['wget', '-O', TOPO_FILE, 'http://radar.weather.gov/ridge/Overlays/Topo/Short/' + radarId + '_Topo_Short.jpg'])
 	if not os.path.isfile(CNTY_FILE):
-		os.call(['wget', '-O', CNTY_FILE, 'http://radar.weather.gov/ridge/Overlays/County/Short/' + radarId + '_County_Short.gif'])
+		subprocess.call(['wget', '-O', CNTY_FILE, 'http://radar.weather.gov/ridge/Overlays/County/Short/' + radarId + '_County_Short.gif'])

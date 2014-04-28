@@ -75,6 +75,8 @@ class Schedule:
             sch_file = open("/mnt/sda1/arduino/Scheduler/schedule.txt", "r")
             sch_str = sch_file.read()
             sch_file.close()
+            if not sch_str and sch_str != "":
+                return render.schedule(0, [])
             setting_list = sch_str.split(';')
             sch_arr = []
             for x in setting_list:
