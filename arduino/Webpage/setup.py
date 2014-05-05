@@ -5,15 +5,15 @@ except ImportError:
 
 config = {
     'description': 'Thermostat LAN Web Site',
-    'author': 'Garrett Burd',
-    'url': 'URL to get it at.',
-    'download_url': 'Where to download it.',
-    'author_email': 'gjb49@case.edu',
+    'author': 'Roost Project Group',
+    'url': 'roosthermostat.com,
+    'download_url': 'See roosthermostat.com',
+    'author_email': 'roost@case.edu',
     'version': '0.1',
     'install_requires': ['nose'],
     'packages': ['WEBSITE'],
     'scripts': [],
-    'name': 'Website'
+    'name': 'Roost Website'
 }
 
 setup(**config)

@@ -90,7 +90,6 @@ class Schedule:
             raise web.seeother('/login')
     
     def POST(self):
-        # Same as get, except overwrite the schedule file????????????????
         if web.ctx.env.get('HTTP_AUTHORIZATION') is not None:
             import cgi
             import update_schedule

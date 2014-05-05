@@ -1,4 +1,3 @@
-#import cgi
 import sys
 sys.path.append('/mnt/sda1/arduino/Scheduler')
 import schedule_processing as sch
