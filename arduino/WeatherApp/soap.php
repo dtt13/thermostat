@@ -76,9 +76,6 @@ if (preg_match('/<latLonList>(.*)<\/latLonList>/', $latLonList, $matches)){
   $strArr = explode(',',$matches[1]);
   $lat = $strArr[0];
   $long = $strArr[1];
-  // foreach ($strArr as $v){
-  //   print($v . "\n");
-  // }
 }
 
 // This is the actual array of parameters that will be passed to the database
